@@ -1,11 +1,28 @@
 class TerminalDomainError(Exception):
-    """Terminal domain kurallarından kaynaklanan temel hata sınıfı."""
+    """Base class for terminal domain errors."""
     pass
+
 
 class VesselValidationError(TerminalDomainError):
-    """Geçersiz Vessel verisi verildiğinde oluşur."""
+    """Raised when vessel data is invalid."""
     pass
 
+
 class InvalidStatusTransitionError(TerminalDomainError):
-    """Geçersiz gemi durum geçişinde oluşur."""
+    """Raised when a vessel status transition is invalid."""
+    pass
+
+
+class BerthValidationError(TerminalDomainError):
+    """Raised when berth or berth occupancy data is invalid."""
+    pass
+
+
+class BerthPlacementError(TerminalDomainError):
+    """Raised when a vessel cannot be placed at a berth."""
+    pass
+
+
+class VesselNotFoundAtBerthError(TerminalDomainError):
+    """Raised when removing a vessel that is not placed at the berth."""
     pass
