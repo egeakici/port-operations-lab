@@ -60,5 +60,17 @@ class YardReservationError(TerminalDomainError):
     """Yard rezervasyon yaşam döngüsü hatalarında kullanılır."""
 
 
+class ContainerGroupValidationError(TerminalDomainError):
+    """Geçersiz ContainerGroup verileri için kullanılır."""
+
+
+class ContainerFlowError(TerminalDomainError):
+    """Konteyner akışı ve gemi bağlantısı hataları için kullanılır."""
+
+
+class ContainerCargoError(TerminalDomainError):
+    """Konteyner yük özelliklerindeki çelişkiler için kullanılır."""
+
+
 class YardOperationError(TerminalDomainError):
     """Yard depolama, çıkarma ve operasyon durumu hatalarında kullanılır."""
