@@ -37,4 +37,28 @@ class CraneAssignmentError(TerminalDomainError):
 class CraneOperationError(TerminalDomainError):
     """Vinç operasyonu, hareketi, arızası ve bakımı hataları."""
 
-    
+
+class YardBlockValidationError(TerminalDomainError):
+    """Geçersiz YardBlock verileri için kullanılır."""
+
+
+class InvalidYardBlockStatusTransitionError(
+    TerminalDomainError
+):
+    """Geçersiz YardBlock durum geçişlerinde kullanılır."""
+
+
+class YardCapacityError(TerminalDomainError):
+    """Yard kapasitesi veya stok miktarı ihlallerinde kullanılır."""
+
+
+class YardCompatibilityError(TerminalDomainError):
+    """Block ile konteyner gereksinimleri uyumsuz olduğunda kullanılır."""
+
+
+class YardReservationError(TerminalDomainError):
+    """Yard rezervasyon yaşam döngüsü hatalarında kullanılır."""
+
+
+class YardOperationError(TerminalDomainError):
+    """Yard depolama, çıkarma ve operasyon durumu hatalarında kullanılır."""

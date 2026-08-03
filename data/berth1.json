@@ -1,0 +1,31 @@
+{
+    "berth_id": "B01",
+    "length_m": 1200.0,
+    "min_clearance_m": 25.0,
+    "occupancies": [
+        {
+            "vessel": {
+                "vessel_id": "V002",
+                "length_m": 280.0,
+                "eta": "2026-08-03T14:30:00",
+                "workload_moves": 2200,
+                "priority": 3,
+                "max_cranes": 4,
+                "status": "approaching"
+            },
+            "start_position_m": 100.0
+        },
+        {
+            "vessel": {
+                "vessel_id": "V003",
+                "length_m": 315.5,
+                "eta": "2026-08-03T14:30:00",
+                "workload_moves": 2200,
+                "priority": 3,
+                "max_cranes": 4,
+                "status": "approaching"
+            },
+            "start_position_m": 405.0
+        }
+    ]
+}

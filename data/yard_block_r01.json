@@ -1,0 +1,15 @@
+{
+    "block_id": "R01",
+    "capacity_teu": 600.0,
+    "capabilities": [
+        "general",
+        "reefer_power"
+    ],
+    "status": "open",
+    "stored_groups": {
+        "G001": 120.0
+    },
+    "reservations": {
+        "G002": 80.0
+    }
+}
