@@ -114,5 +114,29 @@ class TerminalEventEntityMismatchError(TerminalDomainError):
     """Event türü ile birincil entity türü uyuşmadığında kullanılır."""
 
 
+class ContainerGroupLocationValidationError(TerminalDomainError):
+    """Raised when container group location data is invalid."""
+
+
+class TerminalStateValidationError(TerminalDomainError):
+    """Raised when TerminalState snapshot data is invalid."""
+
+
+class TerminalStateDuplicateEntityError(TerminalDomainError):
+    """Raised when TerminalState capture finds a duplicate entity ID."""
+
+
+class TerminalStateReferenceError(TerminalDomainError):
+    """Raised when TerminalState has a missing cross-entity reference."""
+
+
+class TerminalStateConsistencyError(TerminalDomainError):
+    """Raised when TerminalState cross-entity invariants are violated."""
+
+
+class TerminalStateLookupError(TerminalDomainError):
+    """Raised when a TerminalState lookup cannot be resolved."""
+
+
 class YardOperationError(TerminalDomainError):
     """Yard depolama, çıkarma ve operasyon durumu hatalarında kullanılır."""

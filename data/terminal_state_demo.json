@@ -1,0 +1,118 @@
+{
+    "schema_version": 1,
+    "current_time": "2026-08-05T10:40:00",
+    "vessels": {
+        "V001": {
+            "vessel_id": "V001",
+            "length_m": 250.0,
+            "eta": "2026-08-05T08:00:00",
+            "workload_moves": 1500,
+            "priority": 2,
+            "max_cranes": 3,
+            "status": "operating"
+        }
+    },
+    "berths": {
+        "B01": {
+            "berth_id": "B01",
+            "length_m": 800.0,
+            "min_clearance_m": 20.0,
+            "occupancies": [
+                {
+                    "vessel": {
+                        "vessel_id": "V001",
+                        "length_m": 250.0,
+                        "eta": "2026-08-05T08:00:00",
+                        "workload_moves": 1500,
+                        "priority": 2,
+                        "max_cranes": 3,
+                        "status": "operating"
+                    },
+                    "start_position_m": 100.0
+                }
+            ]
+        }
+    },
+    "quay_cranes": {
+        "QC01": {
+            "crane_id": "QC01",
+            "position_m": 140.0,
+            "moves_per_hour": 30.0,
+            "status": "operating",
+            "assigned_vessel_id": "V001"
+        }
+    },
+    "yard_blocks": {
+        "Y01": {
+            "block_id": "Y01",
+            "capacity_teu": 500.0,
+            "capabilities": [
+                "general"
+            ],
+            "status": "open",
+            "stored_groups": {
+                "G001": 40.0
+            },
+            "reservations": {}
+        }
+    },
+    "container_groups": {
+        "G001": {
+            "group_id": "G001",
+            "container_size": "40_ft",
+            "quantity": 50,
+            "flow": "import",
+            "load_state": "laden",
+            "is_reefer": false,
+            "is_hazardous": false,
+            "source_vessel_id": "V001",
+            "target_vessel_id": null
+        }
+    },
+    "operation_tasks": {
+        "T001": {
+            "task_id": "T001",
+            "task_type": "discharge",
+            "group_id": "G001",
+            "planned_teu": 100.0,
+            "source": {
+                "location_type": "vessel",
+                "location_id": "V001"
+            },
+            "target": {
+                "location_type": "yard_block",
+                "location_id": "Y01"
+            },
+            "priority": 2,
+            "release_time": "2026-08-05T09:30:00",
+            "due_time": null,
+            "predecessor_task_ids": [],
+            "status": "in_progress",
+            "assigned_resource_id": "QC01",
+            "completed_teu": 40.0,
+            "started_at": "2026-08-05T10:00:00",
+            "completed_at": null,
+            "blocked_reason": null
+        }
+    },
+    "group_locations": [
+        {
+            "group_id": "G001",
+            "location": {
+                "location_type": "vessel",
+                "location_id": "V001"
+            },
+            "teu": 60.0
+        },
+        {
+            "group_id": "G001",
+            "location": {
+                "location_type": "yard_block",
+                "location_id": "Y01"
+            },
+            "teu": 40.0
+        }
+    ],
+    "event_count": 3,
+    "last_event_id": "EVT-003"
+}
