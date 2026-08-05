@@ -72,5 +72,35 @@ class ContainerCargoError(TerminalDomainError):
     """Konteyner yük özelliklerindeki çelişkiler için kullanılır."""
 
 
+class TaskLocationValidationError(TerminalDomainError):
+    """Geçersiz task konumları için kullanılır."""
+
+
+class OperationTaskValidationError(TerminalDomainError):
+    """Geçersiz OperationTask temel verileri için kullanılır."""
+
+
+class OperationRouteError(TerminalDomainError):
+    """OperationType ile kaynak-hedef rotası uyumsuz olduğunda kullanılır."""
+
+
+class InvalidOperationTaskStatusTransitionError(
+    TerminalDomainError
+):
+    """Geçersiz OperationTask durum geçişlerinde kullanılır."""
+
+
+class OperationTaskAssignmentError(TerminalDomainError):
+    """Resource atama ve kaldırma hatalarında kullanılır."""
+
+
+class OperationTaskProgressError(TerminalDomainError):
+    """Task ilerleme miktarı hatalarında kullanılır."""
+
+
+class OperationTaskStateError(TerminalDomainError):
+    """Task davranışı mevcut durumda uygulanamıyorsa kullanılır."""
+
+
 class YardOperationError(TerminalDomainError):
     """Yard depolama, çıkarma ve operasyon durumu hatalarında kullanılır."""
