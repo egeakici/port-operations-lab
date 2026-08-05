@@ -138,5 +138,37 @@ class TerminalStateLookupError(TerminalDomainError):
     """Raised when a TerminalState lookup cannot be resolved."""
 
 
+class TerminalValidationError(TerminalDomainError):
+    """Raised when Terminal aggregate data is invalid."""
+
+
+class TerminalDuplicateEntityError(TerminalDomainError):
+    """Raised when Terminal registration sees a duplicate entity."""
+
+
+class TerminalLookupError(TerminalDomainError):
+    """Raised when a Terminal lookup cannot be resolved."""
+
+
+class TerminalReferenceError(TerminalDomainError):
+    """Raised when Terminal data references an unknown entity."""
+
+
+class TerminalConsistencyError(TerminalDomainError):
+    """Raised when Terminal aggregate invariants are violated."""
+
+
+class TerminalTimeError(TerminalDomainError):
+    """Raised when Terminal command time handling is invalid."""
+
+
+class TerminalOperationError(TerminalDomainError):
+    """Raised when a Terminal command cannot be applied."""
+
+
+class TerminalSerializationError(TerminalDomainError):
+    """Raised when a Terminal snapshot cannot be serialized or restored."""
+
+
 class YardOperationError(TerminalDomainError):
     """Yard depolama, çıkarma ve operasyon durumu hatalarında kullanılır."""
