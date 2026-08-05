@@ -474,6 +474,12 @@ class OperationTask:
         self,
         started_at: datetime | None = None,
     ) -> None:
+        if self.status != OperationTaskStatus.ASSIGNED:
+            raise OperationTaskStateError(
+                "Operation task can only start from "
+                "assigned status."
+            )
+
         if self.assigned_resource_id is None:
             raise OperationTaskAssignmentError(
                 "Operation task cannot start without "
@@ -578,6 +584,12 @@ class OperationTask:
         self.blocked_reason = reason
 
     def resume(self) -> None:
+        if self.status != OperationTaskStatus.BLOCKED:
+            raise OperationTaskStateError(
+                "Operation task can only resume from "
+                "blocked status."
+            )
+
         if self.assigned_resource_id is None:
             raise OperationTaskAssignmentError(
                 "Operation task cannot resume without "
@@ -897,19 +909,6 @@ class OperationTask:
                 "Blocked reason cannot be empty."
             )
 
-        if (
-            status != OperationTaskStatus.COMPLETED
-            and math.isclose(
-                normalized_completed_teu,
-                self.planned_teu,
-                abs_tol=PROGRESS_ABS_TOLERANCE,
-            )
-        ):
-            raise OperationTaskProgressError(
-                "Only completed tasks can have all "
-                "planned TEU complete."
-            )
-
         self._validate_restored_status_invariants(
             status=status,
             assigned_resource_id=assigned_resource_id,
@@ -1011,16 +1010,21 @@ class OperationTask:
             return
 
         if status == OperationTaskStatus.COMPLETED:
+            if not math.isclose(
+                completed_teu,
+                self.planned_teu,
+                abs_tol=PROGRESS_ABS_TOLERANCE,
+            ):
+                raise OperationTaskProgressError(
+                    "Completed operation tasks require "
+                    "all planned TEU to be complete."
+                )
+
             if (
                 assigned_resource_id is not None
                 or started_at is None
                 or completed_at is None
                 or blocked_reason is not None
-                or not math.isclose(
-                    completed_teu,
-                    self.planned_teu,
-                    abs_tol=PROGRESS_ABS_TOLERANCE,
-                )
             ):
                 raise OperationTaskStateError(
                     "Completed operation tasks require "

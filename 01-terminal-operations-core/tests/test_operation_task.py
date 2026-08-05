@@ -458,10 +458,21 @@ def test_start_without_resource_is_rejected() -> None:
     task.mark_ready()
 
     with pytest.raises(
-        OperationTaskAssignmentError,
-        match="assigned resource",
+        OperationTaskStateError,
+        match="assigned status",
     ):
         task.start()
+
+
+def test_blocked_task_cannot_be_restarted_with_start() -> None:
+    task = start_task()
+    task.block("Resource failed")
+
+    with pytest.raises(
+        OperationTaskStateError,
+        match="assigned status",
+    ):
+        task.start(RESTARTED_AT)
 
 
 def test_assign_from_created_is_rejected() -> None:
@@ -628,6 +639,18 @@ def test_block_and_resume_preserve_runtime_state() -> None:
     assert task.blocked_reason is None
     assert task.started_at == STARTED_AT
     assert task.completed_teu == 40
+
+
+def test_assigned_task_cannot_resume() -> None:
+    task = create_discharge_task()
+    task.mark_ready()
+    task.assign_resource("QC01")
+
+    with pytest.raises(
+        OperationTaskStateError,
+        match="blocked status",
+    ):
+        task.resume()
 
 
 def test_empty_block_reason_is_rejected() -> None:
@@ -804,8 +827,8 @@ def test_cancelled_task_cannot_start() -> None:
     task.cancel()
 
     with pytest.raises(
-        OperationTaskAssignmentError,
-        match="assigned resource",
+        OperationTaskStateError,
+        match="assigned status",
     ):
         task.start(STARTED_AT)
 
@@ -894,6 +917,14 @@ def test_in_progress_operation_task_dictionary_round_trip() -> None:
     task = start_task()
     task.record_progress(20)
 
+    assert_round_trip_matches(task)
+
+
+def test_full_progress_in_progress_task_dictionary_round_trip() -> None:
+    task = start_task()
+    task.record_progress(task.planned_teu)
+
+    assert task.status == OperationTaskStatus.IN_PROGRESS
     assert_round_trip_matches(task)
 
 
@@ -997,7 +1028,7 @@ def test_operation_task_json_round_trip(tmp_path) -> None:
                 "started_at": STARTED_AT.isoformat(),
                 "completed_at": COMPLETED_AT.isoformat(),
             },
-            OperationTaskStateError,
+            OperationTaskProgressError,
             "Completed",
         ),
         (
