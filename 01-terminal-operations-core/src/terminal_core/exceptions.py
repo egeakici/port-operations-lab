@@ -102,5 +102,17 @@ class OperationTaskStateError(TerminalDomainError):
     """Task davranışı mevcut durumda uygulanamıyorsa kullanılır."""
 
 
+class TerminalEventValidationError(TerminalDomainError):
+    """Geçersiz TerminalEvent temel verileri için kullanılır."""
+
+
+class TerminalEventPayloadError(TerminalDomainError):
+    """JSON uyumlu olmayan veya geçersiz event payload verileri için kullanılır."""
+
+
+class TerminalEventEntityMismatchError(TerminalDomainError):
+    """Event türü ile birincil entity türü uyuşmadığında kullanılır."""
+
+
 class YardOperationError(TerminalDomainError):
     """Yard depolama, çıkarma ve operasyon durumu hatalarında kullanılır."""

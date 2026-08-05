@@ -30,3 +30,6 @@ build/
 06-terminal-rl-sandbox/
 07-ais-port-call-calibrator/
 08-benchmark-system/
+
+# context
+PROJECT_CONTEXT.md
