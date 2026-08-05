@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import math
 import re
+from collections.abc import Iterable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -18,6 +19,7 @@ from src.terminal_core.exceptions import (
     TerminalConsistencyError,
     TerminalDomainError,
     TerminalDuplicateEntityError,
+    TerminalInventoryError,
     TerminalLookupError,
     TerminalOperationError,
     TerminalReferenceError,
@@ -455,6 +457,7 @@ class Terminal:
         self,
         group: ContainerGroup,
         *,
+        initial_locations: Iterable[ContainerGroupLocation] = (),
         occurred_at: datetime | None = None,
     ) -> TerminalEvent:
         with self._atomic():
@@ -466,7 +469,10 @@ class Terminal:
                 "container group",
                 "group_id",
             )
-            self._set_group_initial_location(copied)
+            self._set_group_initial_location(
+                copied,
+                tuple(initial_locations),
+            )
 
             return self._emit_event(
                 TerminalEventType.CONTAINER_GROUP_REGISTERED,
@@ -621,6 +627,13 @@ class Terminal:
                     "Only operating vessels can depart."
                 )
 
+            completed = self._emit_event(
+                TerminalEventType.VESSEL_OPERATION_COMPLETED,
+                TerminalEntityType.VESSEL,
+                vessel_id,
+                occurred_at=event_time,
+                correlation_id=vessel_id,
+            )
             self._ensure_vessel_can_depart(vessel_id)
             berth.remove_vessel(vessel_id)
             occupancy_removed = self._emit_event(
@@ -629,36 +642,29 @@ class Terminal:
                 berth.berth_id,
                 occurred_at=event_time,
                 correlation_id=vessel_id,
+                causation_id=completed.event_id,
                 payload={
                     "vessel_id": vessel_id,
                 },
             )
             vessel.transition_to(VesselStatus.DEPARTED)
-            completed = self._emit_event(
-                TerminalEventType.VESSEL_OPERATION_COMPLETED,
-                TerminalEntityType.VESSEL,
-                vessel_id,
-                occurred_at=event_time,
-                correlation_id=vessel_id,
-                causation_id=occupancy_removed.event_id,
-            )
             departed = self._emit_event(
                 TerminalEventType.VESSEL_DEPARTED,
                 TerminalEntityType.VESSEL,
                 vessel_id,
                 occurred_at=event_time,
                 correlation_id=vessel_id,
-                causation_id=completed.event_id,
+                causation_id=occupancy_removed.event_id,
             )
 
-            return occupancy_removed, completed, departed
+            return completed, occupancy_removed, departed
 
     def reserve_yard_capacity(
         self,
-        group_id: str,
-        block_id: str,
-        teu: float,
         *,
+        block_id: str,
+        group_id: str,
+        teu: float,
         occurred_at: datetime | None = None,
     ) -> TerminalEvent:
         with self._atomic():
@@ -689,9 +695,9 @@ class Terminal:
 
     def cancel_yard_reservation(
         self,
-        group_id: str,
-        block_id: str,
         *,
+        block_id: str,
+        group_id: str,
         occurred_at: datetime | None = None,
     ) -> TerminalEvent:
         with self._atomic():
@@ -1235,11 +1241,11 @@ class Terminal:
         new_position_m: float,
         *,
         occurred_at: datetime | None = None,
-    ) -> None:
+    ) -> float:
         with self._atomic():
             self._resolve_occurred_at(occurred_at)
             crane = self._get(self._quay_cranes, crane_id, "quay crane")
-            crane.move_to(new_position_m)
+            return crane.move_to(new_position_m)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -1298,35 +1304,41 @@ class Terminal:
 
             terminal = cls.create(
                 current_time=current_time,
-                vessels=tuple(
-                    Vessel.from_dict(snapshot)
-                    for snapshot in data.get("vessels", {}).values()
+                vessels=_restore_registry(
+                    data.get("vessels", {}),
+                    registry_name="vessel",
+                    entity_factory=Vessel.from_dict,
+                    id_attribute="vessel_id",
                 ),
-                berths=tuple(
-                    Berth.from_dict(snapshot)
-                    for snapshot in data.get("berths", {}).values()
+                berths=_restore_registry(
+                    data.get("berths", {}),
+                    registry_name="berth",
+                    entity_factory=Berth.from_dict,
+                    id_attribute="berth_id",
                 ),
-                quay_cranes=tuple(
-                    QuayCrane.from_dict(snapshot)
-                    for snapshot in data.get("quay_cranes", {}).values()
+                quay_cranes=_restore_registry(
+                    data.get("quay_cranes", {}),
+                    registry_name="quay crane",
+                    entity_factory=QuayCrane.from_dict,
+                    id_attribute="crane_id",
                 ),
-                yard_blocks=tuple(
-                    YardBlock.from_dict(snapshot)
-                    for snapshot in data.get("yard_blocks", {}).values()
+                yard_blocks=_restore_registry(
+                    data.get("yard_blocks", {}),
+                    registry_name="yard block",
+                    entity_factory=YardBlock.from_dict,
+                    id_attribute="block_id",
                 ),
-                container_groups=tuple(
-                    ContainerGroup.from_dict(snapshot)
-                    for snapshot in data.get(
-                        "container_groups",
-                        {},
-                    ).values()
+                container_groups=_restore_registry(
+                    data.get("container_groups", {}),
+                    registry_name="container group",
+                    entity_factory=ContainerGroup.from_dict,
+                    id_attribute="group_id",
                 ),
-                operation_tasks=tuple(
-                    OperationTask.from_dict(snapshot)
-                    for snapshot in data.get(
-                        "operation_tasks",
-                        {},
-                    ).values()
+                operation_tasks=_restore_registry(
+                    data.get("operation_tasks", {}),
+                    registry_name="operation task",
+                    entity_factory=OperationTask.from_dict,
+                    id_attribute="task_id",
                 ),
                 group_locations=tuple(
                     ContainerGroupLocation.from_dict(snapshot)
@@ -1342,6 +1354,14 @@ class Terminal:
             terminal.snapshot()
             return terminal
         except TerminalSerializationError:
+            raise
+        except (
+            TerminalConsistencyError,
+            TerminalDuplicateEntityError,
+            TerminalInventoryError,
+            TerminalReferenceError,
+            TerminalTimeError,
+        ):
             raise
         except TerminalDomainError as error:
             raise TerminalSerializationError(
@@ -1595,7 +1615,22 @@ class Terminal:
             self._validate_teu(location.teu, "Location TEU")
             self._group_locations[key] = location.teu
 
-    def _set_group_initial_location(self, group: ContainerGroup) -> None:
+    def _set_group_initial_location(
+        self,
+        group: ContainerGroup,
+        initial_locations: tuple[ContainerGroupLocation, ...],
+    ) -> None:
+        if initial_locations:
+            for location in initial_locations:
+                if location.group_id != group.group_id:
+                    raise TerminalInventoryError(
+                        "Initial locations for a registered group "
+                        "must belong to that group."
+                    )
+
+            self._set_initial_group_locations(initial_locations)
+            return
+
         if group.flow in {
             ContainerFlow.IMPORT,
             ContainerFlow.TRANSSHIPMENT,
@@ -1711,7 +1746,7 @@ class Terminal:
                 abs_tol=STATE_TEU_ABS_TOLERANCE,
             )
         ):
-            raise TerminalConsistencyError(
+            raise TerminalInventoryError(
                 f"ContainerGroup {group_id} only has {current_teu} "
                 f"TEU at {location_type.value} {location_id}."
             )
@@ -1802,25 +1837,24 @@ class Terminal:
                     f"{predecessor_id} to be completed."
                 )
 
-        if task.source.location_type != TaskLocationType.GATE:
-            source_teu = self._get_group_location_teu(
-                task.group_id,
-                task.source.location_type,
-                task.source.location_id,
-            )
+        source_teu = self._get_group_location_teu(
+            task.group_id,
+            task.source.location_type,
+            task.source.location_id,
+        )
 
-            if (
-                source_teu < task.planned_teu
-                and not math.isclose(
-                    source_teu,
-                    task.planned_teu,
-                    abs_tol=STATE_TEU_ABS_TOLERANCE,
-                )
-            ):
-                raise TerminalOperationError(
-                    f"Task {task.task_id} does not have enough "
-                    "source inventory."
-                )
+        if (
+            source_teu < task.planned_teu
+            and not math.isclose(
+                source_teu,
+                task.planned_teu,
+                abs_tol=STATE_TEU_ABS_TOLERANCE,
+            )
+        ):
+            raise TerminalInventoryError(
+                f"Task {task.task_id} does not have enough "
+                "source inventory."
+            )
 
         if task.target.location_type == TaskLocationType.YARD_BLOCK:
             block = self._get(
@@ -1950,19 +1984,12 @@ class Terminal:
             return tuple(events)
 
         if task.task_type == OperationType.GATE_IN:
-            gate_teu = self._get_group_location_teu(
+            self._decrease_group_location(
                 task.group_id,
                 TaskLocationType.GATE,
                 task.source.location_id,
+                task.planned_teu,
             )
-
-            if gate_teu > 0:
-                self._decrease_group_location(
-                    task.group_id,
-                    TaskLocationType.GATE,
-                    task.source.location_id,
-                    task.planned_teu,
-                )
 
             events.extend(
                 self._commit_target_yard(task, event_time)
@@ -2363,6 +2390,36 @@ def _datetime_from_snapshot(value: str, field_name: str) -> datetime:
         )
 
     return datetime.fromisoformat(value)
+
+
+def _restore_registry(
+    snapshots: Mapping[str, Any],
+    *,
+    registry_name: str,
+    entity_factory: Any,
+    id_attribute: str,
+) -> tuple[Any, ...]:
+    if not isinstance(snapshots, Mapping):
+        raise TerminalSerializationError(
+            f"Terminal {registry_name} registry must be a mapping."
+        )
+
+    entities: list[Any] = []
+
+    for registry_key, snapshot in snapshots.items():
+        _validate_id(registry_key, f"{registry_name.title()} registry key")
+        entity = entity_factory(snapshot)
+        entity_id = getattr(entity, id_attribute)
+
+        if registry_key != entity_id:
+            raise TerminalSerializationError(
+                f"Terminal {registry_name} registry key {registry_key} "
+                f"does not match entity ID {entity_id}."
+            )
+
+        entities.append(entity)
+
+    return tuple(entities)
 
 
 def _clone_vessel(vessel: Vessel) -> Vessel:

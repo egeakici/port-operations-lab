@@ -14,11 +14,13 @@ from src.terminal_core.container_group import (
 from src.terminal_core.exceptions import (
     TerminalConsistencyError,
     TerminalDuplicateEntityError,
+    TerminalInventoryError,
     TerminalLookupError,
     TerminalOperationError,
     TerminalSerializationError,
     TerminalStateConsistencyError,
     TerminalTimeError,
+    YardOperationError,
 )
 from src.terminal_core.operation_task import (
     OperationTask,
@@ -173,6 +175,93 @@ def create_gate_in_task(
     )
 
 
+def create_load_task(
+    task_id: str = "T-LOAD",
+    group_id: str = "G002",
+    planned_teu: float = 100.0,
+) -> OperationTask:
+    return OperationTask(
+        task_id=task_id,
+        task_type=OperationType.LOAD,
+        group_id=group_id,
+        planned_teu=planned_teu,
+        source=yard_location(),
+        target=vessel_location(),
+    )
+
+
+def create_yard_transfer_task(
+    task_id: str = "T-YT",
+    group_id: str = "G001",
+    planned_teu: float = 60.0,
+) -> OperationTask:
+    return OperationTask(
+        task_id=task_id,
+        task_type=OperationType.YARD_TRANSFER,
+        group_id=group_id,
+        planned_teu=planned_teu,
+        source=yard_location("Y01"),
+        target=yard_location("Y02"),
+    )
+
+
+def create_gate_out_task(
+    task_id: str = "T-GO",
+    group_id: str = "G001",
+    planned_teu: float = 100.0,
+) -> OperationTask:
+    return OperationTask(
+        task_id=task_id,
+        task_type=OperationType.GATE_OUT,
+        group_id=group_id,
+        planned_teu=planned_teu,
+        source=yard_location(),
+        target=gate_location(),
+    )
+
+
+def create_berthed_vessel_and_berth(
+    vessel_id: str = "V001",
+) -> tuple[Vessel, Berth]:
+    vessel = create_vessel(
+        vessel_id=vessel_id,
+        status=VesselStatus.BERTHED,
+    )
+    berth = create_berth()
+    berth.place_vessel(vessel, 50.0)
+    return vessel, berth
+
+
+def create_block_storing_group(
+    group: ContainerGroup,
+    *,
+    block_id: str = "Y01",
+    teu: float = 100.0,
+) -> YardBlock:
+    block = create_yard_block(block_id)
+    block.store_group(
+        group.group_id,
+        teu,
+        group.required_yard_capabilities,
+    )
+    return block
+
+
+def create_block_reserving_group(
+    group: ContainerGroup,
+    *,
+    block_id: str = "Y02",
+    teu: float = 60.0,
+) -> YardBlock:
+    block = create_yard_block(block_id)
+    block.reserve_capacity(
+        group.group_id,
+        teu,
+        group.required_yard_capabilities,
+    )
+    return block
+
+
 def create_ready_terminal() -> Terminal:
     terminal = Terminal(current_time=CURRENT_TIME)
     terminal.register_vessel(create_vessel())
@@ -182,7 +271,11 @@ def create_ready_terminal() -> Terminal:
     terminal.register_quay_crane(create_crane())
     terminal.register_yard_block(create_yard_block())
     terminal.register_container_group(create_import_group())
-    terminal.reserve_yard_capacity("G001", "Y01", 100.0)
+    terminal.reserve_yard_capacity(
+        block_id="Y01",
+        group_id="G001",
+        teu=100.0,
+    )
     terminal.register_operation_task(create_discharge_task())
     return terminal
 
@@ -374,8 +467,21 @@ def test_gate_in_task_can_commit_yard_inventory() -> None:
     terminal = Terminal(current_time=CURRENT_TIME)
     terminal.register_vessel(create_vessel())
     terminal.register_yard_block(create_yard_block())
-    terminal.register_container_group(create_export_group())
-    terminal.reserve_yard_capacity("G002", "Y01", 100.0)
+    terminal.register_container_group(
+        create_export_group(),
+        initial_locations=(
+            ContainerGroupLocation(
+                group_id="G002",
+                location=gate_location(),
+                teu=100.0,
+            ),
+        ),
+    )
+    terminal.reserve_yard_capacity(
+        block_id="Y01",
+        group_id="G002",
+        teu=100.0,
+    )
     terminal.register_operation_task(create_gate_in_task())
 
     terminal.mark_task_ready("T-GI")
@@ -392,6 +498,233 @@ def test_gate_in_task_can_commit_yard_inventory() -> None:
     assert terminal.get_operation_task("T-GI").status == (
         OperationTaskStatus.COMPLETED
     )
+
+
+def test_gate_in_requires_physical_gate_inventory() -> None:
+    terminal = Terminal(current_time=CURRENT_TIME)
+    terminal.register_vessel(create_vessel())
+    terminal.register_yard_block(create_yard_block())
+    terminal.register_container_group(create_export_group())
+    terminal.reserve_yard_capacity(
+        block_id="Y01",
+        group_id="G002",
+        teu=100.0,
+    )
+    terminal.register_operation_task(create_gate_in_task())
+
+    with pytest.raises(TerminalInventoryError):
+        terminal.mark_task_ready("T-GI")
+
+
+def test_load_task_completion_moves_yard_inventory_to_vessel() -> None:
+    vessel, berth = create_berthed_vessel_and_berth()
+    group = create_export_group()
+    source_block = create_block_storing_group(group)
+    terminal = Terminal.create(
+        current_time=CURRENT_TIME,
+        vessels=(vessel,),
+        berths=(berth,),
+        quay_cranes=(create_crane(),),
+        yard_blocks=(source_block,),
+        container_groups=(group,),
+        operation_tasks=(create_load_task(),),
+        group_locations=(
+            ContainerGroupLocation(
+                group_id="G002",
+                location=yard_location(),
+                teu=100.0,
+            ),
+        ),
+    )
+
+    terminal.mark_task_ready("T-LOAD")
+    terminal.assign_task_resource("T-LOAD", "QC01")
+    terminal.start_task("T-LOAD")
+    terminal.record_task_progress("T-LOAD", 100.0)
+    terminal.complete_task("T-LOAD")
+
+    assert terminal.group_teu_at(
+        "G002",
+        TaskLocationType.YARD_BLOCK,
+        "Y01",
+    ) == 0.0
+    assert terminal.group_teu_at(
+        "G002",
+        TaskLocationType.VESSEL,
+        "V001",
+    ) == 100.0
+    assert terminal.get_quay_crane("QC01").status == CraneStatus.AVAILABLE
+
+
+def test_yard_transfer_completion_moves_inventory_between_blocks() -> None:
+    vessel = create_vessel(status=VesselStatus.WAITING)
+    group = create_import_group()
+    source_block = create_block_storing_group(group, teu=60.0)
+    target_block = create_block_reserving_group(group, teu=60.0)
+    terminal = Terminal.create(
+        current_time=CURRENT_TIME,
+        vessels=(vessel,),
+        yard_blocks=(source_block, target_block),
+        container_groups=(group,),
+        operation_tasks=(create_yard_transfer_task(),),
+        group_locations=(
+            ContainerGroupLocation(
+                group_id="G001",
+                location=yard_location("Y01"),
+                teu=60.0,
+            ),
+        ),
+    )
+
+    terminal.mark_task_ready("T-YT")
+    terminal.assign_task_resource("T-YT", "YT-RESOURCE-1")
+    terminal.start_task("T-YT")
+    terminal.record_task_progress("T-YT", 60.0)
+    terminal.complete_task("T-YT")
+
+    assert terminal.group_teu_at(
+        "G001",
+        TaskLocationType.YARD_BLOCK,
+        "Y01",
+    ) == 0.0
+    assert terminal.group_teu_at(
+        "G001",
+        TaskLocationType.YARD_BLOCK,
+        "Y02",
+    ) == 60.0
+
+
+def test_gate_out_completion_moves_yard_inventory_to_gate() -> None:
+    vessel = create_vessel(status=VesselStatus.WAITING)
+    group = create_import_group()
+    source_block = create_block_storing_group(group)
+    terminal = Terminal.create(
+        current_time=CURRENT_TIME,
+        vessels=(vessel,),
+        yard_blocks=(source_block,),
+        container_groups=(group,),
+        operation_tasks=(create_gate_out_task(),),
+        group_locations=(
+            ContainerGroupLocation(
+                group_id="G001",
+                location=yard_location(),
+                teu=100.0,
+            ),
+        ),
+    )
+
+    terminal.mark_task_ready("T-GO")
+    terminal.assign_task_resource("T-GO", "TRUCK-OUT-1")
+    terminal.start_task("T-GO")
+    terminal.record_task_progress("T-GO", 100.0)
+    terminal.complete_task("T-GO")
+
+    assert terminal.group_teu_at(
+        "G001",
+        TaskLocationType.YARD_BLOCK,
+        "Y01",
+    ) == 0.0
+    assert terminal.group_teu_at(
+        "G001",
+        TaskLocationType.GATE,
+        "GATE-1",
+    ) == 100.0
+
+
+def test_load_completion_rolls_back_when_source_block_is_closed() -> None:
+    vessel, berth = create_berthed_vessel_and_berth()
+    group = create_export_group()
+    source_block = create_block_storing_group(group)
+    terminal = Terminal.create(
+        current_time=CURRENT_TIME,
+        vessels=(vessel,),
+        berths=(berth,),
+        quay_cranes=(create_crane(),),
+        yard_blocks=(source_block,),
+        container_groups=(group,),
+        operation_tasks=(create_load_task(),),
+        group_locations=(
+            ContainerGroupLocation(
+                group_id="G002",
+                location=yard_location(),
+                teu=100.0,
+            ),
+        ),
+    )
+    terminal.mark_task_ready("T-LOAD")
+    terminal.assign_task_resource("T-LOAD", "QC01")
+    terminal.start_task("T-LOAD")
+    terminal.record_task_progress("T-LOAD", 100.0)
+    terminal.close_yard_block("Y01")
+    before = terminal.to_dict()
+
+    with pytest.raises(YardOperationError):
+        terminal.complete_task("T-LOAD")
+
+    assert terminal.to_dict() == before
+
+
+def test_yard_transfer_completion_rolls_back_when_target_commit_fails() -> None:
+    vessel = create_vessel(status=VesselStatus.WAITING)
+    group = create_import_group()
+    source_block = create_block_storing_group(group, teu=60.0)
+    target_block = create_block_reserving_group(group, teu=60.0)
+    terminal = Terminal.create(
+        current_time=CURRENT_TIME,
+        vessels=(vessel,),
+        yard_blocks=(source_block, target_block),
+        container_groups=(group,),
+        operation_tasks=(create_yard_transfer_task(),),
+        group_locations=(
+            ContainerGroupLocation(
+                group_id="G001",
+                location=yard_location("Y01"),
+                teu=60.0,
+            ),
+        ),
+    )
+    terminal.mark_task_ready("T-YT")
+    terminal.assign_task_resource("T-YT", "YT-RESOURCE-1")
+    terminal.start_task("T-YT")
+    terminal.record_task_progress("T-YT", 60.0)
+    terminal.close_yard_block("Y02")
+    before = terminal.to_dict()
+
+    with pytest.raises(YardOperationError):
+        terminal.complete_task("T-YT")
+
+    assert terminal.to_dict() == before
+
+
+def test_gate_out_completion_rolls_back_when_source_release_fails() -> None:
+    vessel = create_vessel(status=VesselStatus.WAITING)
+    group = create_import_group()
+    source_block = create_block_storing_group(group)
+    terminal = Terminal.create(
+        current_time=CURRENT_TIME,
+        vessels=(vessel,),
+        yard_blocks=(source_block,),
+        container_groups=(group,),
+        operation_tasks=(create_gate_out_task(),),
+        group_locations=(
+            ContainerGroupLocation(
+                group_id="G001",
+                location=yard_location(),
+                teu=100.0,
+            ),
+        ),
+    )
+    terminal.mark_task_ready("T-GO")
+    terminal.assign_task_resource("T-GO", "TRUCK-OUT-1")
+    terminal.start_task("T-GO")
+    terminal.record_task_progress("T-GO", 100.0)
+    terminal.close_yard_block("Y01")
+    before = terminal.to_dict()
+
+    with pytest.raises(YardOperationError):
+        terminal.complete_task("T-GO")
+
+    assert terminal.to_dict() == before
 
 
 def test_cancel_task_releases_assigned_crane() -> None:
@@ -420,6 +753,16 @@ def test_yard_block_and_crane_status_commands_emit_events() -> None:
     assert reopened.event_type == TerminalEventType.YARD_BLOCK_REOPENED
     assert maintenance.event_type == TerminalEventType.CRANE_MAINTENANCE_STARTED
     assert finished.event_type == TerminalEventType.CRANE_MAINTENANCE_COMPLETED
+
+
+def test_move_quay_crane_returns_travelled_distance() -> None:
+    terminal = Terminal(current_time=CURRENT_TIME)
+    terminal.register_quay_crane(create_crane())
+
+    distance = terminal.move_quay_crane("QC01", 135.5)
+
+    assert distance == 35.5
+    assert terminal.get_quay_crane("QC01").position_m == 135.5
 
 
 def test_json_round_trip_preserves_terminal(tmp_path) -> None:
@@ -461,6 +804,16 @@ def test_next_event_sequence_is_restored_after_existing_events() -> None:
 def test_invalid_schema_version_is_rejected() -> None:
     data = Terminal(current_time=CURRENT_TIME).to_dict()
     data["schema_version"] = True
+
+    with pytest.raises(TerminalSerializationError):
+        Terminal.from_dict(data)
+
+
+def test_restore_rejects_registry_key_entity_id_mismatch() -> None:
+    data = Terminal(current_time=CURRENT_TIME).to_dict()
+    data["vessels"] = {
+        "V001": create_vessel("V999").to_dict(),
+    }
 
     with pytest.raises(TerminalSerializationError):
         Terminal.from_dict(data)
@@ -532,6 +885,13 @@ def test_vessel_departure_requires_no_source_cargo() -> None:
 
     events = terminal.depart_vessel("V001")
 
+    assert [event.event_type for event in events] == [
+        TerminalEventType.VESSEL_OPERATION_COMPLETED,
+        TerminalEventType.BERTH_OCCUPANCY_REMOVED,
+        TerminalEventType.VESSEL_DEPARTED,
+    ]
+    assert events[1].causation_id == events[0].event_id
+    assert events[2].causation_id == events[1].event_id
     assert events[-1].event_type == TerminalEventType.VESSEL_DEPARTED
     assert terminal.get_vessel("V001").status == VesselStatus.DEPARTED
 

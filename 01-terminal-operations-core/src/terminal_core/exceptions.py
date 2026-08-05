@@ -166,6 +166,10 @@ class TerminalOperationError(TerminalDomainError):
     """Raised when a Terminal command cannot be applied."""
 
 
+class TerminalInventoryError(TerminalOperationError):
+    """Raised when Terminal inventory cannot satisfy a command."""
+
+
 class TerminalSerializationError(TerminalDomainError):
     """Raised when a Terminal snapshot cannot be serialized or restored."""
 
