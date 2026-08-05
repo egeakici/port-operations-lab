@@ -560,6 +560,35 @@ def test_lookup_errors_are_explicit() -> None:
     ):
         state.task_ids_by_status("in_progress")
 
+    with pytest.raises(
+        TerminalStateLookupError,
+        match="Unknown container group ID",
+    ):
+        state.locations_for_group("G999")
+
+    with pytest.raises(
+        TerminalStateLookupError,
+        match="Unknown container group ID",
+    ):
+        state.group_teu_at("G999")
+
+
+def test_registered_group_without_locations_returns_empty() -> None:
+    vessel = create_vessel(status=VesselStatus.WAITING)
+    group = create_import_group()
+    state = TerminalState.capture(
+        current_time=CURRENT_TIME,
+        vessels=[
+            vessel,
+        ],
+        container_groups=[
+            group,
+        ],
+    )
+
+    assert state.locations_for_group("G001") == ()
+    assert state.group_teu_at("G001") == 0.0
+
 
 def test_duplicate_entities_and_events_are_rejected() -> None:
     vessel = create_vessel()
@@ -1076,7 +1105,7 @@ def test_task_active_commitments_are_enforced_by_flow_leg() -> None:
 
     with pytest.raises(
         TerminalStateConsistencyError,
-        match="Active discharge tasks",
+        match="Committed discharge tasks",
     ):
         TerminalState.capture(
             current_time=CURRENT_TIME,
@@ -1099,8 +1128,8 @@ def test_task_active_commitments_are_enforced_by_flow_leg() -> None:
     task_2.cancel()
 
     TerminalState.capture(
-            current_time=CURRENT_TIME,
-            vessels=[vessel],
+        current_time=CURRENT_TIME,
+        vessels=[vessel],
             berths=[berth],
             quay_cranes=[
                 crane_1,
@@ -1115,6 +1144,63 @@ def test_task_active_commitments_are_enforced_by_flow_leg() -> None:
             task_2,
         ],
     )
+
+
+def test_created_and_ready_tasks_are_counted_as_teu_commitments() -> None:
+    vessel = create_vessel(status=VesselStatus.WAITING)
+    group = create_import_group()
+    task_1 = create_discharge_task(
+        task_id="T001",
+        planned_teu=70.0,
+    )
+    task_2 = create_discharge_task(
+        task_id="T002",
+        planned_teu=50.0,
+    )
+
+    with pytest.raises(
+        TerminalStateConsistencyError,
+        match="Committed discharge tasks",
+    ):
+        TerminalState.capture(
+            current_time=CURRENT_TIME,
+            vessels=[
+                vessel,
+            ],
+            yard_blocks=[
+                YardBlock("Y01", 500.0),
+            ],
+            container_groups=[
+                group,
+            ],
+            operation_tasks=[
+                task_1,
+                task_2,
+            ],
+        )
+
+    task_2.mark_ready()
+
+    with pytest.raises(
+        TerminalStateConsistencyError,
+        match="Committed discharge tasks",
+    ):
+        TerminalState.capture(
+            current_time=CURRENT_TIME,
+            vessels=[
+                vessel,
+            ],
+            yard_blocks=[
+                YardBlock("Y01", 500.0),
+            ],
+            container_groups=[
+                group,
+            ],
+            operation_tasks=[
+                task_1,
+                task_2,
+            ],
+        )
 
 
 def test_task_dependency_graph_and_time_consistency_are_enforced() -> None:
@@ -1193,6 +1279,73 @@ def test_task_dependency_graph_and_time_consistency_are_enforced() -> None:
         match="comparable datetime",
     ):
         TerminalState.from_dict(data)
+
+
+def test_completed_task_requires_completed_predecessors() -> None:
+    predecessor = create_discharge_task(
+        task_id="T000",
+        planned_teu=20.0,
+    )
+    predecessor.mark_ready()
+    completed = complete_task(task_id="T001")
+    completed.predecessor_task_ids = {
+        predecessor.task_id,
+    }
+
+    with pytest.raises(
+        TerminalStateConsistencyError,
+        match="predecessor T000 to be completed",
+    ):
+        TerminalState.capture(
+            current_time=CURRENT_TIME,
+            vessels=[
+                create_vessel(),
+            ],
+            berths=[
+                create_berth(create_vessel()),
+            ],
+            yard_blocks=[
+                YardBlock("Y01", 500.0),
+            ],
+            container_groups=[
+                create_import_group(),
+            ],
+            operation_tasks=[
+                predecessor,
+                completed,
+            ],
+        )
+
+
+def test_cancelled_task_can_keep_future_release_time() -> None:
+    vessel = create_vessel(status=VesselStatus.WAITING)
+    group = create_import_group()
+    task = create_discharge_task()
+    task.release_time = datetime(2026, 8, 6, 10, 0)
+    task.cancel()
+
+    state = TerminalState.capture(
+        current_time=CURRENT_TIME,
+        vessels=[
+            vessel,
+        ],
+        yard_blocks=[
+            YardBlock("Y01", 500.0),
+        ],
+        container_groups=[
+            group,
+        ],
+        operation_tasks=[
+            task,
+        ],
+    )
+
+    assert state.get_operation_task("T001").status == (
+        OperationTaskStatus.CANCELLED
+    )
+    assert state.get_operation_task("T001").release_time == (
+        datetime(2026, 8, 6, 10, 0)
+    )
 
 
 def test_task_dependency_cycles_are_rejected() -> None:

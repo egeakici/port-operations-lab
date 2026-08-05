@@ -406,6 +406,12 @@ class TerminalState:
     ) -> tuple[ContainerGroupLocation, ...]:
         _validate_lookup_id(group_id, "Container group ID")
 
+        if group_id not in self.container_groups:
+            raise TerminalStateLookupError(
+                f"Unknown container group ID in TerminalState: "
+                f"{group_id}."
+            )
+
         return tuple(
             location
             for location in self.group_locations
@@ -1264,7 +1270,7 @@ def _validate_task_consistency(
         _validate_task_times(task, current_time)
 
         if (
-            _is_active_task(task)
+            _is_committed_task(task)
             and task.task_type != OperationType.YARD_TRANSFER
         ):
             leg_key = (task.group_id, task.task_type)
@@ -1285,7 +1291,7 @@ def _validate_task_consistency(
 
         if _teu_greater(total_teu, group_total):
             raise TerminalStateConsistencyError(
-                f"Active {operation_type.value} tasks for "
+                f"Committed {operation_type.value} tasks for "
                 f"ContainerGroup {group_id} total {total_teu} "
                 f"TEU, exceeding group total {group_total} TEU."
             )
@@ -1382,7 +1388,14 @@ def _validate_task_times(
     current_time: datetime,
 ) -> None:
     if (
-        task.status != OperationTaskStatus.CREATED
+        task.status
+        in {
+            OperationTaskStatus.READY,
+            OperationTaskStatus.ASSIGNED,
+            OperationTaskStatus.IN_PROGRESS,
+            OperationTaskStatus.BLOCKED,
+            OperationTaskStatus.COMPLETED,
+        }
         and task.release_time is not None
         and _datetime_is_after(
             task.release_time,
@@ -1541,6 +1554,7 @@ def _validate_task_dependency_graph(
                     OperationTaskStatus.ASSIGNED,
                     OperationTaskStatus.IN_PROGRESS,
                     OperationTaskStatus.BLOCKED,
+                    OperationTaskStatus.COMPLETED,
                 }
                 and predecessor.status
                 != OperationTaskStatus.COMPLETED
@@ -1677,6 +1691,16 @@ def _datetime_is_after(
 
 def _is_active_task(task: OperationTask) -> bool:
     return task.status in {
+        OperationTaskStatus.ASSIGNED,
+        OperationTaskStatus.IN_PROGRESS,
+        OperationTaskStatus.BLOCKED,
+    }
+
+
+def _is_committed_task(task: OperationTask) -> bool:
+    return task.status in {
+        OperationTaskStatus.CREATED,
+        OperationTaskStatus.READY,
         OperationTaskStatus.ASSIGNED,
         OperationTaskStatus.IN_PROGRESS,
         OperationTaskStatus.BLOCKED,
