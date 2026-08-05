@@ -1,9 +1,14 @@
 from dataclasses import FrozenInstanceError
 from datetime import datetime
-from enum import Enum
+from enum import Enum, IntEnum
 from pathlib import Path
 
 import pytest
+
+try:
+    from enum import StrEnum
+except ImportError:
+    StrEnum = None
 
 from src.terminal_core.exceptions import (
     TerminalEventEntityMismatchError,
@@ -32,6 +37,16 @@ STARTED_AT = datetime(2026, 8, 5, 10, 45)
 
 class SampleEnum(Enum):
     VALUE = "value"
+
+
+class SampleIntEnum(IntEnum):
+    VALUE = 1
+
+
+if StrEnum is not None:
+
+    class SampleStrEnum(StrEnum):
+        VALUE = "value"
 
 
 class CustomPayloadObject:
@@ -427,6 +442,24 @@ def test_nested_json_safe_payload_is_allowed() -> None:
                 "mapping",
             ],
             "Payload must be a mapping",
+        ),
+        (
+            {
+                "value": SampleIntEnum.VALUE,
+            },
+            "Enum is not JSON-safe",
+        ),
+        *(
+            [
+                (
+                    {
+                        "value": SampleStrEnum.VALUE,
+                    },
+                    "Enum is not JSON-safe",
+                )
+            ]
+            if StrEnum is not None
+            else []
         ),
     ],
 )

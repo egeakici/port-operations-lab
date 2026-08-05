@@ -352,6 +352,12 @@ def _freeze_json_value(
     value: Any,
     path: str,
 ) -> Any:
+    if isinstance(value, Enum):
+        raise TerminalEventPayloadError(
+            f"Invalid payload value at {path}: "
+            "Enum is not JSON-safe. Use its value instead."
+        )
+
     if value is None or isinstance(
         value,
         (str, bool, int),
