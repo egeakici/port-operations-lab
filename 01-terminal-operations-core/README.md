@@ -112,6 +112,61 @@ checkpoint names, final vessel/crane/task statuses, and final cargo location.
 - `G-TRANS`: 100 TEU on `V-OUT`.
 - `Y01`: no stored `G-TRANS` cargo remains.
 
+## Interactive Frontend
+
+The Streamlit control center is the manual operations UI for this domain core.
+It is not a scheduler, simulator, or optimizer. It lets you build a terminal,
+issue public `Terminal` commands from forms, inspect `TerminalState`, and export
+the scenario you created.
+
+Run it from this project directory:
+
+```bash
+python -m pip install -r requirements-demo.txt
+python -m streamlit run app/streamlit_app.py
+```
+
+The app opens with two top-level tabs:
+
+- `Interactive Sandbox`: the main workspace for manually creating and operating
+  a terminal.
+- `Reference Scenario`: a read-only checkpoint viewer for the deterministic
+  integration scenario.
+
+Inside `Interactive Sandbox`, use:
+
+- `Control Center` to advance terminal time, see overview metrics, and run
+  vessel arrive/berth/depart commands.
+- `Terminal Setup` to register berths, vessels, quay cranes, and yard blocks.
+- `Cargo & Tasks` to register container groups, initialize physical cargo
+  locations such as export gate inventory, create operation tasks, reserve yard
+  capacity, manage yard status, manage task lifecycle, and operate cranes.
+- `Live State` to inspect current berth layout, vessels, cranes, yards, cargo
+  locations, tasks, and raw `TerminalState` JSON.
+- `Events & History` to inspect the domain event timeline separately from
+  app-level command history and saved checkpoints.
+- `Import / Export` to download/upload the current Terminal JSON or a full
+  sandbox scenario package.
+
+Every form command is routed through `app.command_service.execute_terminal_command`.
+That service captures a before snapshot, calls only public `Terminal` APIs,
+records new domain events, stores success/failure command history, and verifies
+rollback safety on domain errors. The app does not mutate private Terminal
+registries or create domain events manually.
+
+Named checkpoints store restoreable Terminal JSON plus an immutable
+`TerminalState` snapshot. Restoring a checkpoint validates the JSON with
+`Terminal.from_dict()` before replacing the session terminal.
+
+## Frontend Tests
+
+```bash
+python -m pytest tests/test_app_command_service.py -v
+python -m pytest tests/test_app_presenters.py -v
+python -m pytest tests/test_app_session_store.py -v
+python -m pytest tests/test_streamlit_app.py -v
+```
+
 ## Architecture Boundaries
 
 - Integration uses only public `Terminal` commands and queries.
@@ -120,11 +175,14 @@ checkpoint names, final vessel/crane/task statuses, and final cargo location.
 - Integration does not duplicate `TerminalState` validation rules.
 - Checkpoints are immutable `TerminalState` snapshots.
 - Physical inventory is moved only by Terminal commands.
+- The Streamlit app depends on `terminal_core`; `terminal_core` does not depend
+  on Streamlit.
+- The app uses only public Terminal commands and queries for mutation and
+  inspection.
 
 ## Intentionally Out Of Scope
 
-- Frontend, dashboard, Streamlit, React.
-- REST API or database.
+- React, FastAPI, Flask, REST API, database, or authentication.
 - Event queue, async execution, automatic clock, or arrival generator.
 - Randomness, FCFS, scheduler, dispatcher, optimizer, OR-Tools, or RL.
 - SimPy, AIS, animation, or charting.
