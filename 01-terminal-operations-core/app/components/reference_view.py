@@ -4,6 +4,7 @@ import streamlit as st
 
 from app import presenters, session_store
 from app.components.state_views import render_live_state
+from app.visual.terminal_map import render_terminal_map
 from src.terminal_core.integration import IntegrationCheckpoint
 
 
@@ -78,6 +79,8 @@ def render_reference_view() -> None:
             for row in task_rows
         )
     )
+
+    render_terminal_map(state, key_prefix="reference")
 
     st.subheader("Checkpoint State")
     render_live_state(state)

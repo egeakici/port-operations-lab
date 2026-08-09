@@ -80,7 +80,9 @@ def test_streamlit_app_smoke() -> None:
     assert "Reference Scenario" in text
     assert "Create Empty Terminal" in text
     assert "Terminal Setup" in text
+    assert "Terminal Map" in text
     assert "Live State" in text
+    assert "Schematic terminal view" in text
 
 
 def test_reference_scenario_visible() -> None:
@@ -92,6 +94,7 @@ def test_reference_scenario_visible() -> None:
     assert "Reference checkpoint" in text
     assert "QC01 FAILED" in text
     assert "T-DISCHARGE BLOCKED" in text
+    assert "Terminal Map" in text
 
 
 def test_reference_navigation_buttons_update_checkpoint_selector() -> None:

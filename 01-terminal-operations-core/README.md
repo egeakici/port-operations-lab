@@ -141,6 +141,8 @@ Inside `Interactive Sandbox`, use:
 - `Cargo & Tasks` to register container groups, initialize physical cargo
   locations such as export gate inventory, create operation tasks, reserve yard
   capacity, manage yard status, manage task lifecycle, and operate cranes.
+- `Terminal Map` to inspect a read-only bird's-eye schematic of the current
+  terminal.
 - `Live State` to inspect current berth layout, vessels, cranes, yards, cargo
   locations, tasks, and raw `TerminalState` JSON.
 - `Events & History` to inspect the domain event timeline separately from
@@ -158,6 +160,29 @@ Named checkpoints store restoreable Terminal JSON plus an immutable
 `TerminalState` snapshot. Restoring a checkpoint validates the JSON with
 `Terminal.from_dict()` before replacing the session terminal.
 
+## Bird's-Eye Terminal View
+
+The Streamlit app includes a read-only SVG terminal map generated from the
+current `TerminalState`. The same renderer is used by the Interactive Sandbox
+and the Reference Scenario checkpoint viewer.
+
+The view is schematic, not GIS or geospatial. Berth, berthed vessel, and quay
+crane placement uses the Core's real meter data where available:
+`Berth.length_m`, vessel berth `start_position_m`, `Vessel.length_m`, and
+`QuayCrane.position_m`. Yard blocks and gate areas have no physical x/y fields
+in the Core, so the app lays them out deterministically as presentation-only UI
+positions.
+
+Cargo badges reflect actual Core inventory from `TerminalState.group_locations`.
+Task progress is shown separately as logical operation arrows. The map never
+partially moves cargo just because a task has progress; physical cargo locations
+change only after Terminal commands update inventory. Operation arrows represent
+logical cargo flow, not vehicle paths or simulated transport routes.
+
+The visualization does not mutate `Terminal`, does not add visual coordinates to
+domain entities, and does not run an animation loop. It redraws on normal
+Streamlit reruns after commands update the sandbox state.
+
 ## Frontend Tests
 
 ```bash
@@ -165,6 +190,9 @@ python -m pytest tests/test_app_command_service.py -v
 python -m pytest tests/test_app_presenters.py -v
 python -m pytest tests/test_app_session_store.py -v
 python -m pytest tests/test_streamlit_app.py -v
+python -m pytest tests/test_visual_layout.py -v
+python -m pytest tests/test_visual_presenter.py -v
+python -m pytest tests/test_terminal_map.py -v
 ```
 
 ## Architecture Boundaries

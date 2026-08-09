@@ -25,6 +25,7 @@ from app.components.vessel_controls import render_vessel_controls
 from app.models import CommandRecord, canonical_json
 from app.styles import apply_styles
 from app.ui_helpers import date_time_input
+from app.visual.terminal_map import render_terminal_map
 from src.terminal_core.terminal import Terminal
 
 
@@ -299,6 +300,7 @@ def _render_interactive_sandbox() -> None:
             "Control Center",
             "Terminal Setup",
             "Cargo & Tasks",
+            "Terminal Map",
             "Live State",
             "Events & History",
             "Import / Export",
@@ -314,10 +316,15 @@ def _render_interactive_sandbox() -> None:
         render_task_controls()
         render_crane_controls()
     with sandbox_tabs[3]:
-        render_live_state(session_store.get_sandbox_terminal().snapshot())
+        render_terminal_map(
+            session_store.get_sandbox_terminal().snapshot(),
+            key_prefix="sandbox",
+        )
     with sandbox_tabs[4]:
-        render_history_view()
+        render_live_state(session_store.get_sandbox_terminal().snapshot())
     with sandbox_tabs[5]:
+        render_history_view()
+    with sandbox_tabs[6]:
         _render_import_export()
 
 
