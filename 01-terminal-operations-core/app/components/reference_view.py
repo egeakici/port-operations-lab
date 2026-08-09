@@ -7,6 +7,9 @@ from app.components.state_views import render_live_state
 from src.terminal_core.integration import IntegrationCheckpoint
 
 
+REFERENCE_CHECKPOINT_SELECT = "reference_checkpoint_select"
+
+
 def render_reference_view() -> None:
     result = session_store.get_reference_result()
     summary = presenters.build_scenario_summary(result)
@@ -24,21 +27,30 @@ def render_reference_view() -> None:
     current_index = max(0, min(current_index, len(checkpoints) - 1))
 
     controls = st.columns([1, 1, 1, 1, 3])
+    navigation_clicked = False
     if controls[0].button("Reset", key="reference_reset"):
         current_index = 0
+        navigation_clicked = True
     if controls[1].button("Previous", key="reference_previous"):
         current_index = max(0, current_index - 1)
+        navigation_clicked = True
     if controls[2].button("Next", key="reference_next"):
         current_index = min(len(checkpoints) - 1, current_index + 1)
+        navigation_clicked = True
     if controls[3].button("Final", key="reference_final"):
         current_index = len(checkpoints) - 1
+        navigation_clicked = True
+
+    if navigation_clicked:
+        st.session_state[session_store.REFERENCE_CHECKPOINT_INDEX] = current_index
+        st.session_state[REFERENCE_CHECKPOINT_SELECT] = checkpoints[current_index]
 
     selected_checkpoint = controls[4].selectbox(
         "Reference checkpoint",
         options=checkpoints,
         index=current_index,
         format_func=lambda checkpoint: checkpoint.value,
-        key="reference_checkpoint_select",
+        key=REFERENCE_CHECKPOINT_SELECT,
     )
     current_index = checkpoints.index(selected_checkpoint)
     st.session_state[session_store.REFERENCE_CHECKPOINT_INDEX] = current_index

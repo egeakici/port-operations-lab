@@ -94,6 +94,40 @@ def test_reference_scenario_visible() -> None:
     assert "T-DISCHARGE BLOCKED" in text
 
 
+def test_reference_navigation_buttons_update_checkpoint_selector() -> None:
+    app = AppTest.from_file(_app_path()).run(timeout=30)
+
+    assert not app.exception
+    assert app.selectbox(key="reference_checkpoint_select").value.value == "initial"
+    assert app.session_state.filtered_state[
+        session_store.REFERENCE_CHECKPOINT_INDEX
+    ] == 0
+
+    app = _click(app, "Next")
+    assert app.selectbox(key="reference_checkpoint_select").value.value == "inbound_waiting"
+    assert app.session_state.filtered_state[
+        session_store.REFERENCE_CHECKPOINT_INDEX
+    ] == 1
+
+    app = _click(app, "Previous")
+    assert app.selectbox(key="reference_checkpoint_select").value.value == "initial"
+    assert app.session_state.filtered_state[
+        session_store.REFERENCE_CHECKPOINT_INDEX
+    ] == 0
+
+    app = _click(app, "Final")
+    assert app.selectbox(key="reference_checkpoint_select").value.value == "final"
+    assert app.session_state.filtered_state[
+        session_store.REFERENCE_CHECKPOINT_INDEX
+    ] == len(app.selectbox(key="reference_checkpoint_select").options) - 1
+
+    app = _click(app, "Reset")
+    assert app.selectbox(key="reference_checkpoint_select").value.value == "initial"
+    assert app.session_state.filtered_state[
+        session_store.REFERENCE_CHECKPOINT_INDEX
+    ] == 0
+
+
 def test_empty_terminal_disables_impossible_operational_commands() -> None:
     app = AppTest.from_file(_app_path()).run(timeout=30)
 
