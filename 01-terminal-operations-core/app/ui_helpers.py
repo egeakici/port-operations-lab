@@ -52,16 +52,7 @@ def run_terminal_command(
     )
     session_store.replace_sandbox_terminal(result.terminal)
     session_store.append_command_record(result.record)
-    if result.record.success:
-        st.success(
-            f"{command_name} completed. "
-            f"New events: {len(result.record.new_event_ids)}"
-        )
-    else:
-        message = result.record.error_message or "Command failed."
-        st.error(f"{command_name} failed: {message}")
-        if result.rollback_restored:
-            st.warning("Terminal was rebuilt from the pre-command JSON snapshot.")
+    st.rerun()
 
 
 def render_last_feedback() -> None:
@@ -69,25 +60,28 @@ def render_last_feedback() -> None:
     if feedback is None:
         return
     if feedback.success:
-        st.success(
-            f"Last command succeeded: {feedback.command_name} "
-            f"({len(feedback.new_event_ids)} new events)."
-        )
+        st.success(f"{feedback.command_name} succeeded")
+        st.caption("Current state updated")
+        if feedback.new_event_types:
+            st.markdown("New events:")
+            for event_type in feedback.new_event_types:
+                st.markdown(f"- {event_type.upper()}")
     else:
-        st.error(
-            f"Last command failed: {feedback.command_name} - "
-            f"{feedback.error_message}"
-        )
+        st.error(f"{feedback.command_name} rejected")
+        if feedback.error_message:
+            st.caption(feedback.error_message)
+        st.caption("No terminal changes were committed.")
 
 
-def select_or_text(
+def select_registered(
     label: str,
     options: tuple[str, ...],
     *,
     key: str,
+    empty_message: str,
     help: str | None = None,
-) -> str:
+) -> str | None:
     if options:
         return st.selectbox(label, options=options, key=key, help=help)
-    return st.text_input(label, key=key, help=help)
-
+    st.info(empty_message)
+    return None

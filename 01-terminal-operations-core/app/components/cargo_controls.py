@@ -5,7 +5,7 @@ from datetime import timedelta
 import streamlit as st
 
 from app import session_store
-from app.ui_helpers import date_time_input, run_terminal_command, select_or_text
+from app.ui_helpers import date_time_input, run_terminal_command, select_registered
 from src.terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
@@ -17,6 +17,7 @@ from src.terminal_core.operation_task import (
     OperationType,
     TaskLocation,
     TaskLocationType,
+    VALID_OPERATION_ROUTES,
 )
 from src.terminal_core.terminal_state import ContainerGroupLocation
 
@@ -30,6 +31,30 @@ def _location_options() -> list[str]:
     return [location_type.value for location_type in TaskLocationType]
 
 
+def _registered_location_input(
+    label: str,
+    location_type: TaskLocationType,
+    *,
+    key: str,
+) -> str | None:
+    terminal = session_store.get_sandbox_terminal()
+    if location_type == TaskLocationType.VESSEL:
+        return select_registered(
+            label,
+            terminal.vessel_ids,
+            key=key,
+            empty_message="No vessels are registered yet. Add a vessel in Terminal Setup.",
+        )
+    if location_type == TaskLocationType.YARD_BLOCK:
+        return select_registered(
+            label,
+            terminal.yard_block_ids,
+            key=key,
+            empty_message="No yard blocks are registered yet. Add a yard block in Terminal Setup.",
+        )
+    return st.text_input(label, value="GATE-IN", key=key)
+
+
 def render_cargo_and_task_forms() -> None:
     render_container_group_form()
     render_operation_task_form()
@@ -38,6 +63,7 @@ def render_cargo_and_task_forms() -> None:
 
 def render_container_group_form() -> None:
     terminal = session_store.get_sandbox_terminal()
+    vessel_ids = terminal.vessel_ids
     with st.form("add_container_group_form"):
         st.subheader("Add Container Group")
         columns = st.columns(3)
@@ -70,20 +96,41 @@ def render_container_group_form() -> None:
             options=[item.value for item in ContainerLoadState],
             key="container_load_state",
         )
-        source_vessel_id = columns[2].text_input(
-            "Source vessel ID",
-            value="",
-            key="group_source_vessel_id",
-            help="Required for import and transshipment cargo.",
-        )
+        selected_flow = ContainerFlow(flow)
+        if selected_flow in {ContainerFlow.IMPORT, ContainerFlow.TRANSSHIPMENT}:
+            with columns[2]:
+                source_vessel_id = select_registered(
+                    "Source vessel",
+                    vessel_ids,
+                    key="group_source_vessel_id",
+                    empty_message="No vessels are registered yet. Add a vessel in Terminal Setup.",
+                )
+        else:
+            source_vessel_id = None
+            columns[2].text_input(
+                "Source vessel",
+                value="-",
+                key="group_source_vessel_id_disabled",
+                disabled=True,
+            )
 
         columns = st.columns(3)
-        target_vessel_id = columns[0].text_input(
-            "Target vessel ID",
-            value="",
-            key="group_target_vessel_id",
-            help="Required for export and transshipment cargo.",
-        )
+        if selected_flow in {ContainerFlow.EXPORT, ContainerFlow.TRANSSHIPMENT}:
+            with columns[0]:
+                target_vessel_id = select_registered(
+                    "Target vessel",
+                    vessel_ids,
+                    key="group_target_vessel_id",
+                    empty_message="No vessels are registered yet. Add a vessel in Terminal Setup.",
+                )
+        else:
+            target_vessel_id = None
+            columns[0].text_input(
+                "Target vessel",
+                value="-",
+                key="group_target_vessel_id_disabled",
+                disabled=True,
+            )
         is_reefer = columns[1].checkbox("Reefer", key="group_is_reefer")
         is_hazardous = columns[2].checkbox("Hazardous", key="group_is_hazardous")
 
@@ -120,7 +167,23 @@ def render_container_group_form() -> None:
             default=terminal.current_time,
             key="add_group_occurred_at",
         )
-        if st.form_submit_button("Add Container Group", use_container_width=True):
+        missing_required_vessel = (
+            (
+                selected_flow in {ContainerFlow.IMPORT, ContainerFlow.TRANSSHIPMENT}
+                and source_vessel_id is None
+            )
+            or (
+                selected_flow in {ContainerFlow.EXPORT, ContainerFlow.TRANSSHIPMENT}
+                and target_vessel_id is None
+            )
+        )
+        if st.form_submit_button(
+            "Add Container Group",
+            use_container_width=True,
+            disabled=missing_required_vessel,
+        ):
+            if missing_required_vessel:
+                return
             def operation(terminal):
                 initial_locations = ()
                 if use_initial_location:
@@ -143,8 +206,8 @@ def render_container_group_form() -> None:
                         load_state=ContainerLoadState(load_state),
                         is_reefer=is_reefer,
                         is_hazardous=is_hazardous,
-                        source_vessel_id=_optional_text(source_vessel_id),
-                        target_vessel_id=_optional_text(target_vessel_id),
+                        source_vessel_id=source_vessel_id,
+                        target_vessel_id=target_vessel_id,
                     ),
                     initial_locations=initial_locations,
                     occurred_at=occurred_at,
@@ -186,41 +249,37 @@ def render_operation_task_form() -> None:
             options=[item.value for item in OperationType],
             key="task_type",
         )
-        group_id = columns[2].selectbox(
-            "Group ID",
-            options=terminal.container_group_ids or ("G001",),
-            key="task_group_id",
-        )
+        with columns[2]:
+            group_id = select_registered(
+                "Group ID",
+                terminal.container_group_ids,
+                key="task_group_id",
+                empty_message="No container groups are registered yet.",
+            )
         planned_teu = columns[3].number_input(
             "Planned TEU",
             min_value=0.1,
-            value=100.0,
+            value=50.0,
             step=5.0,
             key="task_planned_teu",
         )
 
-        columns = st.columns(4)
-        source_type = columns[0].selectbox(
-            "Source type",
-            options=_location_options(),
-            key="task_source_type",
-        )
-        source_id = columns[1].text_input(
-            "Source ID",
-            value="V001",
-            key="task_source_id",
-        )
-        target_type = columns[2].selectbox(
-            "Target type",
-            options=_location_options(),
-            index=1,
-            key="task_target_type",
-        )
-        target_id = columns[3].text_input(
-            "Target ID",
-            value="Y01",
-            key="task_target_id",
-        )
+        selected_task_type = OperationType(task_type)
+        source_type, target_type = VALID_OPERATION_ROUTES[selected_task_type]
+        st.caption(f"Route: {source_type.value.upper()} -> {target_type.value.upper()}")
+        columns = st.columns(2)
+        with columns[0]:
+            source_id = _registered_location_input(
+                f"Source ({source_type.value})",
+                source_type,
+                key=f"task_source_id_{source_type.value}",
+            )
+        with columns[1]:
+            target_id = _registered_location_input(
+                f"Target ({target_type.value})",
+                target_type,
+                key=f"task_target_id_{target_type.value}",
+            )
 
         columns = st.columns(4)
         priority = columns[0].select_slider(
@@ -231,11 +290,10 @@ def render_operation_task_form() -> None:
         )
         use_release = columns[1].checkbox("Set release time", key="task_use_release")
         use_due = columns[2].checkbox("Set due time", key="task_use_due")
-        predecessors = columns[3].text_input(
+        predecessors = columns[3].multiselect(
             "Predecessor task IDs",
-            value="",
+            options=terminal.operation_task_ids,
             key="task_predecessors",
-            help="Comma-separated task IDs.",
         )
         release_time = date_time_input(
             "Release time",
@@ -254,12 +312,15 @@ def render_operation_task_form() -> None:
             default=terminal.current_time,
             key="add_task_occurred_at",
         )
-        if st.form_submit_button("Add Operation Task", use_container_width=True):
-            predecessor_ids = {
-                item.strip()
-                for item in predecessors.split(",")
-                if item.strip()
-            }
+        disabled = group_id is None or source_id is None or target_id is None
+        if st.form_submit_button(
+            "Add Operation Task",
+            use_container_width=True,
+            disabled=disabled,
+        ):
+            if disabled:
+                return
+            predecessor_ids = set(predecessors)
             run_terminal_command(
                 "REGISTER_OPERATION_TASK",
                 {
@@ -268,11 +329,11 @@ def render_operation_task_form() -> None:
                     "group_id": group_id,
                     "planned_teu": planned_teu,
                     "source": {
-                        "location_type": source_type,
+                        "location_type": source_type.value,
                         "location_id": source_id,
                     },
                     "target": {
-                        "location_type": target_type,
+                        "location_type": target_type.value,
                         "location_id": target_id,
                     },
                     "priority": priority,
@@ -285,8 +346,8 @@ def render_operation_task_form() -> None:
                         task_type=OperationType(task_type),
                         group_id=group_id,
                         planned_teu=planned_teu,
-                        source=TaskLocation(TaskLocationType(source_type), source_id),
-                        target=TaskLocation(TaskLocationType(target_type), target_id),
+                        source=TaskLocation(source_type, source_id),
+                        target=TaskLocation(target_type, target_id),
                         priority=int(priority),
                         release_time=release_time if use_release else None,
                         due_time=due_time if use_due else None,
@@ -303,20 +364,22 @@ def render_yard_controls() -> None:
     left, middle, right = st.columns(3)
     with left:
         with st.form("reserve_yard_form"):
-            block_id = select_or_text(
+            block_id = select_registered(
                 "Yard block ID",
                 terminal.yard_block_ids,
                 key="reserve_block_id",
+                empty_message="No yard blocks are registered yet. Add a yard block in Terminal Setup.",
             )
-            group_id = select_or_text(
+            group_id = select_registered(
                 "Group ID",
                 terminal.container_group_ids,
                 key="reserve_group_id",
+                empty_message="No container groups are registered yet.",
             )
             teu = st.number_input(
                 "Reserve TEU",
                 min_value=0.1,
-                value=100.0,
+                value=50.0,
                 step=5.0,
                 key="reserve_teu",
             )
@@ -325,7 +388,14 @@ def render_yard_controls() -> None:
                 default=terminal.current_time,
                 key="reserve_yard_occurred_at",
             )
-            if st.form_submit_button("Reserve Yard Capacity", use_container_width=True):
+            disabled = block_id is None or group_id is None
+            if st.form_submit_button(
+                "Reserve Yard Capacity",
+                use_container_width=True,
+                disabled=disabled,
+            ):
+                if disabled:
+                    return
                 run_terminal_command(
                     "RESERVE_YARD_CAPACITY",
                     {
@@ -344,22 +414,31 @@ def render_yard_controls() -> None:
 
     with middle:
         with st.form("cancel_yard_reservation_form"):
-            block_id = select_or_text(
+            block_id = select_registered(
                 "Yard block ID",
                 terminal.yard_block_ids,
                 key="cancel_reservation_block_id",
+                empty_message="No yard blocks are registered yet. Add a yard block in Terminal Setup.",
             )
-            group_id = select_or_text(
+            group_id = select_registered(
                 "Group ID",
                 terminal.container_group_ids,
                 key="cancel_reservation_group_id",
+                empty_message="No container groups are registered yet.",
             )
             occurred_at = date_time_input(
                 "Occurred at",
                 default=terminal.current_time,
                 key="cancel_reservation_occurred_at",
             )
-            if st.form_submit_button("Cancel Yard Reservation", use_container_width=True):
+            disabled = block_id is None or group_id is None
+            if st.form_submit_button(
+                "Cancel Yard Reservation",
+                use_container_width=True,
+                disabled=disabled,
+            ):
+                if disabled:
+                    return
                 run_terminal_command(
                     "CANCEL_YARD_RESERVATION",
                     {
@@ -376,10 +455,11 @@ def render_yard_controls() -> None:
 
     with right:
         with st.form("yard_status_form"):
-            block_id = select_or_text(
+            block_id = select_registered(
                 "Yard block ID",
                 terminal.yard_block_ids,
                 key="yard_status_block_id",
+                empty_message="No yard blocks are registered yet. Add a yard block in Terminal Setup.",
             )
             action = st.selectbox(
                 "Yard status command",
@@ -396,7 +476,13 @@ def render_yard_controls() -> None:
                 default=terminal.current_time,
                 key="yard_status_occurred_at",
             )
-            if st.form_submit_button("Apply Yard Status Command", use_container_width=True):
+            if st.form_submit_button(
+                "Apply Yard Status Command",
+                use_container_width=True,
+                disabled=block_id is None,
+            ):
+                if block_id is None:
+                    return
                 operations = {
                     "close": lambda terminal: terminal.close_yard_block(
                         block_id,

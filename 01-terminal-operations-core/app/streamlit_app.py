@@ -62,15 +62,17 @@ def _record_ui_action(
 def _render_sidebar() -> None:
     terminal = session_store.get_sandbox_terminal()
     st.sidebar.header("Interactive Sandbox")
-    st.sidebar.text_input(
+    sandbox_name = st.sidebar.text_input(
         "Scenario name",
-        key=session_store.SANDBOX_NAME,
+        value=st.session_state[session_store.SANDBOX_NAME],
         help="Used for exported file names and package metadata.",
     )
-    st.sidebar.text_area(
+    sandbox_description = st.sidebar.text_area(
         "Scenario description",
-        key=session_store.SANDBOX_DESCRIPTION,
+        value=st.session_state[session_store.SANDBOX_DESCRIPTION],
     )
+    st.session_state[session_store.SANDBOX_NAME] = sandbox_name
+    st.session_state[session_store.SANDBOX_DESCRIPTION] = sandbox_description
     st.sidebar.write(f"Current terminal time: {terminal.current_time.isoformat()}")
     st.sidebar.write(f"Current event count: {terminal.event_count}")
     st.sidebar.write(
@@ -110,6 +112,7 @@ def _render_sidebar() -> None:
                         current_time=initial_time,
                     )
                     st.success("New empty terminal created.")
+                    st.rerun()
 
     with st.sidebar.expander("Quick Start / Reset"):
         confirm_reference = st.checkbox(
@@ -120,6 +123,7 @@ def _render_sidebar() -> None:
             if confirm_reference:
                 session_store.load_reference_infrastructure()
                 st.success("Reference infrastructure loaded into sandbox.")
+                st.rerun()
             else:
                 st.warning("Confirm replacement before loading reference infrastructure.")
 
@@ -131,6 +135,7 @@ def _render_sidebar() -> None:
             if confirm_reset:
                 session_store.clear_sandbox()
                 st.success("Sandbox reset.")
+                st.rerun()
             else:
                 st.warning("Confirm reset before clearing the sandbox.")
 
@@ -175,6 +180,7 @@ def _render_sidebar() -> None:
                         parameters={"checkpoint_id": selected_id},
                     )
                     st.success(f"Restored checkpoint: {checkpoints[selected_id].name}")
+                    st.rerun()
 
 
 def _render_import_export() -> None:
@@ -239,6 +245,7 @@ def _render_import_export() -> None:
                         parameters={"file_name": uploaded_terminal.name},
                     )
                     st.success("Terminal JSON imported.")
+                    st.rerun()
 
     with right:
         uploaded_package = st.file_uploader(
@@ -280,6 +287,7 @@ def _render_import_export() -> None:
                         parameters={"file_name": uploaded_package.name},
                     )
                     st.success("Sandbox scenario imported.")
+                    st.rerun()
 
     with st.expander("Raw current Terminal JSON"):
         st.json(json.loads(canonical_json(terminal.to_dict())))
@@ -345,4 +353,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -3,22 +3,35 @@ from __future__ import annotations
 import streamlit as st
 
 from app import session_store
-from app.ui_helpers import date_time_input, run_terminal_command, select_or_text
+from app.ui_helpers import date_time_input, run_terminal_command, select_registered
+from src.terminal_core.vessel import VesselStatus
+
+
+def _vessel_ids_with_status(status: VesselStatus) -> tuple[str, ...]:
+    terminal = session_store.get_sandbox_terminal()
+    return tuple(
+        vessel_id
+        for vessel_id in terminal.vessel_ids
+        if terminal.get_vessel(vessel_id).status == status
+    )
 
 
 def render_vessel_controls() -> None:
     terminal = session_store.get_sandbox_terminal()
-    vessel_ids = terminal.vessel_ids
+    approaching_vessel_ids = _vessel_ids_with_status(VesselStatus.APPROACHING)
+    waiting_vessel_ids = _vessel_ids_with_status(VesselStatus.WAITING)
+    operating_vessel_ids = _vessel_ids_with_status(VesselStatus.OPERATING)
     berth_ids = terminal.berth_ids
     left, middle, right = st.columns(3)
 
     with left:
         with st.form("arrive_vessel_form"):
             st.subheader("Vessel Arrive")
-            vessel_id = select_or_text(
+            vessel_id = select_registered(
                 "Vessel ID",
-                vessel_ids,
+                approaching_vessel_ids,
                 key="arrive_vessel_id",
+                empty_message="No approaching vessels are available.",
                 help="Only approaching vessels can arrive.",
             )
             occurred_at = date_time_input(
@@ -26,7 +39,13 @@ def render_vessel_controls() -> None:
                 default=terminal.current_time,
                 key="arrive_vessel_occurred_at",
             )
-            if st.form_submit_button("Arrive Vessel", use_container_width=True):
+            if st.form_submit_button(
+                "Arrive Vessel",
+                use_container_width=True,
+                disabled=vessel_id is None,
+            ):
+                if vessel_id is None:
+                    return
                 run_terminal_command(
                     "ARRIVE_VESSEL",
                     {
@@ -42,16 +61,18 @@ def render_vessel_controls() -> None:
     with middle:
         with st.form("berth_vessel_form"):
             st.subheader("Berth Vessel")
-            vessel_id = select_or_text(
+            vessel_id = select_registered(
                 "Vessel ID",
-                vessel_ids,
+                waiting_vessel_ids,
                 key="berth_vessel_id",
+                empty_message="No waiting vessels are available.",
                 help="Only waiting vessels can be berthed.",
             )
-            berth_id = select_or_text(
+            berth_id = select_registered(
                 "Berth ID",
                 berth_ids,
                 key="berth_vessel_berth_id",
+                empty_message="No berths are registered yet. Add a berth in Terminal Setup.",
             )
             start_position_m = st.number_input(
                 "Start position (m)",
@@ -65,7 +86,14 @@ def render_vessel_controls() -> None:
                 default=terminal.current_time,
                 key="berth_vessel_occurred_at",
             )
-            if st.form_submit_button("Berth Vessel", use_container_width=True):
+            disabled = vessel_id is None or berth_id is None
+            if st.form_submit_button(
+                "Berth Vessel",
+                use_container_width=True,
+                disabled=disabled,
+            ):
+                if disabled:
+                    return
                 run_terminal_command(
                     "BERTH_VESSEL",
                     {
@@ -85,10 +113,11 @@ def render_vessel_controls() -> None:
     with right:
         with st.form("depart_vessel_form"):
             st.subheader("Depart Vessel")
-            vessel_id = select_or_text(
+            vessel_id = select_registered(
                 "Vessel ID",
-                vessel_ids,
+                operating_vessel_ids,
                 key="depart_vessel_id",
+                empty_message="No operating vessels are available.",
                 help="Only operating vessels that have no remaining ship-side work can depart.",
             )
             occurred_at = date_time_input(
@@ -96,7 +125,13 @@ def render_vessel_controls() -> None:
                 default=terminal.current_time,
                 key="depart_vessel_occurred_at",
             )
-            if st.form_submit_button("Depart Vessel", use_container_width=True):
+            if st.form_submit_button(
+                "Depart Vessel",
+                use_container_width=True,
+                disabled=vessel_id is None,
+            ):
+                if vessel_id is None:
+                    return
                 run_terminal_command(
                     "DEPART_VESSEL",
                     {
@@ -108,4 +143,3 @@ def render_vessel_controls() -> None:
                         occurred_at=occurred_at,
                     ),
                 )
-
