@@ -1,9 +1,18 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Generator
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from typing import Any
 
+import simpy
 from terminal_core import Terminal, TerminalState
+
+
+SimulationProcessFactory = Callable[
+    ["PortSimulation"],
+    Generator[simpy.events.Event, Any, Any],
+]
 
 
 @dataclass
@@ -11,7 +20,12 @@ class PortSimulation:
     terminal: Terminal
     start_time: datetime
     seed: int | None = None
-    _elapsed_minutes: float = field(default=0.0, init=False, repr=False)
+    env: simpy.Environment = field(init=False, repr=False)
+    _processes: list[simpy.events.Process] = field(
+        default_factory=list,
+        init=False,
+        repr=False,
+    )
 
     def __post_init__(self) -> None:
         if not isinstance(self.terminal, Terminal):
@@ -31,18 +45,69 @@ class PortSimulation:
         ):
             raise ValueError("Simulation seed must be an integer or None.")
 
+        self.env = simpy.Environment()
+
     @property
     def elapsed_minutes(self) -> float:
-        return self._elapsed_minutes
+        return float(self.env.now)
 
     def now_datetime(self) -> datetime:
-        return self.start_time + timedelta(minutes=self._elapsed_minutes)
+        return self.start_time + timedelta(minutes=self.elapsed_minutes)
 
-    def advance_to(self, elapsed_minutes: float) -> TerminalState:
-        if elapsed_minutes < self._elapsed_minutes:
-            raise ValueError("Simulation time cannot move backwards.")
-
-        self._elapsed_minutes = elapsed_minutes
+    def sync_terminal_time(self) -> TerminalState:
         self.terminal.advance_time_to(self.now_datetime())
 
         return self.terminal.snapshot()
+
+    def add_process(
+        self,
+        process_factory: SimulationProcessFactory,
+    ) -> simpy.events.Process:
+        if not callable(process_factory):
+            raise TypeError("Simulation process factory must be callable.")
+
+        process = self.env.process(process_factory(self))
+        self._processes.append(process)
+
+        return process
+
+    @property
+    def process_count(self) -> int:
+        return len(self._processes)
+
+    def run(
+        self,
+        *,
+        until_minutes: float,
+    ) -> TerminalState:
+        self._validate_target_minutes(until_minutes)
+
+        if until_minutes > self.env.now:
+            self.env.run(until=until_minutes)
+
+        return self.sync_terminal_time()
+
+    def run_for_hours(self, hours: float) -> TerminalState:
+        if isinstance(hours, bool) or not isinstance(hours, (int, float)):
+            raise TypeError("Simulation hours must be a number.")
+
+        if hours < 0:
+            raise ValueError("Simulation hours cannot be negative.")
+
+        return self.run(until_minutes=self.env.now + (hours * 60.0))
+
+    def advance_to(self, elapsed_minutes: float) -> TerminalState:
+        return self.run(until_minutes=elapsed_minutes)
+
+    def _validate_target_minutes(self, elapsed_minutes: float) -> None:
+        if (
+            isinstance(elapsed_minutes, bool)
+            or not isinstance(elapsed_minutes, (int, float))
+        ):
+            raise TypeError("Simulation target time must be a number.")
+
+        if elapsed_minutes < 0:
+            raise ValueError("Simulation target time cannot be negative.")
+
+        if elapsed_minutes < self.env.now:
+            raise ValueError("Simulation time cannot move backwards.")

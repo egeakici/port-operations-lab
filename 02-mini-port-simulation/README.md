@@ -10,12 +10,17 @@ Project boundary:
   and replay artifacts.
 - MiniPortSim must not copy Core classes.
 
-Step 1 status:
+Implemented modules:
 
-- The package skeleton exists.
-- `terminal_core` is consumed as a dependency.
-- A small `PortSimulation` shell anchors the authoritative simulation clock
-  contract.
+- Module 01: Architecture + Core Integration
+- Module 02: Simulation Engine
+
+Current engine contract:
+
+- `PortSimulation` owns a SimPy environment.
+- `env.now` is the authoritative simulation clock in minutes.
+- `Terminal.current_time` is synchronized from `env.now`.
+- Simulation processes are registered through `add_process(...)`.
 
 ## Development Setup
 
