@@ -6,8 +6,8 @@ container-terminal digital-twin and optimization stack.
 ## Eight-Project Roadmap
 
 1. `01-terminal-operations-core`: shared terminal domain model, events, state,
-   aggregate commands, integration scenario, and interactive demo.
-2. `mini-port-sim`: future discrete-event terminal simulator.
+   aggregate commands, integration scenario, and interactive demo. **COMPLETE**
+2. `02-mini-port-simulation`: discrete-event terminal simulator. **IN PROGRESS**
 3. `berth-allocation-lab`: future berth allocation baselines.
 4. `rail-crane-scheduler`: future quay-crane assignment and scheduling logic.
 5. `container-yard-puzzle`: future yard relocation/search core.
@@ -15,7 +15,8 @@ container-terminal digital-twin and optimization stack.
 7. `ais-port-call-calibrator`: future AIS-based port-call calibration.
 8. `terminal-optimization-benchmark`: future experiment and comparison engine.
 
-Only Project 1 is implemented in this repository right now.
+Project 1 is complete. Project 2 has started with the architecture and Core
+integration package boundary.
 
 ## Project 1 Status
 
@@ -48,7 +49,14 @@ Run from `01-terminal-operations-core`:
 python -m pytest -v
 ```
 
-## Next Project
+Run from `02-mini-port-simulation` after installing Project 1 in editable mode:
 
-The next preparation project is MiniPortSim, which will add a time-progressing
+```bash
+python -m pip install -e ../01-terminal-operations-core
+python -m pytest -v
+```
+
+## Current Project
+
+The active preparation project is MiniPortSim, which adds a time-progressing
 discrete-event simulation layer on top of the Terminal Operations Core.

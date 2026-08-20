@@ -1,31 +1,31 @@
-from terminal_core.berth import Berth, BerthOccupancy
-from terminal_core.container_group import (
+from .berth import Berth, BerthOccupancy
+from .container_group import (
     ContainerFlow,
     ContainerGroup,
     ContainerLoadState,
     ContainerSize,
 )
-from terminal_core.operation_task import (
+from .operation_task import (
     OperationTask,
     OperationTaskStatus,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from terminal_core.quay_crane import CraneStatus, QuayCrane
-from terminal_core.terminal import TERMINAL_SCHEMA_VERSION, Terminal
-from terminal_core.terminal_event import (
+from .quay_crane import CraneStatus, QuayCrane
+from .terminal import TERMINAL_SCHEMA_VERSION, Terminal
+from .terminal_event import (
     TerminalEntityType,
     TerminalEvent,
     TerminalEventType,
 )
-from terminal_core.terminal_state import (
+from .terminal_state import (
     TERMINAL_STATE_SCHEMA_VERSION,
     ContainerGroupLocation,
     TerminalState,
 )
-from terminal_core.vessel import Vessel, VesselStatus
-from terminal_core.yard_block import YardBlock, YardBlockStatus, YardCapability
+from .vessel import Vessel, VesselStatus
+from .yard_block import YardBlock, YardBlockStatus, YardCapability
 
 __all__ = [
     "Berth",

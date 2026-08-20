@@ -10,12 +10,12 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any
 
-from terminal_core.berth import Berth
-from terminal_core.container_group import (
+from .berth import Berth
+from .container_group import (
     ContainerFlow,
     ContainerGroup,
 )
-from terminal_core.exceptions import (
+from .exceptions import (
     ContainerGroupLocationValidationError,
     TaskLocationValidationError,
     TerminalDomainError,
@@ -26,17 +26,17 @@ from terminal_core.exceptions import (
     TerminalStateReferenceError,
     TerminalStateValidationError,
 )
-from terminal_core.operation_task import (
+from .operation_task import (
     OperationTask,
     OperationTaskStatus,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from terminal_core.quay_crane import CraneStatus, QuayCrane
-from terminal_core.terminal_event import TerminalEvent
-from terminal_core.vessel import Vessel, VesselStatus
-from terminal_core.yard_block import YardBlock
+from .quay_crane import CraneStatus, QuayCrane
+from .terminal_event import TerminalEvent
+from .vessel import Vessel, VesselStatus
+from .yard_block import YardBlock
 
 
 TERMINAL_STATE_SCHEMA_VERSION = 1

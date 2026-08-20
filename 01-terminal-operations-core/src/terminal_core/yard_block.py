@@ -6,7 +6,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from terminal_core.exceptions import (
+from .exceptions import (
     InvalidYardBlockStatusTransitionError,
     YardBlockValidationError,
     YardCapacityError,

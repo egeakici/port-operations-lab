@@ -10,7 +10,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any
 
-from terminal_core.exceptions import (
+from .exceptions import (
     TerminalEventEntityMismatchError,
     TerminalEventPayloadError,
     TerminalEventValidationError,
