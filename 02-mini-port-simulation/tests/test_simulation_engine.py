@@ -84,6 +84,33 @@ def test_process_can_apply_core_command_at_simulation_time() -> None:
     assert terminal.current_time == START_TIME + timedelta(minutes=120)
 
 
+def test_run_processes_events_scheduled_exactly_at_horizon() -> None:
+    terminal = Terminal(current_time=START_TIME)
+    terminal.register_vessel(create_vessel(), occurred_at=START_TIME)
+    simulation = PortSimulation(
+        terminal=terminal,
+        start_time=START_TIME,
+    )
+
+    def boundary_arrival(sim: PortSimulation):
+        yield sim.env.timeout(60)
+        sim.terminal.arrive_vessel(
+            "V001",
+            occurred_at=sim.now_datetime(),
+        )
+
+    process = simulation.add_process(boundary_arrival)
+
+    simulation.run(until_minutes=60)
+
+    assert process.processed
+    assert simulation.env.now == 60
+    assert terminal.get_vessel("V001").status == VesselStatus.WAITING
+    assert terminal.events[0].event_type == TerminalEventType.VESSEL_ARRIVED
+    assert terminal.events[0].occurred_at == START_TIME + timedelta(minutes=60)
+    assert terminal.current_time == START_TIME + timedelta(minutes=60)
+
+
 def test_run_rejects_moving_simulation_time_backwards() -> None:
     terminal = Terminal(current_time=START_TIME)
     simulation = PortSimulation(

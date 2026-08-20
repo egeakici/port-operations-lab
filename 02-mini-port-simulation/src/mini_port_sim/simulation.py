@@ -81,9 +81,7 @@ class PortSimulation:
         until_minutes: float,
     ) -> TerminalState:
         self._validate_target_minutes(until_minutes)
-
-        if until_minutes > self.env.now:
-            self.env.run(until=until_minutes)
+        self._run_inclusive_until(float(until_minutes))
 
         return self.sync_terminal_time()
 
@@ -111,3 +109,11 @@ class PortSimulation:
 
         if elapsed_minutes < self.env.now:
             raise ValueError("Simulation time cannot move backwards.")
+
+    def _run_inclusive_until(self, until_minutes: float) -> None:
+        # SimPy's numeric run(until=...) stops before events at that exact time.
+        while self.env.peek() <= until_minutes:
+            self.env.step()
+
+        if self.env.now < until_minutes:
+            self.env.run(until=until_minutes)

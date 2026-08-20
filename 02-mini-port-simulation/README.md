@@ -21,6 +21,8 @@ Current engine contract:
 - `env.now` is the authoritative simulation clock in minutes.
 - `Terminal.current_time` is synchronized from `env.now`.
 - Simulation processes are registered through `add_process(...)`.
+- `run(until_minutes=...)` uses inclusive horizon semantics, so events
+  scheduled exactly at the horizon are processed.
 
 ## Development Setup
 
