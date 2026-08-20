@@ -6,9 +6,9 @@ from typing import Any
 
 from app.models import CommandRecord
 from app.models import thaw_json_value
-from src.terminal_core.integration import IntegrationScenarioResult
-from src.terminal_core.terminal_event import TerminalEvent
-from src.terminal_core.terminal_state import TerminalState
+from terminal_core.integration import IntegrationScenarioResult
+from terminal_core.terminal_event import TerminalEvent
+from terminal_core.terminal_state import TerminalState
 
 
 def _enum_value(value: Any) -> Any:

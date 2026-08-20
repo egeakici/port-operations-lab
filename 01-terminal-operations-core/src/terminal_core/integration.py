@@ -7,28 +7,28 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Any
 
-from src.terminal_core.berth import Berth
-from src.terminal_core.container_group import (
+from terminal_core.berth import Berth
+from terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
     ContainerLoadState,
     ContainerSize,
 )
-from src.terminal_core.operation_task import (
+from terminal_core.operation_task import (
     OperationTask,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from src.terminal_core.quay_crane import QuayCrane
-from src.terminal_core.terminal import Terminal
-from src.terminal_core.terminal_event import TerminalEvent
-from src.terminal_core.terminal_state import (
+from terminal_core.quay_crane import QuayCrane
+from terminal_core.terminal import Terminal
+from terminal_core.terminal_event import TerminalEvent
+from terminal_core.terminal_state import (
     ContainerGroupLocation,
     TerminalState,
 )
-from src.terminal_core.vessel import Vessel
-from src.terminal_core.yard_block import YardBlock, YardCapability
+from terminal_core.vessel import Vessel
+from terminal_core.yard_block import YardBlock, YardCapability
 
 
 REFERENCE_SCENARIO_ID = "two-vessel-transshipment-v1"

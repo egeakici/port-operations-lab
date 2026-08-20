@@ -10,12 +10,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterator
 
-from src.terminal_core.berth import Berth
-from src.terminal_core.container_group import (
+from terminal_core.berth import Berth
+from terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
 )
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     TerminalConsistencyError,
     TerminalDomainError,
     TerminalDuplicateEntityError,
@@ -27,26 +27,26 @@ from src.terminal_core.exceptions import (
     TerminalTimeError,
     TerminalValidationError,
 )
-from src.terminal_core.operation_task import (
+from terminal_core.operation_task import (
     OperationTask,
     OperationTaskStatus,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from src.terminal_core.quay_crane import CraneStatus, QuayCrane
-from src.terminal_core.terminal_event import (
+from terminal_core.quay_crane import CraneStatus, QuayCrane
+from terminal_core.terminal_event import (
     TerminalEntityType,
     TerminalEvent,
     TerminalEventType,
 )
-from src.terminal_core.terminal_state import (
+from terminal_core.terminal_state import (
     STATE_TEU_ABS_TOLERANCE,
     ContainerGroupLocation,
     TerminalState,
 )
-from src.terminal_core.vessel import Vessel, VesselStatus
-from src.terminal_core.yard_block import YardBlock
+from terminal_core.vessel import Vessel, VesselStatus
+from terminal_core.yard_block import YardBlock
 
 
 TERMINAL_SCHEMA_VERSION = 1

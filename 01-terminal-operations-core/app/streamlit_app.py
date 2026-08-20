@@ -26,7 +26,7 @@ from app.models import CommandRecord, canonical_json
 from app.styles import apply_styles
 from app.ui_helpers import date_time_input
 from app.visual.terminal_map import render_terminal_map
-from src.terminal_core.terminal import Terminal
+from terminal_core.terminal import Terminal
 
 
 def _slug(value: str) -> str:

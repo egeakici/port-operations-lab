@@ -4,7 +4,7 @@ import streamlit as st
 
 from app import session_store
 from app.ui_helpers import date_time_input, run_terminal_command, select_registered
-from src.terminal_core.operation_task import OperationTaskStatus, OperationType
+from terminal_core.operation_task import OperationTaskStatus, OperationType
 
 
 def _task_ids_with_statuses(statuses: set[OperationTaskStatus]) -> tuple[str, ...]:

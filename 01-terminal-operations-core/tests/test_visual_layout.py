@@ -6,10 +6,10 @@ import pytest
 
 from app.visual import layout
 from app.visual.presenter import build_terminal_visual_scene
-from src.terminal_core.berth import Berth
-from src.terminal_core.quay_crane import QuayCrane
-from src.terminal_core.terminal import Terminal
-from src.terminal_core.vessel import Vessel
+from terminal_core.berth import Berth
+from terminal_core.quay_crane import QuayCrane
+from terminal_core.terminal import Terminal
+from terminal_core.vessel import Vessel
 
 
 def _terminal_with_scaled_berth() -> Terminal:

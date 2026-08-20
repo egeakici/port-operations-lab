@@ -15,9 +15,9 @@ from app.visual.models import (
     VisualRect,
     YardBlockVisual,
 )
-from src.terminal_core.operation_task import OperationTaskStatus, TaskLocationType
-from src.terminal_core.terminal_state import TerminalState
-from src.terminal_core.vessel import VesselStatus
+from terminal_core.operation_task import OperationTaskStatus, TaskLocationType
+from terminal_core.terminal_state import TerminalState
+from terminal_core.vessel import VesselStatus
 
 
 ACTIVE_TASK_STATUSES = {

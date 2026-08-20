@@ -12,8 +12,8 @@ from app.models import (
     SavedCheckpoint,
     canonical_json,
 )
-from src.terminal_core.integration import build_reference_terminal, run_reference_scenario
-from src.terminal_core.terminal import Terminal
+from terminal_core.integration import build_reference_terminal, run_reference_scenario
+from terminal_core.terminal import Terminal
 
 
 SANDBOX_TERMINAL = "sandbox_terminal"

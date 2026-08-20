@@ -4,7 +4,7 @@ import streamlit as st
 
 from app import session_store
 from app.ui_helpers import date_time_input, run_terminal_command, select_registered
-from src.terminal_core.vessel import VesselStatus
+from terminal_core.vessel import VesselStatus
 
 
 def _vessel_ids_with_status(status: VesselStatus) -> tuple[str, ...]:

@@ -6,13 +6,13 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     CraneAssignmentError,
     CraneOperationError,
     InvalidCraneStatusTransitionError,
     QuayCraneValidationError,
 )
-from src.terminal_core.vessel import Vessel
+from terminal_core.vessel import Vessel
 
 
 class CraneStatus(Enum):

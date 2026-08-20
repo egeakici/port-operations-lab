@@ -5,7 +5,7 @@ import html
 import streamlit as st
 
 from app import presenters
-from src.terminal_core.terminal_state import TerminalState
+from terminal_core.terminal_state import TerminalState
 
 
 def _dataframe_or_info(rows: list[dict[str, object]], message: str) -> None:

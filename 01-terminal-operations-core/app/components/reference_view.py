@@ -5,7 +5,7 @@ import streamlit as st
 from app import presenters, session_store
 from app.components.state_views import render_live_state
 from app.visual.terminal_map import render_terminal_map
-from src.terminal_core.integration import IntegrationCheckpoint
+from terminal_core.integration import IntegrationCheckpoint
 
 
 REFERENCE_CHECKPOINT_SELECT = "reference_checkpoint_select"

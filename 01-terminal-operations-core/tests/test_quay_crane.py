@@ -2,16 +2,16 @@ from datetime import datetime
 
 import pytest
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     CraneAssignmentError,
     CraneOperationError,
     QuayCraneValidationError,
 )
-from src.terminal_core.quay_crane import (
+from terminal_core.quay_crane import (
     CraneStatus,
     QuayCrane,
 )
-from src.terminal_core.vessel import Vessel
+from terminal_core.vessel import Vessel
 
 
 def create_vessel(

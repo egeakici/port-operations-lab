@@ -6,10 +6,10 @@ import streamlit as st
 
 from app import session_store
 from app.ui_helpers import date_time_input, run_terminal_command
-from src.terminal_core.berth import Berth
-from src.terminal_core.quay_crane import QuayCrane
-from src.terminal_core.vessel import Vessel
-from src.terminal_core.yard_block import YardBlock, YardCapability
+from terminal_core.berth import Berth
+from terminal_core.quay_crane import QuayCrane
+from terminal_core.vessel import Vessel
+from terminal_core.yard_block import YardBlock, YardCapability
 
 
 def render_setup_forms() -> None:

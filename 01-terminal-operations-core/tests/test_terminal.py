@@ -4,14 +4,14 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from src.terminal_core.berth import Berth
-from src.terminal_core.container_group import (
+from terminal_core.berth import Berth
+from terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
     ContainerLoadState,
     ContainerSize,
 )
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     TerminalConsistencyError,
     TerminalDuplicateEntityError,
     TerminalInventoryError,
@@ -22,26 +22,26 @@ from src.terminal_core.exceptions import (
     TerminalTimeError,
     YardOperationError,
 )
-from src.terminal_core.operation_task import (
+from terminal_core.operation_task import (
     OperationTask,
     OperationTaskStatus,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from src.terminal_core.quay_crane import CraneStatus, QuayCrane
-from src.terminal_core.terminal import (
+from terminal_core.quay_crane import CraneStatus, QuayCrane
+from terminal_core.terminal import (
     TERMINAL_SCHEMA_VERSION,
     Terminal,
 )
-from src.terminal_core.terminal_event import (
+from terminal_core.terminal_event import (
     TerminalEntityType,
     TerminalEvent,
     TerminalEventType,
 )
-from src.terminal_core.terminal_state import ContainerGroupLocation
-from src.terminal_core.vessel import Vessel, VesselStatus
-from src.terminal_core.yard_block import YardBlock, YardCapability
+from terminal_core.terminal_state import ContainerGroupLocation
+from terminal_core.vessel import Vessel, VesselStatus
+from terminal_core.yard_block import YardBlock, YardCapability
 
 
 CURRENT_TIME = datetime(2026, 8, 5, 9, 0)

@@ -23,7 +23,6 @@ dist/
 build/
 *.egg-info/
 # Planned projects are kept local until they are ready.
-02-mini-port-simulation/
 03-berth-allocation-lab/
 04-rail-crane-scheduler/
 05-container-yard-puzzle/

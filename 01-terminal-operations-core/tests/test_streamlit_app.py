@@ -6,7 +6,7 @@ import pytest
 
 from app import session_store
 from app.models import canonical_json
-from src.terminal_core.vessel import VesselStatus
+from terminal_core.vessel import VesselStatus
 
 
 streamlit_testing = pytest.importorskip("streamlit.testing.v1")

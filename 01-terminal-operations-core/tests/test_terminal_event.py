@@ -10,25 +10,25 @@ try:
 except ImportError:
     StrEnum = None
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     TerminalEventEntityMismatchError,
     TerminalEventPayloadError,
     TerminalEventValidationError,
 )
-from src.terminal_core.operation_task import (
+from terminal_core.operation_task import (
     OperationTask,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from src.terminal_core.quay_crane import QuayCrane
-from src.terminal_core.terminal_event import (
+from terminal_core.quay_crane import QuayCrane
+from terminal_core.terminal_event import (
     TerminalEntityType,
     TerminalEvent,
     TerminalEventType,
     VALID_EVENT_ENTITY_TYPES,
 )
-from src.terminal_core.vessel import Vessel
+from terminal_core.vessel import Vessel
 
 
 OCCURRED_AT = datetime(2026, 8, 5, 10, 30)

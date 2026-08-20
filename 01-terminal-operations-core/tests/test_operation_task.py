@@ -2,13 +2,13 @@ from datetime import datetime
 
 import pytest
 
-from src.terminal_core.container_group import (
+from terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
     ContainerLoadState,
     ContainerSize,
 )
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     InvalidOperationTaskStatusTransitionError,
     OperationRouteError,
     OperationTaskAssignmentError,
@@ -17,14 +17,14 @@ from src.terminal_core.exceptions import (
     OperationTaskValidationError,
     TaskLocationValidationError,
 )
-from src.terminal_core.operation_task import (
+from terminal_core.operation_task import (
     OperationTask,
     OperationTaskStatus,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from src.terminal_core.quay_crane import QuayCrane
+from terminal_core.quay_crane import QuayCrane
 
 
 STARTED_AT = datetime(2026, 8, 5, 10, 0)

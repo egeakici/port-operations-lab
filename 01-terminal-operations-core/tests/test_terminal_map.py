@@ -4,9 +4,9 @@ from datetime import datetime
 
 from app.visual.presenter import build_terminal_visual_scene
 from app.visual.svg_renderer import render_terminal_svg
-from src.terminal_core.integration import IntegrationCheckpoint, run_reference_scenario
-from src.terminal_core.terminal import Terminal
-from src.terminal_core.vessel import Vessel
+from terminal_core.integration import IntegrationCheckpoint, run_reference_scenario
+from terminal_core.terminal import Terminal
+from terminal_core.vessel import Vessel
 
 
 def test_empty_terminal_svg_renders_empty_state() -> None:

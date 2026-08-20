@@ -5,7 +5,7 @@ from typing import Any
 import json
 from pathlib import Path
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     InvalidStatusTransitionError,
     VesselValidationError
 )

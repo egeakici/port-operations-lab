@@ -6,12 +6,12 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     ContainerCargoError,
     ContainerFlowError,
     ContainerGroupValidationError,
 )
-from src.terminal_core.yard_block import YardCapability
+from terminal_core.yard_block import YardCapability
 
 
 class ContainerSize(Enum):

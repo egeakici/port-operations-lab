@@ -5,24 +5,24 @@ from datetime import datetime, timedelta
 
 from app.command_service import execute_terminal_command
 from app.session_store import save_checkpoint
-from src.terminal_core.berth import Berth
-from src.terminal_core.container_group import (
+from terminal_core.berth import Berth
+from terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
     ContainerLoadState,
     ContainerSize,
 )
-from src.terminal_core.integration import build_reference_terminal
-from src.terminal_core.operation_task import (
+from terminal_core.integration import build_reference_terminal
+from terminal_core.operation_task import (
     OperationTask,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from src.terminal_core.terminal import Terminal
-from src.terminal_core.terminal_state import ContainerGroupLocation
-from src.terminal_core.vessel import Vessel
-from src.terminal_core.yard_block import YardBlock
+from terminal_core.terminal import Terminal
+from terminal_core.terminal_state import ContainerGroupLocation
+from terminal_core.vessel import Vessel
+from terminal_core.yard_block import YardBlock
 
 
 def _empty_terminal() -> Terminal:

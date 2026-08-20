@@ -6,17 +6,17 @@ from types import MappingProxyType
 
 import pytest
 
-from src.terminal_core.container_group import (
+from terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
     ContainerLoadState,
     ContainerSize,
 )
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     OperationTaskProgressError,
     TerminalOperationError,
 )
-from src.terminal_core.integration import (
+from terminal_core.integration import (
     DEFAULT_REFERENCE_START_TIME,
     REFERENCE_BACKUP_CRANE_ID,
     REFERENCE_BERTH_ID,
@@ -36,18 +36,18 @@ from src.terminal_core.integration import (
     build_reference_terminal,
     run_reference_scenario,
 )
-from src.terminal_core.operation_task import (
+from terminal_core.operation_task import (
     OperationTask,
     OperationTaskStatus,
     OperationType,
     TaskLocation,
     TaskLocationType,
 )
-from src.terminal_core.quay_crane import CraneStatus
-from src.terminal_core.terminal import Terminal
-from src.terminal_core.terminal_event import TerminalEventType
-from src.terminal_core.terminal_state import ContainerGroupLocation
-from src.terminal_core.vessel import VesselStatus
+from terminal_core.quay_crane import CraneStatus
+from terminal_core.terminal import Terminal
+from terminal_core.terminal_event import TerminalEventType
+from terminal_core.terminal_state import ContainerGroupLocation
+from terminal_core.vessel import VesselStatus
 
 
 def test_reference_terminal_factory_builds_only_initial_registry() -> None:

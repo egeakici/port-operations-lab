@@ -4,7 +4,7 @@ import streamlit as st
 
 from app import session_store
 from app.ui_helpers import date_time_input, run_terminal_command, select_registered
-from src.terminal_core.quay_crane import CraneStatus
+from terminal_core.quay_crane import CraneStatus
 
 
 def _crane_ids_with_status(status: CraneStatus) -> tuple[str, ...]:

@@ -6,8 +6,8 @@ from datetime import datetime
 from typing import Any
 
 from app.models import CommandRecord, canonical_json
-from src.terminal_core.exceptions import TerminalDomainError
-from src.terminal_core.terminal import Terminal
+from terminal_core.exceptions import TerminalDomainError
+from terminal_core.terminal import Terminal
 
 
 @dataclass(frozen=True)

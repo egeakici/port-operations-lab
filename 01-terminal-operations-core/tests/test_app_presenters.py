@@ -4,16 +4,16 @@ from datetime import datetime
 
 from app import presenters
 from app.models import CommandRecord, canonical_json
-from src.terminal_core.berth import Berth
-from src.terminal_core.integration import (
+from terminal_core.berth import Berth
+from terminal_core.integration import (
     IntegrationCheckpoint,
     build_reference_terminal,
     run_reference_scenario,
 )
-from src.terminal_core.quay_crane import QuayCrane
-from src.terminal_core.terminal import Terminal
-from src.terminal_core.vessel import Vessel
-from src.terminal_core.yard_block import YardBlock
+from terminal_core.quay_crane import QuayCrane
+from terminal_core.terminal import Terminal
+from terminal_core.vessel import Vessel
+from terminal_core.yard_block import YardBlock
 
 
 def _vessel(vessel_id: str = "V001") -> Vessel:

@@ -2,11 +2,11 @@ from datetime import datetime
 
 import pytest
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     InvalidStatusTransitionError,
     VesselValidationError,
 )
-from src.terminal_core.vessel import Vessel, VesselStatus
+from terminal_core.vessel import Vessel, VesselStatus
 
 
 def test_valid_vessel_is_created() -> None:

@@ -1,6 +1,6 @@
 import pytest
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     InvalidYardBlockStatusTransitionError,
     YardBlockValidationError,
     YardCapacityError,
@@ -8,7 +8,7 @@ from src.terminal_core.exceptions import (
     YardOperationError,
     YardReservationError,
 )
-from src.terminal_core.yard_block import (
+from terminal_core.yard_block import (
     YardBlock,
     YardBlockStatus,
     YardCapability,

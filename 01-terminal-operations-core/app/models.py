@@ -7,7 +7,7 @@ from datetime import datetime
 from types import MappingProxyType
 from typing import Any
 
-from src.terminal_core.terminal_state import TerminalState
+from terminal_core.terminal_state import TerminalState
 
 
 SANDBOX_SCENARIO_SCHEMA_VERSION = 1

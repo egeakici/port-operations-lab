@@ -8,7 +8,7 @@ import streamlit as st
 
 from app.command_service import execute_terminal_command
 from app import session_store
-from src.terminal_core.terminal import Terminal
+from terminal_core.terminal import Terminal
 
 
 def date_time_input(

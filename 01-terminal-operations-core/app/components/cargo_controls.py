@@ -6,20 +6,20 @@ import streamlit as st
 
 from app import session_store
 from app.ui_helpers import date_time_input, run_terminal_command, select_registered
-from src.terminal_core.container_group import (
+from terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
     ContainerLoadState,
     ContainerSize,
 )
-from src.terminal_core.operation_task import (
+from terminal_core.operation_task import (
     OperationTask,
     OperationType,
     TaskLocation,
     TaskLocationType,
     VALID_OPERATION_ROUTES,
 )
-from src.terminal_core.terminal_state import ContainerGroupLocation
+from terminal_core.terminal_state import ContainerGroupLocation
 
 
 def _optional_text(value: str) -> str | None:

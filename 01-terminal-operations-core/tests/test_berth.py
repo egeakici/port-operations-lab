@@ -2,13 +2,13 @@ from datetime import datetime
 
 import pytest
 
-from src.terminal_core.berth import(Berth, BerthOccupancy)
-from src.terminal_core.exceptions import(
+from terminal_core.berth import(Berth, BerthOccupancy)
+from terminal_core.exceptions import(
     BerthPlacementError,
     BerthValidationError,
     VesselNotFoundAtBerthError,
 )
-from src.terminal_core.vessel import Vessel
+from terminal_core.vessel import Vessel
 
 def create_vessel(
         vessel_id: str,

@@ -8,7 +8,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     InvalidOperationTaskStatusTransitionError,
     OperationRouteError,
     OperationTaskAssignmentError,

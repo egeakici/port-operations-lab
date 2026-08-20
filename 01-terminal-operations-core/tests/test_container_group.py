@@ -1,18 +1,18 @@
 import pytest
 
-from src.terminal_core.container_group import (
+from terminal_core.container_group import (
     ContainerFlow,
     ContainerGroup,
     ContainerLoadState,
     ContainerSize,
 )
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     ContainerCargoError,
     ContainerFlowError,
     ContainerGroupValidationError,
     YardCompatibilityError,
 )
-from src.terminal_core.yard_block import (
+from terminal_core.yard_block import (
     YardBlock,
     YardCapability,
 )

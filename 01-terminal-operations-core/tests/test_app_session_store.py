@@ -7,8 +7,8 @@ import pytest
 
 from app import session_store
 from app.models import CommandRecord, canonical_json
-from src.terminal_core.berth import Berth
-from src.terminal_core.terminal import Terminal
+from terminal_core.berth import Berth
+from terminal_core.terminal import Terminal
 
 
 def test_new_session_initialization() -> None:

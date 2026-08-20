@@ -7,7 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.terminal_core.integration import (
+from terminal_core.integration import (
     REFERENCE_BACKUP_CRANE_ID,
     REFERENCE_DISCHARGE_TASK_ID,
     REFERENCE_GROUP_ID,
@@ -18,7 +18,7 @@ from src.terminal_core.integration import (
     IntegrationCheckpoint,
     run_reference_scenario,
 )
-from src.terminal_core.operation_task import TaskLocationType
+from terminal_core.operation_task import TaskLocationType
 
 
 def main() -> None:

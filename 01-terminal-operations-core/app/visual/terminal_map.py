@@ -5,7 +5,7 @@ import streamlit.components.v1 as components
 
 from app.visual.presenter import build_terminal_visual_scene
 from app.visual.svg_renderer import render_terminal_svg
-from src.terminal_core.terminal_state import TerminalState
+from terminal_core.terminal_state import TerminalState
 
 
 def render_terminal_map(

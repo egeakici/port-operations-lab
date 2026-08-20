@@ -5,12 +5,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from src.terminal_core.exceptions import (
+from terminal_core.exceptions import (
     BerthPlacementError,
     BerthValidationError,
     VesselNotFoundAtBerthError,
 )
-from src.terminal_core.vessel import Vessel
+from terminal_core.vessel import Vessel
 
 @dataclass
 class Berth:
