@@ -8,6 +8,8 @@ from typing import Any
 import simpy
 from terminal_core import Terminal, TerminalState
 
+from mini_port_sim.scenario import ScenarioConfig
+
 
 SimulationProcessFactory = Callable[
     ["PortSimulation"],
@@ -20,6 +22,7 @@ class PortSimulation:
     terminal: Terminal
     start_time: datetime
     seed: int | None = None
+    scenario: ScenarioConfig | None = None
     env: simpy.Environment = field(init=False, repr=False)
     _processes: list[simpy.events.Process] = field(
         default_factory=list,
@@ -45,7 +48,33 @@ class PortSimulation:
         ):
             raise ValueError("Simulation seed must be an integer or None.")
 
+        if self.scenario is not None:
+            if not isinstance(self.scenario, ScenarioConfig):
+                raise TypeError("Simulation scenario must be a ScenarioConfig.")
+
+            if self.seed is not None and self.seed != self.scenario.seed:
+                raise ValueError(
+                    "Simulation seed must match the scenario seed."
+                )
+
+            self.seed = self.scenario.seed
+
         self.env = simpy.Environment()
+
+    @classmethod
+    def from_scenario(
+        cls,
+        *,
+        terminal: Terminal,
+        start_time: datetime,
+        scenario: ScenarioConfig,
+    ) -> "PortSimulation":
+        return cls(
+            terminal=terminal,
+            start_time=start_time,
+            seed=scenario.seed,
+            scenario=scenario,
+        )
 
     @property
     def elapsed_minutes(self) -> float:
@@ -93,6 +122,12 @@ class PortSimulation:
             raise ValueError("Simulation hours cannot be negative.")
 
         return self.run(until_minutes=self.env.now + (hours * 60.0))
+
+    def run_scenario(self) -> TerminalState:
+        if self.scenario is None:
+            raise ValueError("Cannot run scenario without a ScenarioConfig.")
+
+        return self.run(until_minutes=self.scenario.duration_minutes)
 
     def advance_to(self, elapsed_minutes: float) -> TerminalState:
         return self.run(until_minutes=elapsed_minutes)

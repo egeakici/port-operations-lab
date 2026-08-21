@@ -14,6 +14,7 @@ Implemented modules:
 
 - Module 01: Architecture + Core Integration
 - Module 02: Simulation Engine
+- Module 03: Scenario + RNG
 
 Current engine contract:
 
@@ -23,6 +24,15 @@ Current engine contract:
 - Simulation processes are registered through `add_process(...)`.
 - `run(until_minutes=...)` uses inclusive horizon semantics, so events
   scheduled exactly at the horizon are processed.
+
+Current scenario contract:
+
+- Scenario inputs are represented by `ScenarioConfig`.
+- Terminal and traffic assumptions live in nested config objects.
+- Scenario JSON files can be loaded from `scenarios/`.
+- `RandomStreams` derives independent RNG streams from one master seed.
+- Consuming one stream, such as `arrival`, does not advance another stream,
+  such as `failure`.
 
 ## Development Setup
 

@@ -1,0 +1,20 @@
+{
+  "scenario_id": "smoke",
+  "duration_hours": 24,
+  "seed": 42,
+  "termination_mode": "horizon",
+  "terminal": {
+    "berth_length_m": 1200,
+    "min_clearance_m": 20,
+    "quay_crane_count": 4,
+    "yard_block_count": 3
+  },
+  "traffic": {
+    "vessel_count": 5,
+    "mean_interarrival_minutes": 180,
+    "min_vessel_length_m": 180,
+    "max_vessel_length_m": 360,
+    "min_workload_moves": 200,
+    "max_workload_moves": 1200
+  }
+}
