@@ -15,9 +15,10 @@ container-terminal digital-twin and optimization stack.
 7. `ais-port-call-calibrator`: future AIS-based port-call calibration.
 8. `terminal-optimization-benchmark`: future experiment and comparison engine.
 
-Project 1 is complete. Project 2 has modules 1-3 implemented: architecture,
-Core integration, the initial SimPy simulation engine, and scenario/RNG
-contracts.
+Project 1 is complete. Project 2 has modules 1-6 implemented: architecture,
+Core integration, the initial SimPy simulation engine, scenario/RNG contracts,
+vessel arrivals, FCFS berth allocation, and the simplified vessel service
+lifecycle.
 
 ## Project 1 Status
 

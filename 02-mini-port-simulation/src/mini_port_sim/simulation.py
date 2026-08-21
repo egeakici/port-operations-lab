@@ -3,13 +3,18 @@ from __future__ import annotations
 from collections.abc import Callable, Generator
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import simpy
 from terminal_core import Terminal, TerminalState
 
 from mini_port_sim.rng import RandomStreams
 from mini_port_sim.scenario import ScenarioConfig
+
+if TYPE_CHECKING:
+    from mini_port_sim.arrivals.vessel_generator import VesselArrivalPlan
+    from mini_port_sim.policies.berth_policy import FCFSLeftmostPolicy
+    from mini_port_sim.processes.vessel_process import VesselLifecycleRecord
 
 
 SimulationProcessFactory = Callable[
@@ -30,8 +35,28 @@ class PortSimulation:
         init=False,
         repr=False,
     )
+    waiting_vessel_ids: tuple[str, ...] = field(
+        default_factory=tuple,
+        init=False,
+    )
+    completed_vessel_ids: list[str] = field(
+        default_factory=list,
+        init=False,
+    )
+    arrival_plans: tuple["VesselArrivalPlan", ...] = field(
+        default_factory=tuple,
+        init=False,
+    )
+    lifecycle_records: list["VesselLifecycleRecord"] = field(
+        default_factory=list,
+        init=False,
+    )
     _processes: list[simpy.events.Process] = field(
         default_factory=list,
+        init=False,
+        repr=False,
+    )
+    _berth_dispatch_event: simpy.events.Event = field(
         init=False,
         repr=False,
     )
@@ -66,6 +91,7 @@ class PortSimulation:
             self.seed = self.scenario.seed
 
         self.env = simpy.Environment()
+        self._berth_dispatch_event = self.env.event()
         if self.seed is not None:
             self.random_streams = RandomStreams(master_seed=self.seed)
 
@@ -117,9 +143,70 @@ class PortSimulation:
 
         return process
 
+    def add_vessel_arrival_process(
+        self,
+        plans: tuple["VesselArrivalPlan", ...] | None = None,
+    ) -> simpy.events.Process:
+        from mini_port_sim.arrivals import vessel_arrival_process
+
+        return self.add_process(
+            lambda simulation: vessel_arrival_process(
+                simulation,
+                plans,
+            )
+        )
+
+    def add_berth_dispatcher(
+        self,
+        policy: "FCFSLeftmostPolicy | None" = None,
+    ) -> simpy.events.Process:
+        from mini_port_sim.processes import berth_dispatcher_process
+
+        return self.add_process(
+            lambda simulation: berth_dispatcher_process(
+                simulation,
+                policy,
+            )
+        )
+
+    def start_basic_operations(self) -> None:
+        self.add_berth_dispatcher()
+        self.add_vessel_arrival_process()
+
     @property
     def process_count(self) -> int:
         return len(self._processes)
+
+    @property
+    def berth_dispatch_event(self) -> simpy.events.Event:
+        return self._berth_dispatch_event
+
+    def request_berth_dispatch(self) -> None:
+        if not self._berth_dispatch_event.triggered:
+            self._berth_dispatch_event.succeed()
+
+    def reset_berth_dispatch_event(self) -> None:
+        if self._berth_dispatch_event.triggered:
+            self._berth_dispatch_event = self.env.event()
+
+    def add_waiting_vessel(self, vessel_id: str) -> None:
+        if not isinstance(vessel_id, str) or not vessel_id.strip():
+            raise ValueError("Waiting vessel ID cannot be empty.")
+
+        if vessel_id in self.waiting_vessel_ids:
+            raise ValueError(f"Vessel {vessel_id} is already waiting.")
+
+        self.waiting_vessel_ids = (*self.waiting_vessel_ids, vessel_id)
+
+    def remove_waiting_vessel(self, vessel_id: str) -> None:
+        if vessel_id not in self.waiting_vessel_ids:
+            raise ValueError(f"Vessel {vessel_id} is not waiting.")
+
+        self.waiting_vessel_ids = tuple(
+            waiting_id
+            for waiting_id in self.waiting_vessel_ids
+            if waiting_id != vessel_id
+        )
 
     def run(
         self,

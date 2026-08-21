@@ -379,6 +379,20 @@ def test_vessel_can_be_berthed_and_berth_uses_canonical_vessel() -> None:
     assert occupancy.vessel is terminal._vessels["V001"]
 
 
+def test_berthed_vessel_operations_can_start_without_task_detail() -> None:
+    terminal = Terminal(current_time=CURRENT_TIME)
+    terminal.register_vessel(create_vessel())
+    terminal.arrive_vessel("V001")
+    terminal.register_berth(create_berth())
+    terminal.berth_vessel("V001", "B01", 50.0)
+
+    event = terminal.start_vessel_operations("V001")
+
+    assert terminal.get_vessel("V001").status == VesselStatus.OPERATING
+    assert event.event_type == TerminalEventType.VESSEL_OPERATION_STARTED
+    assert event.correlation_id == "V001"
+
+
 def test_discharge_task_happy_path_updates_state_and_events() -> None:
     terminal = create_ready_terminal()
 

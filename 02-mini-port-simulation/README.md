@@ -15,6 +15,9 @@ Implemented modules:
 - Module 01: Architecture + Core Integration
 - Module 02: Simulation Engine
 - Module 03: Scenario + RNG
+- Module 04: Vessel Arrival Generator
+- Module 05: FCFS Berth Allocation
+- Module 06: Vessel Service Lifecycle
 
 Current engine contract:
 
@@ -34,6 +37,21 @@ Current scenario contract:
 - `PortSimulation` owns one `RandomStreams` manager for each seeded run.
 - Consuming one stream, such as `arrival`, does not advance another stream,
   such as `failure`.
+
+Current operations contract:
+
+- `VesselArrivalGenerator` creates deterministic vessel arrival plans from a
+  scenario and the simulation-owned RNG manager.
+- `vessel_arrival_process(...)` registers vessels in Core and moves them to
+  waiting at their scheduled simulation time.
+- `FCFSLeftmostPolicy` chooses the first waiting feasible vessel and the
+  leftmost safe continuous-berth position.
+- `berth_dispatcher_process(...)` starts vessel service processes when berth
+  space is available.
+- `vessel_service_process(...)` models berthing preparation, simplified
+  service time, departure preparation, and Core departure.
+- `PortSimulation.start_basic_operations()` wires the arrival and berth
+  dispatcher processes for the baseline flow.
 
 ## Development Setup
 

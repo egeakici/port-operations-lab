@@ -611,6 +611,32 @@ class Terminal:
 
             return occupancy_added, berthed
 
+    def start_vessel_operations(
+        self,
+        vessel_id: str,
+        *,
+        occurred_at: datetime | None = None,
+    ) -> TerminalEvent:
+        with self._atomic():
+            event_time = self._resolve_occurred_at(occurred_at)
+            vessel = self._get(self._vessels, vessel_id, "vessel")
+            self._ensure_vessel_is_berthed(vessel_id)
+
+            if vessel.status != VesselStatus.BERTHED:
+                raise TerminalOperationError(
+                    "Only berthed vessels can start operations."
+                )
+
+            vessel.transition_to(VesselStatus.OPERATING)
+
+            return self._emit_event(
+                TerminalEventType.VESSEL_OPERATION_STARTED,
+                TerminalEntityType.VESSEL,
+                vessel_id,
+                occurred_at=event_time,
+                correlation_id=vessel_id,
+            )
+
     def depart_vessel(
         self,
         vessel_id: str,

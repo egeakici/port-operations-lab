@@ -16,5 +16,10 @@
     "max_vessel_length_m": 360,
     "min_workload_moves": 200,
     "max_workload_moves": 1200
+  },
+  "service": {
+    "berthing_preparation_minutes": 30,
+    "service_minutes_per_move": 0.5,
+    "departure_preparation_minutes": 20
   }
 }

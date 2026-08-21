@@ -157,6 +157,68 @@ class TrafficConfig:
 
 
 @dataclass(frozen=True)
+class ServiceConfig:
+    berthing_preparation_minutes: float = 30.0
+    service_minutes_per_move: float = 0.5
+    departure_preparation_minutes: float = 20.0
+
+    def __post_init__(self) -> None:
+        _validate_non_negative_number(
+            self.berthing_preparation_minutes,
+            "Berthing preparation minutes",
+        )
+
+        _validate_positive_number(
+            self.service_minutes_per_move,
+            "Service minutes per move",
+        )
+
+        _validate_non_negative_number(
+            self.departure_preparation_minutes,
+            "Departure preparation minutes",
+        )
+
+    def service_duration_minutes(self, workload_moves: int) -> float:
+        _validate_non_negative_int(
+            workload_moves,
+            "Workload moves",
+        )
+
+        return workload_moves * self.service_minutes_per_move
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "berthing_preparation_minutes": (
+                self.berthing_preparation_minutes
+            ),
+            "service_minutes_per_move": self.service_minutes_per_move,
+            "departure_preparation_minutes": (
+                self.departure_preparation_minutes
+            ),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ServiceConfig":
+        if not isinstance(data, dict):
+            raise ValueError("Service config must be a dictionary.")
+
+        return cls(
+            berthing_preparation_minutes=data.get(
+                "berthing_preparation_minutes",
+                cls.berthing_preparation_minutes,
+            ),
+            service_minutes_per_move=data.get(
+                "service_minutes_per_move",
+                cls.service_minutes_per_move,
+            ),
+            departure_preparation_minutes=data.get(
+                "departure_preparation_minutes",
+                cls.departure_preparation_minutes,
+            ),
+        )
+
+
+@dataclass(frozen=True)
 class ScenarioConfig:
     scenario_id: str
     duration_hours: float
@@ -164,6 +226,7 @@ class ScenarioConfig:
     termination_mode: TerminationMode = TerminationMode.HORIZON
     terminal: TerminalConfig = field(default_factory=TerminalConfig)
     traffic: TrafficConfig = field(default_factory=TrafficConfig)
+    service: ServiceConfig = field(default_factory=ServiceConfig)
 
     def __post_init__(self) -> None:
         if (
@@ -191,6 +254,9 @@ class ScenarioConfig:
         if not isinstance(self.traffic, TrafficConfig):
             raise ValueError("Scenario traffic must be a TrafficConfig.")
 
+        if not isinstance(self.service, ServiceConfig):
+            raise ValueError("Scenario service must be a ServiceConfig.")
+
     @property
     def duration_minutes(self) -> float:
         return self.duration_hours * 60.0
@@ -206,6 +272,7 @@ class ScenarioConfig:
             "termination_mode": self.termination_mode.value,
             "terminal": self.terminal.to_dict(),
             "traffic": self.traffic.to_dict(),
+            "service": self.service.to_dict(),
         }
 
     @classmethod
@@ -226,6 +293,7 @@ class ScenarioConfig:
                 ),
                 terminal=TerminalConfig.from_dict(data.get("terminal", {})),
                 traffic=TrafficConfig.from_dict(data.get("traffic", {})),
+                service=ServiceConfig.from_dict(data.get("service", {})),
             )
         except KeyError as error:
             raise ValueError(f"Missing scenario field: {error}") from error
@@ -274,3 +342,11 @@ def _validate_positive_int(value: int, field_name: str) -> None:
 
     if value <= 0:
         raise ValueError(f"{field_name} must be greater than zero.")
+
+
+def _validate_non_negative_int(value: int, field_name: str) -> None:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{field_name} must be an integer.")
+
+    if value < 0:
+        raise ValueError(f"{field_name} cannot be negative.")
