@@ -151,3 +151,57 @@ def test_port_simulation_can_be_created_and_run_from_scenario() -> None:
     assert simulation.scenario == scenario
     assert simulation.elapsed_minutes == 120.0
     assert snapshot.current_time == START_TIME + timedelta(hours=2)
+
+
+def test_port_simulation_owns_random_streams_from_scenario_seed() -> None:
+    scenario = ScenarioConfig(
+        scenario_id="rng-owner",
+        duration_hours=1,
+        seed=77,
+    )
+    first = PortSimulation.from_scenario(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+        scenario=scenario,
+    )
+    second = PortSimulation.from_scenario(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+        scenario=scenario,
+    )
+
+    first_arrivals = [
+        first.rng.get(ARRIVAL_STREAM).random()
+        for _ in range(5)
+    ]
+    second_arrivals = [
+        second.rng.get(ARRIVAL_STREAM).random()
+        for _ in range(5)
+    ]
+
+    assert first.random_streams is first.rng
+    assert first_arrivals == second_arrivals
+
+
+def test_port_simulation_random_streams_are_stateful_within_one_run() -> None:
+    simulation = PortSimulation(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+        seed=42,
+    )
+    arrival_rng = simulation.rng.get(ARRIVAL_STREAM)
+
+    first_draw = arrival_rng.random()
+    second_draw = simulation.rng.get(ARRIVAL_STREAM).random()
+
+    assert second_draw != first_draw
+
+
+def test_port_simulation_without_seed_rejects_rng_access() -> None:
+    simulation = PortSimulation(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+    )
+
+    with pytest.raises(ValueError, match="no RandomStreams"):
+        simulation.rng

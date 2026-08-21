@@ -8,6 +8,7 @@ from typing import Any
 import simpy
 from terminal_core import Terminal, TerminalState
 
+from mini_port_sim.rng import RandomStreams
 from mini_port_sim.scenario import ScenarioConfig
 
 
@@ -24,6 +25,11 @@ class PortSimulation:
     seed: int | None = None
     scenario: ScenarioConfig | None = None
     env: simpy.Environment = field(init=False, repr=False)
+    random_streams: RandomStreams | None = field(
+        default=None,
+        init=False,
+        repr=False,
+    )
     _processes: list[simpy.events.Process] = field(
         default_factory=list,
         init=False,
@@ -60,6 +66,17 @@ class PortSimulation:
             self.seed = self.scenario.seed
 
         self.env = simpy.Environment()
+        if self.seed is not None:
+            self.random_streams = RandomStreams(master_seed=self.seed)
+
+    @property
+    def rng(self) -> RandomStreams:
+        if self.random_streams is None:
+            raise ValueError(
+                "Simulation has no RandomStreams because no seed was provided."
+            )
+
+        return self.random_streams
 
     @classmethod
     def from_scenario(

@@ -31,6 +31,7 @@ Current scenario contract:
 - Terminal and traffic assumptions live in nested config objects.
 - Scenario JSON files can be loaded from `scenarios/`.
 - `RandomStreams` derives independent RNG streams from one master seed.
+- `PortSimulation` owns one `RandomStreams` manager for each seeded run.
 - Consuming one stream, such as `arrival`, does not advance another stream,
   such as `failure`.
 
