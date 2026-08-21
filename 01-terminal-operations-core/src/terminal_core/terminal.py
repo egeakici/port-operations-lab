@@ -637,29 +637,48 @@ class Terminal:
                 correlation_id=vessel_id,
             )
 
-    def depart_vessel(
+    def complete_vessel_operations(
         self,
         vessel_id: str,
         *,
         occurred_at: datetime | None = None,
-    ) -> tuple[TerminalEvent, TerminalEvent, TerminalEvent]:
+    ) -> TerminalEvent:
         with self._atomic():
             event_time = self._resolve_occurred_at(occurred_at)
             vessel = self._get(self._vessels, vessel_id, "vessel")
-            berth = self._find_berth_for_vessel(vessel_id)
+            self._ensure_vessel_is_berthed(vessel_id)
 
             if vessel.status != VesselStatus.OPERATING:
                 raise TerminalOperationError(
-                    "Only operating vessels can depart."
+                    "Only operating vessels can complete operations."
                 )
 
-            completed = self._emit_event(
+            self._ensure_vessel_can_depart(vessel_id)
+            vessel.transition_to(VesselStatus.READY_TO_DEPART)
+
+            return self._emit_event(
                 TerminalEventType.VESSEL_OPERATION_COMPLETED,
                 TerminalEntityType.VESSEL,
                 vessel_id,
                 occurred_at=event_time,
                 correlation_id=vessel_id,
             )
+
+    def depart_vessel(
+        self,
+        vessel_id: str,
+        *,
+        occurred_at: datetime | None = None,
+    ) -> tuple[TerminalEvent, TerminalEvent]:
+        with self._atomic():
+            event_time = self._resolve_occurred_at(occurred_at)
+            vessel = self._get(self._vessels, vessel_id, "vessel")
+            berth = self._find_berth_for_vessel(vessel_id)
+
+            if vessel.status != VesselStatus.READY_TO_DEPART:
+                raise TerminalOperationError(
+                    "Only vessels ready to depart can depart."
+                )
             self._ensure_vessel_can_depart(vessel_id)
             berth.remove_vessel(vessel_id)
             occupancy_removed = self._emit_event(
@@ -668,7 +687,6 @@ class Terminal:
                 berth.berth_id,
                 occurred_at=event_time,
                 correlation_id=vessel_id,
-                causation_id=completed.event_id,
                 payload={
                     "vessel_id": vessel_id,
                 },
@@ -683,7 +701,7 @@ class Terminal:
                 causation_id=occupancy_removed.event_id,
             )
 
-            return completed, occupancy_removed, departed
+            return occupancy_removed, departed
 
     def reserve_yard_capacity(
         self,

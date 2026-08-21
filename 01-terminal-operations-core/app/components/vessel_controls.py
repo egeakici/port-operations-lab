@@ -20,7 +20,9 @@ def render_vessel_controls() -> None:
     terminal = session_store.get_sandbox_terminal()
     approaching_vessel_ids = _vessel_ids_with_status(VesselStatus.APPROACHING)
     waiting_vessel_ids = _vessel_ids_with_status(VesselStatus.WAITING)
-    operating_vessel_ids = _vessel_ids_with_status(VesselStatus.OPERATING)
+    ready_to_depart_vessel_ids = _vessel_ids_with_status(
+        VesselStatus.READY_TO_DEPART
+    )
     berth_ids = terminal.berth_ids
     left, middle, right = st.columns(3)
 
@@ -115,10 +117,10 @@ def render_vessel_controls() -> None:
             st.subheader("Depart Vessel")
             vessel_id = select_registered(
                 "Vessel ID",
-                operating_vessel_ids,
+                ready_to_depart_vessel_ids,
                 key="depart_vessel_id",
-                empty_message="No operating vessels are available.",
-                help="Only operating vessels that have no remaining ship-side work can depart.",
+                empty_message="No vessels are ready to depart.",
+                help="Only vessels with completed operations can depart.",
             )
             occurred_at = date_time_input(
                 "Occurred at",

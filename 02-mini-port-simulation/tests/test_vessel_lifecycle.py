@@ -85,8 +85,22 @@ def test_arrival_dispatch_and_lifecycle_depart_two_vessels_fcfs() -> None:
     assert event_types.count(TerminalEventType.VESSEL_ARRIVED) == 2
     assert event_types.count(TerminalEventType.VESSEL_BERTHED) == 2
     assert event_types.count(TerminalEventType.VESSEL_OPERATION_STARTED) == 2
+    assert event_types.count(TerminalEventType.VESSEL_OPERATION_COMPLETED) == 2
     assert event_types.count(TerminalEventType.VESSEL_DEPARTED) == 2
     assert terminal.current_time == START_TIME + timedelta(minutes=60)
+
+    completed_events = [
+        event
+        for event in terminal.events
+        if event.event_type == TerminalEventType.VESSEL_OPERATION_COMPLETED
+    ]
+    departed_events = [
+        event
+        for event in terminal.events
+        if event.event_type == TerminalEventType.VESSEL_DEPARTED
+    ]
+    assert completed_events[0].occurred_at == START_TIME + timedelta(minutes=15)
+    assert departed_events[0].occurred_at == START_TIME + timedelta(minutes=20)
 
 
 def test_basic_operations_starts_arrival_and_dispatcher_processes() -> None:
@@ -115,3 +129,49 @@ def test_basic_operations_starts_arrival_and_dispatcher_processes() -> None:
     simulation.start_basic_operations()
 
     assert simulation.process_count == 2
+
+
+def test_dispatcher_commits_berth_before_next_same_tick_decision() -> None:
+    terminal = Terminal(current_time=START_TIME)
+    terminal.register_berth(
+        Berth(
+            berth_id="B01",
+            length_m=300.0,
+            min_clearance_m=20.0,
+        ),
+        occurred_at=START_TIME,
+    )
+    scenario = ScenarioConfig(
+        scenario_id="same-tick",
+        duration_hours=1,
+        seed=42,
+        service=ServiceConfig(
+            berthing_preparation_minutes=0.0,
+            service_minutes_per_move=1.0,
+            departure_preparation_minutes=0.0,
+        ),
+    )
+    simulation = PortSimulation.from_scenario(
+        terminal=terminal,
+        start_time=START_TIME,
+        scenario=scenario,
+    )
+    plans = (
+        VesselArrivalPlan(
+            vessel=create_vessel("V001", workload_moves=10),
+            arrival_time_minutes=0.0,
+        ),
+        VesselArrivalPlan(
+            vessel=create_vessel("V002", workload_moves=10),
+            arrival_time_minutes=0.0,
+        ),
+    )
+
+    simulation.add_process(berth_dispatcher_process)
+    simulation.add_process(lambda sim: vessel_arrival_process(sim, plans))
+    simulation.run(until_minutes=1.0)
+
+    assert terminal.get_vessel("V001").status.value == "operating"
+    assert terminal.get_vessel("V002").status.value == "waiting"
+    assert terminal.get_berth("B01").occupancy_count == 1
+    assert simulation.waiting_vessel_ids == ("V002",)

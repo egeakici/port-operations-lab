@@ -15,13 +15,15 @@ class VesselStatus(Enum):
     WAITING = "waiting"
     BERTHED = "berthed"
     OPERATING = "operating"
+    READY_TO_DEPART = "ready_to_depart"
     DEPARTED = "departed"
 
 VALID_STATUS_TRANSITIONS = {
     VesselStatus.APPROACHING: {VesselStatus.WAITING},
     VesselStatus.WAITING: {VesselStatus.BERTHED},
     VesselStatus.BERTHED: {VesselStatus.OPERATING},
-    VesselStatus.OPERATING: {VesselStatus.DEPARTED},
+    VesselStatus.OPERATING: {VesselStatus.READY_TO_DEPART},
+    VesselStatus.READY_TO_DEPART: {VesselStatus.DEPARTED},
     VesselStatus.DEPARTED: set(),
 }
 

@@ -37,6 +37,8 @@ Current scenario contract:
 - `PortSimulation` owns one `RandomStreams` manager for each seeded run.
 - Consuming one stream, such as `arrival`, does not advance another stream,
   such as `failure`.
+- Arrival timing, vessel attributes, workload, failures, and productivity use
+  separate RNG streams.
 
 Current operations contract:
 
@@ -46,10 +48,12 @@ Current operations contract:
   waiting at their scheduled simulation time.
 - `FCFSLeftmostPolicy` chooses the first waiting feasible vessel and the
   leftmost safe continuous-berth position.
-- `berth_dispatcher_process(...)` starts vessel service processes when berth
-  space is available.
+- `berth_dispatcher_process(...)` commits berth placement to Core before
+  starting vessel service processes, so same-tick dispatch decisions see
+  current berth occupancy.
 - `vessel_service_process(...)` models berthing preparation, simplified
-  service time, departure preparation, and Core departure.
+  service time, operation completion, departure preparation, and Core
+  departure.
 - `PortSimulation.start_basic_operations()` wires the arrival and berth
   dispatcher processes for the baseline flow.
 

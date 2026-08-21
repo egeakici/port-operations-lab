@@ -424,6 +424,10 @@ def _run_discharge_phase(
         REFERENCE_PRIMARY_CRANE_ID,
         occurred_at=_at(start_time, minutes=145),
     )
+    terminal.complete_vessel_operations(
+        REFERENCE_INBOUND_VESSEL_ID,
+        occurred_at=_at(start_time, minutes=148),
+    )
     terminal.depart_vessel(
         REFERENCE_INBOUND_VESSEL_ID,
         occurred_at=_at(start_time, minutes=150),
@@ -484,6 +488,10 @@ def _run_outbound_phase(
         terminal,
     )
 
+    terminal.complete_vessel_operations(
+        REFERENCE_OUTBOUND_VESSEL_ID,
+        occurred_at=_at(start_time, minutes=235),
+    )
     terminal.depart_vessel(
         REFERENCE_OUTBOUND_VESSEL_ID,
         occurred_at=_at(start_time, minutes=240),

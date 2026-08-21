@@ -3,6 +3,7 @@ from mini_port_sim.rng import (
     ETA_STREAM,
     FAILURE_STREAM,
     PRODUCTIVITY_STREAM,
+    VESSEL_STREAM,
     WORKLOAD_STREAM,
     RandomStreams,
 )
@@ -47,6 +48,7 @@ __all__ = [
     "VesselArrivalGenerator",
     "VesselArrivalPlan",
     "VesselLifecycleRecord",
+    "VESSEL_STREAM",
     "WORKLOAD_STREAM",
     "berth_dispatcher_process",
     "leftmost_feasible_position",

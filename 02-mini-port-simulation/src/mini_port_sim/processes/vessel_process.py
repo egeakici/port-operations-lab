@@ -35,12 +35,6 @@ def vessel_service_process(
     service = simulation.scenario.service
     vessel = simulation.terminal.get_vessel(decision.vessel_id)
     berth_time = simulation.elapsed_minutes
-    simulation.terminal.berth_vessel(
-        decision.vessel_id,
-        decision.berth_id,
-        decision.start_position_m,
-        occurred_at=simulation.now_datetime(),
-    )
 
     if service.berthing_preparation_minutes > 0:
         yield simulation.env.timeout(service.berthing_preparation_minutes)
@@ -56,6 +50,10 @@ def vessel_service_process(
         yield simulation.env.timeout(service_duration)
 
     operation_end = simulation.elapsed_minutes
+    simulation.terminal.complete_vessel_operations(
+        decision.vessel_id,
+        occurred_at=simulation.now_datetime(),
+    )
 
     if service.departure_preparation_minutes > 0:
         yield simulation.env.timeout(service.departure_preparation_minutes)

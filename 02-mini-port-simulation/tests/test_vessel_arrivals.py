@@ -2,13 +2,18 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from terminal_core import Terminal
+import pytest
+from terminal_core import Berth, Terminal
 
 from mini_port_sim import (
+    ARRIVAL_STREAM,
     PortSimulation,
     ScenarioConfig,
     TrafficConfig,
+    VESSEL_STREAM,
     VesselArrivalGenerator,
+    VesselArrivalPlan,
+    vessel_arrival_process,
 )
 
 
@@ -76,3 +81,73 @@ def test_vessel_arrival_generation_consumes_simulation_owned_rng() -> None:
     second = generator.generate(simulation)
 
     assert first[0].vessel.length_m != second[0].vessel.length_m
+
+
+def test_vessel_attributes_use_vessel_stream_not_arrival_stream() -> None:
+    scenario = ScenarioConfig(
+        scenario_id="vessel-stream",
+        duration_hours=24,
+        seed=42,
+        traffic=TrafficConfig(
+            vessel_count=1,
+            min_vessel_length_m=180.0,
+            max_vessel_length_m=240.0,
+        ),
+    )
+    baseline = PortSimulation.from_scenario(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+        scenario=scenario,
+    )
+    shifted_arrival = PortSimulation.from_scenario(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+        scenario=scenario,
+    )
+
+    for _ in range(20):
+        shifted_arrival.rng.get(ARRIVAL_STREAM).random()
+
+    generator = VesselArrivalGenerator()
+    baseline_plan = generator.generate(baseline)[0]
+    shifted_plan = generator.generate(shifted_arrival)[0]
+
+    assert baseline_plan.vessel.length_m == shifted_plan.vessel.length_m
+    assert baseline.rng.derive_seed(ARRIVAL_STREAM) != (
+        baseline.rng.derive_seed(VESSEL_STREAM)
+    )
+
+
+def test_arrival_process_rejects_vessel_that_cannot_fit_any_registered_berth() -> None:
+    scenario = ScenarioConfig(
+        scenario_id="too-large",
+        duration_hours=1,
+        seed=42,
+    )
+    terminal = Terminal(current_time=START_TIME)
+    terminal.register_berth(
+        Berth(berth_id="B01", length_m=300.0),
+        occurred_at=START_TIME,
+    )
+    simulation = PortSimulation.from_scenario(
+        terminal=terminal,
+        start_time=START_TIME,
+        scenario=scenario,
+    )
+    oversized = VesselArrivalGenerator().generate(simulation)[0].vessel
+    oversized.length_m = 350.0
+
+    simulation.add_process(
+        lambda sim: vessel_arrival_process(
+            sim,
+            (
+                VesselArrivalPlan(
+                    vessel=oversized,
+                    arrival_time_minutes=0.0,
+                ),
+            ),
+        )
+    )
+
+    with pytest.raises(ValueError, match="cannot fit any registered berth"):
+        simulation.run(until_minutes=0.0)

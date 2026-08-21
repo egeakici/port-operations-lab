@@ -34,6 +34,12 @@ def berth_dispatcher_process(
             if decision is None:
                 break
 
+            simulation.terminal.berth_vessel(
+                decision.vessel_id,
+                decision.berth_id,
+                decision.start_position_m,
+                occurred_at=simulation.now_datetime(),
+            )
             simulation.remove_waiting_vessel(decision.vessel_id)
             simulation.add_process(
                 _service_factory(decision)

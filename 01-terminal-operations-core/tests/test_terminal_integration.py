@@ -615,6 +615,10 @@ def _continue_from_crane_failed(terminal: Terminal) -> None:
         REFERENCE_PRIMARY_CRANE_ID,
         occurred_at=_at(145),
     )
+    terminal.complete_vessel_operations(
+        REFERENCE_INBOUND_VESSEL_ID,
+        occurred_at=_at(148),
+    )
     terminal.depart_vessel(
         REFERENCE_INBOUND_VESSEL_ID,
         occurred_at=_at(150),
@@ -650,6 +654,10 @@ def _continue_from_crane_failed(terminal: Terminal) -> None:
     terminal.complete_task(
         REFERENCE_LOAD_TASK_ID,
         occurred_at=_at(230),
+    )
+    terminal.complete_vessel_operations(
+        REFERENCE_OUTBOUND_VESSEL_ID,
+        occurred_at=_at(235),
     )
     terminal.depart_vessel(
         REFERENCE_OUTBOUND_VESSEL_ID,

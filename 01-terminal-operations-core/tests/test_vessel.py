@@ -128,6 +128,7 @@ def test_complete_vessel_lifecycle() -> None:
     vessel.transition_to(VesselStatus.WAITING)
     vessel.transition_to(VesselStatus.BERTHED)
     vessel.transition_to(VesselStatus.OPERATING)
+    vessel.transition_to(VesselStatus.READY_TO_DEPART)
     vessel.transition_to(VesselStatus.DEPARTED)
 
     assert vessel.status == VesselStatus.DEPARTED

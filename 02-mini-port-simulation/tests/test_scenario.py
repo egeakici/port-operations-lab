@@ -8,7 +8,6 @@ from terminal_core import Terminal
 from mini_port_sim import (
     ARRIVAL_STREAM,
     FAILURE_STREAM,
-    WORKLOAD_STREAM,
     PortSimulation,
     RandomStreams,
     ScenarioConfig,
@@ -103,33 +102,6 @@ def test_random_streams_are_independent_between_names() -> None:
         arrival_rng.random()
 
     assert streams.get(FAILURE_STREAM).random() == baseline_failure
-
-
-def test_random_streams_are_repeatable_for_same_scenario_seed() -> None:
-    scenario = ScenarioConfig(
-        scenario_id="repeatable",
-        duration_hours=1,
-        seed=99,
-    )
-    first = scenario.random_streams()
-    second = scenario.random_streams()
-
-    first_draws = [
-        first.get(WORKLOAD_STREAM).randint(
-            scenario.traffic.min_workload_moves,
-            scenario.traffic.max_workload_moves,
-        )
-        for _ in range(5)
-    ]
-    second_draws = [
-        second.get(WORKLOAD_STREAM).randint(
-            scenario.traffic.min_workload_moves,
-            scenario.traffic.max_workload_moves,
-        )
-        for _ in range(5)
-    ]
-
-    assert first_draws == second_draws
 
 
 def test_port_simulation_can_be_created_and_run_from_scenario() -> None:

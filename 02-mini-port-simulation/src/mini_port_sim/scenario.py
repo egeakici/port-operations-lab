@@ -6,9 +6,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from mini_port_sim.rng import RandomStreams
-
-
 class TerminationMode(Enum):
     HORIZON = "horizon"
     DRAIN = "drain"
@@ -260,9 +257,6 @@ class ScenarioConfig:
     @property
     def duration_minutes(self) -> float:
         return self.duration_hours * 60.0
-
-    def random_streams(self) -> RandomStreams:
-        return RandomStreams(master_seed=self.seed)
 
     def to_dict(self) -> dict[str, Any]:
         return {

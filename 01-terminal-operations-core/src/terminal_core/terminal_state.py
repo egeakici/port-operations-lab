@@ -927,6 +927,7 @@ def _validate_berth_vessel_consistency(
             if vessels[vessel_id].status not in {
                 VesselStatus.BERTHED,
                 VesselStatus.OPERATING,
+                VesselStatus.READY_TO_DEPART,
             }:
                 raise TerminalStateConsistencyError(
                     f"Vessel {vessel_id} has status "
@@ -943,6 +944,7 @@ def _validate_berth_vessel_consistency(
             in {
                 VesselStatus.BERTHED,
                 VesselStatus.OPERATING,
+                VesselStatus.READY_TO_DEPART,
             }
             and vessel.vessel_id not in occupied_vessels
         ):

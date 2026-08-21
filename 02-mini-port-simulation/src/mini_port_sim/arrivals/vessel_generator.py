@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from terminal_core import Vessel
 
-from mini_port_sim.rng import ARRIVAL_STREAM, WORKLOAD_STREAM
+from mini_port_sim.rng import ARRIVAL_STREAM, VESSEL_STREAM, WORKLOAD_STREAM
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -40,6 +40,7 @@ class VesselArrivalGenerator:
 
         traffic = simulation.scenario.traffic
         arrival_rng = simulation.rng.get(ARRIVAL_STREAM)
+        vessel_rng = simulation.rng.get(VESSEL_STREAM)
         workload_rng = simulation.rng.get(WORKLOAD_STREAM)
         elapsed_minutes = 0.0
         plans: list[VesselArrivalPlan] = []
@@ -50,7 +51,7 @@ class VesselArrivalGenerator:
                     1.0 / traffic.mean_interarrival_minutes
                 )
 
-            length_m = arrival_rng.uniform(
+            length_m = vessel_rng.uniform(
                 traffic.min_vessel_length_m,
                 traffic.max_vessel_length_m,
             )
@@ -103,6 +104,7 @@ def vessel_arrival_process(
             yield simulation.env.timeout(delay)
 
         occurred_at = simulation.now_datetime()
+        _ensure_vessel_fits_registered_berth(simulation, plan)
         simulation.terminal.register_vessel(
             plan.vessel,
             occurred_at=occurred_at,
@@ -113,3 +115,22 @@ def vessel_arrival_process(
         )
         simulation.add_waiting_vessel(plan.vessel.vessel_id)
         simulation.request_berth_dispatch()
+
+
+def _ensure_vessel_fits_registered_berth(
+    simulation: "PortSimulation",
+    plan: VesselArrivalPlan,
+) -> None:
+    if not simulation.terminal.berth_ids:
+        return
+
+    for berth_id in simulation.terminal.berth_ids:
+        berth = simulation.terminal.get_berth(berth_id)
+
+        if plan.vessel.length_m <= berth.length_m:
+            return
+
+    raise ValueError(
+        f"Vessel {plan.vessel.vessel_id} with length "
+        f"{plan.vessel.length_m} m cannot fit any registered berth."
+    )

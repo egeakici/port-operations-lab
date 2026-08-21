@@ -897,15 +897,15 @@ def test_vessel_departure_requires_no_source_cargo() -> None:
     terminal.record_task_progress("T001", 100.0)
     terminal.complete_task("T001")
 
+    completed = terminal.complete_vessel_operations("V001")
     events = terminal.depart_vessel("V001")
 
+    assert completed.event_type == TerminalEventType.VESSEL_OPERATION_COMPLETED
     assert [event.event_type for event in events] == [
-        TerminalEventType.VESSEL_OPERATION_COMPLETED,
         TerminalEventType.BERTH_OCCUPANCY_REMOVED,
         TerminalEventType.VESSEL_DEPARTED,
     ]
     assert events[1].causation_id == events[0].event_id
-    assert events[2].causation_id == events[1].event_id
     assert events[-1].event_type == TerminalEventType.VESSEL_DEPARTED
     assert terminal.get_vessel("V001").status == VesselStatus.DEPARTED
 
