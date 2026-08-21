@@ -7,7 +7,9 @@
     "berth_length_m": 1200,
     "min_clearance_m": 20,
     "quay_crane_count": 4,
-    "yard_block_count": 3
+    "quay_crane_moves_per_hour": 30,
+    "yard_block_count": 3,
+    "yard_block_capacity_teu": 2000
   },
   "traffic": {
     "vessel_count": 5,
@@ -20,6 +22,17 @@
   "service": {
     "berthing_preparation_minutes": 30,
     "service_minutes_per_move": 0.5,
-    "departure_preparation_minutes": 20
+    "departure_preparation_minutes": 20,
+    "two_crane_efficiency": 0.92,
+    "three_crane_efficiency": 0.82,
+    "four_plus_crane_efficiency": 0.72
+  },
+  "disruptions": {
+    "eta_delay_stddev_minutes": 0,
+    "productivity_min_factor": 1,
+    "productivity_max_factor": 1,
+    "crane_failures_enabled": false,
+    "mean_time_to_failure_minutes": 1440,
+    "mean_repair_minutes": 60
   }
 }

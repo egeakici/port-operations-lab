@@ -18,6 +18,9 @@ Implemented modules:
 - Module 04: Vessel Arrival Generator
 - Module 05: FCFS Berth Allocation
 - Module 06: Vessel Service Lifecycle
+- Module 07: Quay Crane Resource System
+- Module 08: ContainerGroup + OperationTask + YardBlock Flow
+- Module 09: Stochasticity + Disruptions
 
 Current engine contract:
 
@@ -54,8 +57,18 @@ Current operations contract:
 - `vessel_service_process(...)` models berthing preparation, simplified
   service time, operation completion, departure preparation, and Core
   departure.
+- When quay cranes and yard blocks exist, vessel service uses Core
+  `ContainerGroup`, `OperationTask`, `YardBlock`, and `QuayCrane` objects
+  instead of the simplified service duration.
+- `GreedyCranePolicy` assigns available cranes to ready vessel tasks up to the
+  vessel's `max_cranes` limit.
+- `FirstFitYardPolicy` creates reservation-based yard bottlenecks before
+  discharge tasks can become ready.
+- Productivity variation, ETA variation, and crane failure/repair processes
+  are driven from independent scenario RNG streams.
 - `PortSimulation.start_basic_operations()` wires the arrival and berth
-  dispatcher processes for the baseline flow.
+  dispatcher processes for the baseline flow, plus crane failures when enabled
+  by the scenario.
 
 ## Development Setup
 

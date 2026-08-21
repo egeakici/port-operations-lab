@@ -16,7 +16,9 @@ class TerminalConfig:
     berth_length_m: float = 1200.0
     min_clearance_m: float = 20.0
     quay_crane_count: int = 4
+    quay_crane_moves_per_hour: float = 30.0
     yard_block_count: int = 3
+    yard_block_capacity_teu: float = 2000.0
 
     def __post_init__(self) -> None:
         _validate_positive_number(
@@ -34,9 +36,19 @@ class TerminalConfig:
             "Quay crane count",
         )
 
+        _validate_positive_number(
+            self.quay_crane_moves_per_hour,
+            "Quay crane moves per hour",
+        )
+
         _validate_positive_int(
             self.yard_block_count,
             "Yard block count",
+        )
+
+        _validate_positive_number(
+            self.yard_block_capacity_teu,
+            "Yard block capacity",
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,7 +56,9 @@ class TerminalConfig:
             "berth_length_m": self.berth_length_m,
             "min_clearance_m": self.min_clearance_m,
             "quay_crane_count": self.quay_crane_count,
+            "quay_crane_moves_per_hour": self.quay_crane_moves_per_hour,
             "yard_block_count": self.yard_block_count,
+            "yard_block_capacity_teu": self.yard_block_capacity_teu,
         }
 
     @classmethod
@@ -59,7 +73,15 @@ class TerminalConfig:
                 "quay_crane_count",
                 cls.quay_crane_count,
             ),
+            quay_crane_moves_per_hour=data.get(
+                "quay_crane_moves_per_hour",
+                cls.quay_crane_moves_per_hour,
+            ),
             yard_block_count=data.get("yard_block_count", cls.yard_block_count),
+            yard_block_capacity_teu=data.get(
+                "yard_block_capacity_teu",
+                cls.yard_block_capacity_teu,
+            ),
         )
 
 
@@ -158,6 +180,9 @@ class ServiceConfig:
     berthing_preparation_minutes: float = 30.0
     service_minutes_per_move: float = 0.5
     departure_preparation_minutes: float = 20.0
+    two_crane_efficiency: float = 0.92
+    three_crane_efficiency: float = 0.82
+    four_plus_crane_efficiency: float = 0.72
 
     def __post_init__(self) -> None:
         _validate_non_negative_number(
@@ -175,6 +200,18 @@ class ServiceConfig:
             "Departure preparation minutes",
         )
 
+        for value, field_name in (
+            (self.two_crane_efficiency, "Two crane efficiency"),
+            (self.three_crane_efficiency, "Three crane efficiency"),
+            (
+                self.four_plus_crane_efficiency,
+                "Four plus crane efficiency",
+            ),
+        ):
+            _validate_positive_number(value, field_name)
+            if value > 1.0:
+                raise ValueError(f"{field_name} cannot exceed 1.0.")
+
     def service_duration_minutes(self, workload_moves: int) -> float:
         _validate_non_negative_int(
             workload_moves,
@@ -182,6 +219,20 @@ class ServiceConfig:
         )
 
         return workload_moves * self.service_minutes_per_move
+
+    def crane_efficiency(self, active_crane_count: int) -> float:
+        _validate_positive_int(active_crane_count, "Active crane count")
+
+        if active_crane_count == 1:
+            return 1.0
+
+        if active_crane_count == 2:
+            return self.two_crane_efficiency
+
+        if active_crane_count == 3:
+            return self.three_crane_efficiency
+
+        return self.four_plus_crane_efficiency
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -192,6 +243,9 @@ class ServiceConfig:
             "departure_preparation_minutes": (
                 self.departure_preparation_minutes
             ),
+            "two_crane_efficiency": self.two_crane_efficiency,
+            "three_crane_efficiency": self.three_crane_efficiency,
+            "four_plus_crane_efficiency": self.four_plus_crane_efficiency,
         }
 
     @classmethod
@@ -212,6 +266,113 @@ class ServiceConfig:
                 "departure_preparation_minutes",
                 cls.departure_preparation_minutes,
             ),
+            two_crane_efficiency=data.get(
+                "two_crane_efficiency",
+                cls.two_crane_efficiency,
+            ),
+            three_crane_efficiency=data.get(
+                "three_crane_efficiency",
+                cls.three_crane_efficiency,
+            ),
+            four_plus_crane_efficiency=data.get(
+                "four_plus_crane_efficiency",
+                cls.four_plus_crane_efficiency,
+            ),
+        )
+
+
+@dataclass(frozen=True)
+class DisruptionConfig:
+    eta_delay_stddev_minutes: float = 0.0
+    productivity_min_factor: float = 1.0
+    productivity_max_factor: float = 1.0
+    crane_failures_enabled: bool = False
+    mean_time_to_failure_minutes: float = 1440.0
+    mean_repair_minutes: float = 60.0
+
+    def __post_init__(self) -> None:
+        _validate_non_negative_number(
+            self.eta_delay_stddev_minutes,
+            "ETA delay standard deviation",
+        )
+
+        _validate_positive_number(
+            self.productivity_min_factor,
+            "Productivity minimum factor",
+        )
+        _validate_positive_number(
+            self.productivity_max_factor,
+            "Productivity maximum factor",
+        )
+
+        if self.productivity_min_factor > self.productivity_max_factor:
+            raise ValueError(
+                "Productivity minimum factor cannot exceed maximum factor."
+            )
+
+        if not isinstance(self.crane_failures_enabled, bool):
+            raise ValueError("Crane failures enabled must be a boolean.")
+
+        _validate_positive_number(
+            self.mean_time_to_failure_minutes,
+            "Mean time to failure",
+        )
+        _validate_positive_number(
+            self.mean_repair_minutes,
+            "Mean repair minutes",
+        )
+
+    def productivity_factor(self, rng: Any) -> float:
+        if self.productivity_min_factor == self.productivity_max_factor:
+            return self.productivity_min_factor
+
+        return rng.uniform(
+            self.productivity_min_factor,
+            self.productivity_max_factor,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "eta_delay_stddev_minutes": self.eta_delay_stddev_minutes,
+            "productivity_min_factor": self.productivity_min_factor,
+            "productivity_max_factor": self.productivity_max_factor,
+            "crane_failures_enabled": self.crane_failures_enabled,
+            "mean_time_to_failure_minutes": (
+                self.mean_time_to_failure_minutes
+            ),
+            "mean_repair_minutes": self.mean_repair_minutes,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "DisruptionConfig":
+        if not isinstance(data, dict):
+            raise ValueError("Disruption config must be a dictionary.")
+
+        return cls(
+            eta_delay_stddev_minutes=data.get(
+                "eta_delay_stddev_minutes",
+                cls.eta_delay_stddev_minutes,
+            ),
+            productivity_min_factor=data.get(
+                "productivity_min_factor",
+                cls.productivity_min_factor,
+            ),
+            productivity_max_factor=data.get(
+                "productivity_max_factor",
+                cls.productivity_max_factor,
+            ),
+            crane_failures_enabled=data.get(
+                "crane_failures_enabled",
+                cls.crane_failures_enabled,
+            ),
+            mean_time_to_failure_minutes=data.get(
+                "mean_time_to_failure_minutes",
+                cls.mean_time_to_failure_minutes,
+            ),
+            mean_repair_minutes=data.get(
+                "mean_repair_minutes",
+                cls.mean_repair_minutes,
+            ),
         )
 
 
@@ -224,6 +385,7 @@ class ScenarioConfig:
     terminal: TerminalConfig = field(default_factory=TerminalConfig)
     traffic: TrafficConfig = field(default_factory=TrafficConfig)
     service: ServiceConfig = field(default_factory=ServiceConfig)
+    disruptions: DisruptionConfig = field(default_factory=DisruptionConfig)
 
     def __post_init__(self) -> None:
         if (
@@ -254,6 +416,11 @@ class ScenarioConfig:
         if not isinstance(self.service, ServiceConfig):
             raise ValueError("Scenario service must be a ServiceConfig.")
 
+        if not isinstance(self.disruptions, DisruptionConfig):
+            raise ValueError(
+                "Scenario disruptions must be a DisruptionConfig."
+            )
+
     @property
     def duration_minutes(self) -> float:
         return self.duration_hours * 60.0
@@ -267,6 +434,7 @@ class ScenarioConfig:
             "terminal": self.terminal.to_dict(),
             "traffic": self.traffic.to_dict(),
             "service": self.service.to_dict(),
+            "disruptions": self.disruptions.to_dict(),
         }
 
     @classmethod
@@ -288,6 +456,9 @@ class ScenarioConfig:
                 terminal=TerminalConfig.from_dict(data.get("terminal", {})),
                 traffic=TrafficConfig.from_dict(data.get("traffic", {})),
                 service=ServiceConfig.from_dict(data.get("service", {})),
+                disruptions=DisruptionConfig.from_dict(
+                    data.get("disruptions", {})
+                ),
             )
         except KeyError as error:
             raise ValueError(f"Missing scenario field: {error}") from error

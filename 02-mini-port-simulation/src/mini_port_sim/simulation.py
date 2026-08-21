@@ -13,8 +13,17 @@ from mini_port_sim.scenario import ScenarioConfig
 
 if TYPE_CHECKING:
     from mini_port_sim.arrivals.vessel_generator import VesselArrivalPlan
+    from mini_port_sim.policies.crane_policy import CraneTaskAssignment
     from mini_port_sim.policies.berth_policy import FCFSLeftmostPolicy
+    from mini_port_sim.processes.task_process import TaskWorkPlan
     from mini_port_sim.processes.vessel_process import VesselLifecycleRecord
+
+
+@dataclass(frozen=True)
+class ActiveTaskProcess:
+    crane_id: str
+    task_id: str
+    process: simpy.events.Process
 
 
 SimulationProcessFactory = Callable[
@@ -51,12 +60,29 @@ class PortSimulation:
         default_factory=list,
         init=False,
     )
+    vessel_task_ids: dict[str, tuple[str, ...]] = field(
+        default_factory=dict,
+        init=False,
+    )
+    task_work_plans: dict[str, "TaskWorkPlan"] = field(
+        default_factory=dict,
+        init=False,
+    )
+    _active_task_processes_by_crane: dict[str, ActiveTaskProcess] = field(
+        default_factory=dict,
+        init=False,
+        repr=False,
+    )
     _processes: list[simpy.events.Process] = field(
         default_factory=list,
         init=False,
         repr=False,
     )
     _berth_dispatch_event: simpy.events.Event = field(
+        init=False,
+        repr=False,
+    )
+    _crane_dispatch_event: simpy.events.Event = field(
         init=False,
         repr=False,
     )
@@ -92,6 +118,7 @@ class PortSimulation:
 
         self.env = simpy.Environment()
         self._berth_dispatch_event = self.env.event()
+        self._crane_dispatch_event = self.env.event()
         if self.seed is not None:
             self.random_streams = RandomStreams(master_seed=self.seed)
 
@@ -169,9 +196,19 @@ class PortSimulation:
             )
         )
 
+    def add_crane_failure_process(self) -> simpy.events.Process:
+        from mini_port_sim.disruptions import crane_failure_process
+
+        return self.add_process(crane_failure_process)
+
     def start_basic_operations(self) -> None:
         self.add_berth_dispatcher()
         self.add_vessel_arrival_process()
+        if (
+            self.scenario is not None
+            and self.scenario.disruptions.crane_failures_enabled
+        ):
+            self.add_crane_failure_process()
 
     @property
     def process_count(self) -> int:
@@ -181,6 +218,10 @@ class PortSimulation:
     def berth_dispatch_event(self) -> simpy.events.Event:
         return self._berth_dispatch_event
 
+    @property
+    def crane_dispatch_event(self) -> simpy.events.Event:
+        return self._crane_dispatch_event
+
     def request_berth_dispatch(self) -> None:
         if not self._berth_dispatch_event.triggered:
             self._berth_dispatch_event.succeed()
@@ -188,6 +229,35 @@ class PortSimulation:
     def reset_berth_dispatch_event(self) -> None:
         if self._berth_dispatch_event.triggered:
             self._berth_dispatch_event = self.env.event()
+
+    def request_crane_dispatch(self) -> None:
+        if not self._crane_dispatch_event.triggered:
+            self._crane_dispatch_event.succeed()
+
+    def reset_crane_dispatch_event(self) -> None:
+        if self._crane_dispatch_event.triggered:
+            self._crane_dispatch_event = self.env.event()
+
+    def register_active_task_process(
+        self,
+        crane_id: str,
+        task_id: str,
+        process: simpy.events.Process,
+    ) -> None:
+        self._active_task_processes_by_crane[crane_id] = ActiveTaskProcess(
+            crane_id=crane_id,
+            task_id=task_id,
+            process=process,
+        )
+
+    def unregister_active_task_process(self, crane_id: str) -> None:
+        self._active_task_processes_by_crane.pop(crane_id, None)
+
+    def active_task_for_crane(
+        self,
+        crane_id: str,
+    ) -> ActiveTaskProcess | None:
+        return self._active_task_processes_by_crane.get(crane_id)
 
     def add_waiting_vessel(self, vessel_id: str) -> None:
         if not isinstance(vessel_id, str) or not vessel_id.strip():

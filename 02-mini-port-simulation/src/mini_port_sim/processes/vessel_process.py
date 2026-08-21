@@ -3,7 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from terminal_core import OperationTaskStatus
+
+from mini_port_sim.policies.crane_policy import GreedyCranePolicy
 from mini_port_sim.policies.berth_policy import BerthDecision
+from mini_port_sim.processes.task_process import (
+    crane_task_process,
+    prepare_discharge_work_for_vessel,
+)
+from mini_port_sim.rng import PRODUCTIVITY_STREAM
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -39,15 +47,23 @@ def vessel_service_process(
     if service.berthing_preparation_minutes > 0:
         yield simulation.env.timeout(service.berthing_preparation_minutes)
 
-    operation_start = simulation.elapsed_minutes
-    simulation.terminal.start_vessel_operations(
-        decision.vessel_id,
-        occurred_at=simulation.now_datetime(),
-    )
+    if _can_use_detailed_operations(simulation):
+        operation_start = yield from _run_detailed_operations(
+            simulation,
+            decision.vessel_id,
+        )
+    else:
+        operation_start = simulation.elapsed_minutes
+        simulation.terminal.start_vessel_operations(
+            decision.vessel_id,
+            occurred_at=simulation.now_datetime(),
+        )
 
-    service_duration = service.service_duration_minutes(vessel.workload_moves)
-    if service_duration > 0:
-        yield simulation.env.timeout(service_duration)
+        service_duration = service.service_duration_minutes(
+            vessel.workload_moves
+        )
+        if service_duration > 0:
+            yield simulation.env.timeout(service_duration)
 
     operation_end = simulation.elapsed_minutes
     simulation.terminal.complete_vessel_operations(
@@ -76,3 +92,74 @@ def vessel_service_process(
         )
     )
     simulation.request_berth_dispatch()
+
+
+def _can_use_detailed_operations(simulation: "PortSimulation") -> bool:
+    return (
+        simulation.terminal.quay_crane_count > 0
+        and simulation.terminal.yard_block_count > 0
+    )
+
+
+def _run_detailed_operations(
+    simulation: "PortSimulation",
+    vessel_id: str,
+) -> "Generator[simpy.events.Event, Any, float]":
+    task_ids = prepare_discharge_work_for_vessel(simulation, vessel_id)
+
+    while task_ids is None:
+        yield simulation.crane_dispatch_event
+        simulation.reset_crane_dispatch_event()
+        task_ids = prepare_discharge_work_for_vessel(simulation, vessel_id)
+
+    operation_start = simulation.elapsed_minutes
+    simulation.terminal.start_vessel_operations(
+        vessel_id,
+        occurred_at=simulation.now_datetime(),
+    )
+
+    crane_policy = GreedyCranePolicy()
+    productivity_rng = simulation.rng.get(PRODUCTIVITY_STREAM)
+
+    while not _all_tasks_completed(simulation, task_ids):
+        productivity_factor = 1.0
+        if simulation.scenario is not None:
+            productivity_factor = (
+                simulation.scenario.disruptions.productivity_factor(
+                    productivity_rng
+                )
+            )
+
+        assignments = crane_policy.choose(
+            simulation.terminal,
+            vessel_id=vessel_id,
+            task_ids=task_ids,
+            productivity_factor=productivity_factor,
+        )
+        for assignment in assignments:
+            simulation.add_process(
+                lambda sim, assignment=assignment: crane_task_process(
+                    sim,
+                    assignment,
+                )
+            )
+
+        if assignments:
+            yield simulation.env.timeout(0)
+            continue
+
+        yield simulation.crane_dispatch_event
+        simulation.reset_crane_dispatch_event()
+
+    return operation_start
+
+
+def _all_tasks_completed(
+    simulation: "PortSimulation",
+    task_ids: tuple[str, ...],
+) -> bool:
+    return all(
+        simulation.terminal.get_operation_task(task_id).status
+        == OperationTaskStatus.COMPLETED
+        for task_id in task_ids
+    )

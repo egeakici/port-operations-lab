@@ -6,7 +6,12 @@ from typing import TYPE_CHECKING
 
 from terminal_core import Vessel
 
-from mini_port_sim.rng import ARRIVAL_STREAM, VESSEL_STREAM, WORKLOAD_STREAM
+from mini_port_sim.rng import (
+    ARRIVAL_STREAM,
+    ETA_STREAM,
+    VESSEL_STREAM,
+    WORKLOAD_STREAM,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -40,6 +45,7 @@ class VesselArrivalGenerator:
 
         traffic = simulation.scenario.traffic
         arrival_rng = simulation.rng.get(ARRIVAL_STREAM)
+        eta_rng = simulation.rng.get(ETA_STREAM)
         vessel_rng = simulation.rng.get(VESSEL_STREAM)
         workload_rng = simulation.rng.get(WORKLOAD_STREAM)
         elapsed_minutes = 0.0
@@ -59,9 +65,14 @@ class VesselArrivalGenerator:
                 traffic.min_workload_moves,
                 traffic.max_workload_moves,
             )
+            actual_elapsed_minutes = _apply_eta_variation(
+                elapsed_minutes,
+                simulation.scenario.disruptions.eta_delay_stddev_minutes,
+                eta_rng,
+            )
             arrival_time = (
                 simulation.start_time
-                + timedelta(minutes=elapsed_minutes)
+                + timedelta(minutes=actual_elapsed_minutes)
             )
             vessel = Vessel(
                 vessel_id=f"V{index + 1:03d}",
@@ -75,11 +86,19 @@ class VesselArrivalGenerator:
             plans.append(
                 VesselArrivalPlan(
                     vessel=vessel,
-                    arrival_time_minutes=elapsed_minutes,
+                    arrival_time_minutes=actual_elapsed_minutes,
                 )
             )
 
-        return tuple(plans)
+        return tuple(
+            sorted(
+                plans,
+                key=lambda plan: (
+                    plan.arrival_time_minutes,
+                    plan.vessel.vessel_id,
+                ),
+            )
+        )
 
 
 def vessel_arrival_process(
@@ -133,4 +152,19 @@ def _ensure_vessel_fits_registered_berth(
     raise ValueError(
         f"Vessel {plan.vessel.vessel_id} with length "
         f"{plan.vessel.length_m} m cannot fit any registered berth."
+    )
+
+
+def _apply_eta_variation(
+    planned_elapsed_minutes: float,
+    stddev_minutes: float,
+    eta_rng,
+) -> float:
+    if stddev_minutes <= 0:
+        return planned_elapsed_minutes
+
+    return max(
+        0.0,
+        planned_elapsed_minutes
+        + eta_rng.normalvariate(0.0, stddev_minutes),
     )
