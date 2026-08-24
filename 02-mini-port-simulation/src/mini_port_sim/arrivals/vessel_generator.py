@@ -117,6 +117,7 @@ class VesselArrivalGenerator:
 def vessel_arrival_process(
     simulation: "PortSimulation",
     plans: tuple[VesselArrivalPlan, ...] | None = None,
+    stop_after_minutes: float | None = None,
 ) -> "Generator[simpy.events.Event, Any, None]":
     arrival_plans = (
         plans
@@ -127,6 +128,12 @@ def vessel_arrival_process(
     simulation.arrival_plans = tuple(arrival_plans)
 
     for plan in arrival_plans:
+        if (
+            stop_after_minutes is not None
+            and plan.arrival_time_minutes > stop_after_minutes
+        ):
+            break
+
         delay = plan.arrival_time_minutes - simulation.elapsed_minutes
 
         if delay < 0:

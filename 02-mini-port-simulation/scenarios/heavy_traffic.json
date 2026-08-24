@@ -1,0 +1,38 @@
+{
+  "scenario_id": "heavy_traffic",
+  "duration_hours": 48,
+  "seed": 42,
+  "termination_mode": "drain",
+  "terminal": {
+    "berth_length_m": 1000,
+    "min_clearance_m": 20,
+    "quay_crane_count": 4,
+    "quay_crane_moves_per_hour": 28,
+    "yard_block_count": 4,
+    "yard_block_capacity_teu": 2000
+  },
+  "traffic": {
+    "vessel_count": 24,
+    "mean_interarrival_minutes": 120,
+    "min_vessel_length_m": 220,
+    "max_vessel_length_m": 380,
+    "min_workload_moves": 450,
+    "max_workload_moves": 1200
+  },
+  "service": {
+    "berthing_preparation_minutes": 35,
+    "service_minutes_per_move": 0.5,
+    "departure_preparation_minutes": 25,
+    "two_crane_efficiency": 0.92,
+    "three_crane_efficiency": 0.82,
+    "four_plus_crane_efficiency": 0.72
+  },
+  "disruptions": {
+    "eta_delay_stddev_minutes": 25,
+    "productivity_min_factor": 0.85,
+    "productivity_max_factor": 1.05,
+    "crane_failures_enabled": false,
+    "mean_time_to_failure_minutes": 1440,
+    "mean_repair_minutes": 60
+  }
+}

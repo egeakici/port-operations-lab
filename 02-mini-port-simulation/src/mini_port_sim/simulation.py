@@ -13,6 +13,7 @@ from mini_port_sim.scenario import ScenarioConfig
 
 if TYPE_CHECKING:
     from mini_port_sim.arrivals.vessel_generator import VesselArrivalPlan
+    from mini_port_sim.metrics import SimulationMetrics
     from mini_port_sim.policies.berth_policy import FCFSLeftmostPolicy
     from mini_port_sim.policies.crane_policy import GreedyCranePolicy
     from mini_port_sim.processes.task_process import TaskWorkPlan
@@ -177,6 +178,7 @@ class PortSimulation:
     def add_vessel_arrival_process(
         self,
         plans: tuple["VesselArrivalPlan", ...] | None = None,
+        stop_after_minutes: float | None = None,
     ) -> simpy.events.Process:
         from mini_port_sim.arrivals import vessel_arrival_process
 
@@ -184,6 +186,7 @@ class PortSimulation:
             lambda simulation: vessel_arrival_process(
                 simulation,
                 plans,
+                stop_after_minutes,
             )
         )
 
@@ -231,7 +234,16 @@ class PortSimulation:
     def start_basic_operations(self) -> None:
         self.add_berth_dispatcher()
         self.add_crane_dispatcher()
-        self.add_vessel_arrival_process()
+        stop_after_minutes = None
+        if (
+            self.scenario is not None
+            and self.scenario.termination_mode.value == "drain"
+        ):
+            stop_after_minutes = self.scenario.duration_minutes
+
+        self.add_vessel_arrival_process(
+            stop_after_minutes=stop_after_minutes,
+        )
         if (
             self.scenario is not None
             and self.scenario.disruptions.crane_failures_enabled
@@ -351,10 +363,25 @@ class PortSimulation:
         if self.scenario is None:
             raise ValueError("Cannot run scenario without a ScenarioConfig.")
 
-        return self.run(until_minutes=self.scenario.duration_minutes)
+        if self.scenario.termination_mode.value == "horizon":
+            return self.run(until_minutes=self.scenario.duration_minutes)
+
+        self.run(until_minutes=self.scenario.duration_minutes)
+        while self._has_open_vessel_work():
+            if self.env.peek() == float("inf"):
+                break
+
+            self._run_inclusive_until(float(self.env.peek()))
+
+        return self.sync_terminal_time()
 
     def advance_to(self, elapsed_minutes: float) -> TerminalState:
         return self.run(until_minutes=elapsed_minutes)
+
+    def collect_metrics(self) -> "SimulationMetrics":
+        from mini_port_sim.metrics import collect_metrics
+
+        return collect_metrics(self)
 
     def _validate_target_minutes(self, elapsed_minutes: float) -> None:
         if (
@@ -376,3 +403,9 @@ class PortSimulation:
 
         if self.env.now < until_minutes:
             self.env.run(until=until_minutes)
+
+    def _has_open_vessel_work(self) -> bool:
+        return any(
+            self.terminal.get_vessel(vessel_id).status.value != "departed"
+            for vessel_id in self.terminal.vessel_ids
+        )

@@ -13,6 +13,19 @@ from mini_port_sim.arrivals import (
     vessel_arrival_process,
 )
 from mini_port_sim.disruptions import crane_failure_process
+from mini_port_sim.experiments import (
+    ExperimentResult,
+    build_terminal_from_scenario,
+    run_multi_seed_experiment,
+    run_scenario_experiment,
+)
+from mini_port_sim.metrics import (
+    SimulationMetrics,
+    VesselMetrics,
+    collect_metrics,
+    metrics_summary,
+    save_metrics_json,
+)
 from mini_port_sim.policies import (
     BerthDecision,
     CraneTaskAssignment,
@@ -42,14 +55,27 @@ from mini_port_sim.scenario import (
     TrafficConfig,
 )
 from mini_port_sim.simulation import PortSimulation
+from mini_port_sim.visualization import (
+    BerthTimelineSegment,
+    CraneTimelineSegment,
+    ReplayFrame,
+    build_berth_timeline,
+    build_crane_timeline,
+    build_event_replay,
+    save_replay_json,
+    save_timeline_json,
+)
 
 __all__ = [
     "ARRIVAL_STREAM",
     "BerthDecision",
+    "BerthTimelineSegment",
     "CargoWorkSpec",
+    "CraneTimelineSegment",
     "CraneTaskAssignment",
     "DisruptionConfig",
     "ETA_STREAM",
+    "ExperimentResult",
     "FCFSLeftmostPolicy",
     "FAILURE_STREAM",
     "FirstFitYardPolicy",
@@ -58,8 +84,10 @@ __all__ = [
     "PreparedDischargeTask",
     "PRODUCTIVITY_STREAM",
     "RandomStreams",
+    "ReplayFrame",
     "ScenarioConfig",
     "ServiceConfig",
+    "SimulationMetrics",
     "TaskWorkPlan",
     "TerminalConfig",
     "TerminationMode",
@@ -68,14 +96,26 @@ __all__ = [
     "VesselArrivalGenerator",
     "VesselArrivalPlan",
     "VesselLifecycleRecord",
+    "VesselMetrics",
     "VESSEL_STREAM",
     "WORKLOAD_STREAM",
     "berth_dispatcher_process",
+    "build_berth_timeline",
+    "build_crane_timeline",
+    "build_event_replay",
+    "build_terminal_from_scenario",
+    "collect_metrics",
     "crane_dispatcher_process",
     "crane_failure_process",
     "crane_task_process",
     "leftmost_feasible_position",
+    "metrics_summary",
     "prepare_discharge_work_for_vessel",
+    "run_multi_seed_experiment",
+    "run_scenario_experiment",
+    "save_metrics_json",
+    "save_replay_json",
+    "save_timeline_json",
     "vessel_arrival_process",
     "vessel_service_process",
 ]

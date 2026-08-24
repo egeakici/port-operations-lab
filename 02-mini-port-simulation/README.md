@@ -21,6 +21,9 @@ Implemented modules:
 - Module 07: Quay Crane Resource System
 - Module 08: ContainerGroup + OperationTask + YardBlock Flow
 - Module 09: Stochasticity + Disruptions
+- Module 10: Metrics + Event Logging
+- Module 11: Visualization + Scenario Replay
+- Module 12: Experiments + Final Tests
 
 Current engine contract:
 
@@ -69,6 +72,20 @@ Current operations contract:
 - `PortSimulation.start_basic_operations()` wires the arrival and berth
   dispatcher processes for the baseline flow, plus crane failures when enabled
   by the scenario.
+
+Current measurement and experiment contract:
+
+- `collect_metrics(simulation)` turns Core events and simulation lifecycle
+  records into vessel KPIs, queue metrics, throughput, utilization, and
+  downtime.
+- `build_event_replay(simulation)` produces JSON-safe replay frames from the
+  domain event log.
+- `build_berth_timeline(...)` and `build_crane_timeline(...)` produce
+  timeline segments for visualization.
+- `run_scenario_experiment(...)` builds a terminal from a scenario, runs it,
+  and returns metrics plus replay/timeline artifacts.
+- `run_multi_seed_experiment(...)` supports reproducible stochastic
+  experiment batches.
 
 ## Development Setup
 
