@@ -12,6 +12,7 @@ from mini_port_sim.arrivals import (
     VesselArrivalPlan,
     vessel_arrival_process,
 )
+from mini_port_sim.disruptions import crane_failure_process
 from mini_port_sim.policies import (
     BerthDecision,
     CraneTaskAssignment,
@@ -22,9 +23,12 @@ from mini_port_sim.policies import (
     leftmost_feasible_position,
 )
 from mini_port_sim.processes import (
+    CargoWorkSpec,
+    PreparedDischargeTask,
     TaskWorkPlan,
     VesselLifecycleRecord,
     berth_dispatcher_process,
+    crane_dispatcher_process,
     crane_task_process,
     prepare_discharge_work_for_vessel,
     vessel_service_process,
@@ -42,6 +46,7 @@ from mini_port_sim.simulation import PortSimulation
 __all__ = [
     "ARRIVAL_STREAM",
     "BerthDecision",
+    "CargoWorkSpec",
     "CraneTaskAssignment",
     "DisruptionConfig",
     "ETA_STREAM",
@@ -50,6 +55,7 @@ __all__ = [
     "FirstFitYardPolicy",
     "GreedyCranePolicy",
     "PortSimulation",
+    "PreparedDischargeTask",
     "PRODUCTIVITY_STREAM",
     "RandomStreams",
     "ScenarioConfig",
@@ -65,6 +71,8 @@ __all__ = [
     "VESSEL_STREAM",
     "WORKLOAD_STREAM",
     "berth_dispatcher_process",
+    "crane_dispatcher_process",
+    "crane_failure_process",
     "crane_task_process",
     "leftmost_feasible_position",
     "prepare_discharge_work_for_vessel",

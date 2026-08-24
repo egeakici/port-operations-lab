@@ -5,13 +5,10 @@ from typing import TYPE_CHECKING
 
 from terminal_core import OperationTaskStatus
 
-from mini_port_sim.policies.crane_policy import GreedyCranePolicy
 from mini_port_sim.policies.berth_policy import BerthDecision
 from mini_port_sim.processes.task_process import (
-    crane_task_process,
     prepare_discharge_work_for_vessel,
 )
-from mini_port_sim.rng import PRODUCTIVITY_STREAM
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -117,39 +114,14 @@ def _run_detailed_operations(
         vessel_id,
         occurred_at=simulation.now_datetime(),
     )
-
-    crane_policy = GreedyCranePolicy()
-    productivity_rng = simulation.rng.get(PRODUCTIVITY_STREAM)
+    simulation.add_crane_waiting_vessel(vessel_id)
+    simulation.request_crane_dispatch()
 
     while not _all_tasks_completed(simulation, task_ids):
-        productivity_factor = 1.0
-        if simulation.scenario is not None:
-            productivity_factor = (
-                simulation.scenario.disruptions.productivity_factor(
-                    productivity_rng
-                )
-            )
-
-        assignments = crane_policy.choose(
-            simulation.terminal,
-            vessel_id=vessel_id,
-            task_ids=task_ids,
-            productivity_factor=productivity_factor,
-        )
-        for assignment in assignments:
-            simulation.add_process(
-                lambda sim, assignment=assignment: crane_task_process(
-                    sim,
-                    assignment,
-                )
-            )
-
-        if assignments:
-            yield simulation.env.timeout(0)
-            continue
-
         yield simulation.crane_dispatch_event
         simulation.reset_crane_dispatch_event()
+
+    simulation.remove_crane_waiting_vessel(vessel_id)
 
     return operation_start
 

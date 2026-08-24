@@ -58,11 +58,11 @@ def test_arrival_dispatch_and_lifecycle_depart_two_vessels_fcfs() -> None:
     plans = (
         VesselArrivalPlan(
             vessel=create_vessel("V001"),
-            arrival_time_minutes=0.0,
+            planned_arrival_time_minutes=0.0,
         ),
         VesselArrivalPlan(
             vessel=create_vessel("V002"),
-            arrival_time_minutes=5.0,
+            planned_arrival_time_minutes=5.0,
         ),
     )
 
@@ -128,7 +128,7 @@ def test_basic_operations_starts_arrival_and_dispatcher_processes() -> None:
 
     simulation.start_basic_operations()
 
-    assert simulation.process_count == 2
+    assert simulation.process_count == 3
 
 
 def test_dispatcher_commits_berth_before_next_same_tick_decision() -> None:
@@ -159,11 +159,11 @@ def test_dispatcher_commits_berth_before_next_same_tick_decision() -> None:
     plans = (
         VesselArrivalPlan(
             vessel=create_vessel("V001", workload_moves=10),
-            arrival_time_minutes=0.0,
+            planned_arrival_time_minutes=0.0,
         ),
         VesselArrivalPlan(
             vessel=create_vessel("V002", workload_moves=10),
-            arrival_time_minutes=0.0,
+            planned_arrival_time_minutes=0.0,
         ),
     )
 

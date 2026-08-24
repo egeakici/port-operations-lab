@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 def crane_failure_process(
     simulation: "PortSimulation",
+    crane_id: str,
 ) -> "Generator[simpy.events.Event, Any, None]":
     if simulation.scenario is None:
         raise ValueError("Crane failures require a scenario.")
@@ -25,17 +26,15 @@ def crane_failure_process(
     if not disruptions.crane_failures_enabled:
         return
 
-    rng = simulation.rng.get(FAILURE_STREAM)
+    rng = simulation.rng.get(f"{FAILURE_STREAM}:{crane_id}")
 
     while True:
         delay = rng.expovariate(1.0 / disruptions.mean_time_to_failure_minutes)
         yield simulation.env.timeout(delay)
 
-        crane_ids = tuple(simulation.terminal.quay_crane_ids)
-        if not crane_ids:
-            continue
+        if crane_id not in simulation.terminal.quay_crane_ids:
+            return
 
-        crane_id = rng.choice(crane_ids)
         crane = simulation.terminal.get_quay_crane(crane_id)
         if crane.status in {CraneStatus.FAILED, CraneStatus.MAINTENANCE}:
             continue

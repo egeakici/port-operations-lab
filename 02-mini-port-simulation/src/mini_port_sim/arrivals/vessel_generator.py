@@ -25,14 +25,26 @@ if TYPE_CHECKING:
 @dataclass(frozen=True)
 class VesselArrivalPlan:
     vessel: Vessel
-    arrival_time_minutes: float
+    planned_arrival_time_minutes: float
+    actual_arrival_time_minutes: float | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.vessel, Vessel):
             raise TypeError("Arrival plan vessel must be a Vessel.")
 
-        if self.arrival_time_minutes < 0:
-            raise ValueError("Arrival time cannot be negative.")
+        if self.planned_arrival_time_minutes < 0:
+            raise ValueError("Planned arrival time cannot be negative.")
+
+        if self.actual_arrival_time_minutes is not None:
+            if self.actual_arrival_time_minutes < 0:
+                raise ValueError("Actual arrival time cannot be negative.")
+
+    @property
+    def arrival_time_minutes(self) -> float:
+        if self.actual_arrival_time_minutes is None:
+            return self.planned_arrival_time_minutes
+
+        return self.actual_arrival_time_minutes
 
 
 class VesselArrivalGenerator:
@@ -72,7 +84,7 @@ class VesselArrivalGenerator:
             )
             arrival_time = (
                 simulation.start_time
-                + timedelta(minutes=actual_elapsed_minutes)
+                + timedelta(minutes=elapsed_minutes)
             )
             vessel = Vessel(
                 vessel_id=f"V{index + 1:03d}",
@@ -86,7 +98,8 @@ class VesselArrivalGenerator:
             plans.append(
                 VesselArrivalPlan(
                     vessel=vessel,
-                    arrival_time_minutes=actual_elapsed_minutes,
+                    planned_arrival_time_minutes=elapsed_minutes,
+                    actual_arrival_time_minutes=actual_elapsed_minutes,
                 )
             )
 

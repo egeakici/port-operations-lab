@@ -16,7 +16,10 @@ class FirstFitYardPolicy:
         self,
         terminal: Terminal,
         group: ContainerGroup,
+        planned_teu_by_block: dict[str, float] | None = None,
     ) -> YardDecision | None:
+        planned = planned_teu_by_block or {}
+
         for block_id in terminal.yard_block_ids:
             block = terminal.get_yard_block(block_id)
 
@@ -28,7 +31,9 @@ class FirstFitYardPolicy:
             ):
                 continue
 
-            if block.available_teu < group.total_teu:
+            if block.available_teu - planned.get(block_id, 0.0) < (
+                group.total_teu
+            ):
                 continue
 
             return YardDecision(

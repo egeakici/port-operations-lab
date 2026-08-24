@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 from terminal_core import Berth, Terminal
 
 from mini_port_sim import (
     ARRIVAL_STREAM,
+    DisruptionConfig,
     PortSimulation,
     ScenarioConfig,
     TrafficConfig,
@@ -118,6 +119,67 @@ def test_vessel_attributes_use_vessel_stream_not_arrival_stream() -> None:
     )
 
 
+def test_eta_variation_is_reproducible_and_preserves_planned_eta() -> None:
+    scenario = ScenarioConfig(
+        scenario_id="eta-variation",
+        duration_hours=24,
+        seed=42,
+        traffic=TrafficConfig(
+            vessel_count=4,
+            mean_interarrival_minutes=90,
+        ),
+        disruptions=DisruptionConfig(
+            eta_delay_stddev_minutes=30.0,
+        ),
+    )
+    different_seed = ScenarioConfig(
+        scenario_id="eta-variation-different",
+        duration_hours=24,
+        seed=43,
+        traffic=TrafficConfig(
+            vessel_count=4,
+            mean_interarrival_minutes=90,
+        ),
+        disruptions=DisruptionConfig(
+            eta_delay_stddev_minutes=30.0,
+        ),
+    )
+    first_sim = PortSimulation.from_scenario(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+        scenario=scenario,
+    )
+    second_sim = PortSimulation.from_scenario(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+        scenario=scenario,
+    )
+    different_sim = PortSimulation.from_scenario(
+        terminal=Terminal(current_time=START_TIME),
+        start_time=START_TIME,
+        scenario=different_seed,
+    )
+
+    first = VesselArrivalGenerator().generate(first_sim)
+    second = VesselArrivalGenerator().generate(second_sim)
+    different = VesselArrivalGenerator().generate(different_sim)
+
+    assert [plan.actual_arrival_time_minutes for plan in first] == [
+        plan.actual_arrival_time_minutes for plan in second
+    ]
+    assert [plan.actual_arrival_time_minutes for plan in first] != [
+        plan.actual_arrival_time_minutes for plan in different
+    ]
+    assert any(
+        plan.planned_arrival_time_minutes != plan.actual_arrival_time_minutes
+        for plan in first
+    )
+    assert first[1].vessel.eta == (
+        START_TIME
+        + timedelta(minutes=first[1].planned_arrival_time_minutes)
+    )
+
+
 def test_arrival_process_rejects_vessel_that_cannot_fit_any_registered_berth() -> None:
     scenario = ScenarioConfig(
         scenario_id="too-large",
@@ -143,7 +205,7 @@ def test_arrival_process_rejects_vessel_that_cannot_fit_any_registered_berth() -
             (
                 VesselArrivalPlan(
                     vessel=oversized,
-                    arrival_time_minutes=0.0,
+                    planned_arrival_time_minutes=0.0,
                 ),
             ),
         )

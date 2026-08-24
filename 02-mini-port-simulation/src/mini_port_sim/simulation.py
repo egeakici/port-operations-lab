@@ -13,8 +13,8 @@ from mini_port_sim.scenario import ScenarioConfig
 
 if TYPE_CHECKING:
     from mini_port_sim.arrivals.vessel_generator import VesselArrivalPlan
-    from mini_port_sim.policies.crane_policy import CraneTaskAssignment
     from mini_port_sim.policies.berth_policy import FCFSLeftmostPolicy
+    from mini_port_sim.policies.crane_policy import GreedyCranePolicy
     from mini_port_sim.processes.task_process import TaskWorkPlan
     from mini_port_sim.processes.vessel_process import VesselLifecycleRecord
 
@@ -45,6 +45,10 @@ class PortSimulation:
         repr=False,
     )
     waiting_vessel_ids: tuple[str, ...] = field(
+        default_factory=tuple,
+        init=False,
+    )
+    crane_waiting_vessel_ids: tuple[str, ...] = field(
         default_factory=tuple,
         init=False,
     )
@@ -196,19 +200,43 @@ class PortSimulation:
             )
         )
 
-    def add_crane_failure_process(self) -> simpy.events.Process:
+    def add_crane_dispatcher(
+        self,
+        policy: "GreedyCranePolicy | None" = None,
+    ) -> simpy.events.Process:
+        from mini_port_sim.processes import crane_dispatcher_process
+
+        return self.add_process(
+            lambda simulation: crane_dispatcher_process(
+                simulation,
+                policy,
+            )
+        )
+
+    def add_crane_failure_processes(
+        self,
+    ) -> tuple[simpy.events.Process, ...]:
         from mini_port_sim.disruptions import crane_failure_process
 
-        return self.add_process(crane_failure_process)
+        return tuple(
+            self.add_process(
+                lambda simulation, crane_id=crane_id: crane_failure_process(
+                    simulation,
+                    crane_id,
+                )
+            )
+            for crane_id in self.terminal.quay_crane_ids
+        )
 
     def start_basic_operations(self) -> None:
         self.add_berth_dispatcher()
+        self.add_crane_dispatcher()
         self.add_vessel_arrival_process()
         if (
             self.scenario is not None
             and self.scenario.disruptions.crane_failures_enabled
         ):
-            self.add_crane_failure_process()
+            self.add_crane_failure_processes()
 
     @property
     def process_count(self) -> int:
@@ -275,6 +303,28 @@ class PortSimulation:
         self.waiting_vessel_ids = tuple(
             waiting_id
             for waiting_id in self.waiting_vessel_ids
+            if waiting_id != vessel_id
+        )
+
+    def add_crane_waiting_vessel(self, vessel_id: str) -> None:
+        if not isinstance(vessel_id, str) or not vessel_id.strip():
+            raise ValueError("Crane waiting vessel ID cannot be empty.")
+
+        if vessel_id in self.crane_waiting_vessel_ids:
+            return
+
+        self.crane_waiting_vessel_ids = (
+            *self.crane_waiting_vessel_ids,
+            vessel_id,
+        )
+
+    def remove_crane_waiting_vessel(self, vessel_id: str) -> None:
+        if vessel_id not in self.crane_waiting_vessel_ids:
+            return
+
+        self.crane_waiting_vessel_ids = tuple(
+            waiting_id
+            for waiting_id in self.crane_waiting_vessel_ids
             if waiting_id != vessel_id
         )
 
