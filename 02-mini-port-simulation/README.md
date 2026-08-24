@@ -102,6 +102,43 @@ This writes `summary.json`, `metrics.json`, `replay.json`, and
 `timeline.json`. Add `--png` after installing `mini-port-sim[visualization]`
 to export simple PNG timelines.
 
+## Frontend
+
+Project 02 includes a local Streamlit simulation laboratory under `app/`.
+It reuses the Project 01 dashboard style while observing MiniPortSim outputs:
+scenario configs, metrics, replay frames, timelines, and event logs.
+
+Install and run:
+
+```bash
+cd 02-mini-port-simulation
+
+python -m pip install -e ../01-terminal-operations-core
+python -m pip install -e ".[frontend,visualization]"
+python -m pip install -r requirements-demo.txt
+
+streamlit run app/streamlit_app.py
+```
+
+The app opens into a simulation workspace:
+
+- Preset Scenario: choose an existing JSON file from `scenarios/`, set a seed,
+  and run. The default demo scenario is `crane_failure`.
+- Custom Scenario: build a supported `ScenarioConfig` from the sidebar without
+  editing JSON by hand.
+- Overview: inspect backend KPI metrics such as waiting time, throughput,
+  berth/crane utilization, yard utilization, handled moves, downtime, and
+  unfinished vessels.
+- Terminal Replay: scrub or play through backend replay frames using a
+  top-down schematic terminal view with waiting vessels, berth geometry,
+  cranes, failures, yard occupancy, and entity inspectors.
+- Timelines: inspect berth time-space occupancy, vessel lifecycle segments,
+  and crane operating/failed/idle intervals.
+- Events: filter the Core event log by event type, vessel, crane, time range,
+  and search text; jump the replay to a selected event.
+- Scenario: view and download the exact scenario, metrics, replay, timeline,
+  and event artifacts produced by the run.
+
 ## Development Setup
 
 Install Terminal Operations Core first, then install MiniPortSim:

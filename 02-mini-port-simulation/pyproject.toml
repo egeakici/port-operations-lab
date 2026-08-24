@@ -17,6 +17,11 @@ dependencies = [
 visualization = [
     "matplotlib>=3.8,<4",
 ]
+frontend = [
+    "streamlit>=1.36,<2",
+    "pandas>=2.2,<3",
+    "plotly>=5.22,<6",
+]
 
 [project.scripts]
 mini-port-sim = "mini_port_sim.cli:main"
