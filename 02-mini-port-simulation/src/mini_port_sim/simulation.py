@@ -25,6 +25,12 @@ class ActiveTaskProcess:
     crane_id: str
     task_id: str
     process: simpy.events.Process
+    started_at_minutes: float
+    moves_per_hour: float
+
+
+class SimulationDrainTimeoutError(RuntimeError):
+    pass
 
 
 SimulationProcessFactory = Callable[
@@ -71,6 +77,10 @@ class PortSimulation:
     )
     task_work_plans: dict[str, "TaskWorkPlan"] = field(
         default_factory=dict,
+        init=False,
+    )
+    yard_capacity_rejection_count: int = field(
+        default=0,
         init=False,
     )
     _active_task_processes_by_crane: dict[str, ActiveTaskProcess] = field(
@@ -283,11 +293,16 @@ class PortSimulation:
         crane_id: str,
         task_id: str,
         process: simpy.events.Process,
+        *,
+        started_at_minutes: float,
+        moves_per_hour: float,
     ) -> None:
         self._active_task_processes_by_crane[crane_id] = ActiveTaskProcess(
             crane_id=crane_id,
             task_id=task_id,
             process=process,
+            started_at_minutes=started_at_minutes,
+            moves_per_hour=moves_per_hour,
         )
 
     def unregister_active_task_process(self, crane_id: str) -> None:
@@ -298,6 +313,9 @@ class PortSimulation:
         crane_id: str,
     ) -> ActiveTaskProcess | None:
         return self._active_task_processes_by_crane.get(crane_id)
+
+    def active_task_processes(self) -> tuple[ActiveTaskProcess, ...]:
+        return tuple(self._active_task_processes_by_crane.values())
 
     def add_waiting_vessel(self, vessel_id: str) -> None:
         if not isinstance(vessel_id, str) or not vessel_id.strip():
@@ -340,6 +358,9 @@ class PortSimulation:
             if waiting_id != vessel_id
         )
 
+    def record_yard_capacity_rejection(self) -> None:
+        self.yard_capacity_rejection_count += 1
+
     def run(
         self,
         *,
@@ -367,11 +388,20 @@ class PortSimulation:
             return self.run(until_minutes=self.scenario.duration_minutes)
 
         self.run(until_minutes=self.scenario.duration_minutes)
+        max_drain_until = self.scenario.duration_minutes + (
+            self.scenario.max_drain_extension_hours * 60.0
+        )
         while self._has_open_vessel_work():
             if self.env.peek() == float("inf"):
                 break
 
-            self._run_inclusive_until(float(self.env.peek()))
+            next_event_time = float(self.env.peek())
+            if next_event_time > max_drain_until:
+                raise SimulationDrainTimeoutError(
+                    "Simulation drain exceeded max_drain_extension_hours."
+                )
+
+            self._run_inclusive_until(next_event_time)
 
         return self.sync_terminal_time()
 

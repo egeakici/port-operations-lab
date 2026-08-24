@@ -13,6 +13,14 @@ dependencies = [
     "terminal-core==0.1.0",
 ]
 
+[project.optional-dependencies]
+visualization = [
+    "matplotlib>=3.8,<4",
+]
+
+[project.scripts]
+mini-port-sim = "mini_port_sim.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

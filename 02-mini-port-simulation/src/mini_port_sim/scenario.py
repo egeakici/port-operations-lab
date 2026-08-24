@@ -382,6 +382,7 @@ class ScenarioConfig:
     duration_hours: float
     seed: int
     termination_mode: TerminationMode = TerminationMode.HORIZON
+    max_drain_extension_hours: float = 168.0
     terminal: TerminalConfig = field(default_factory=TerminalConfig)
     traffic: TrafficConfig = field(default_factory=TrafficConfig)
     service: ServiceConfig = field(default_factory=ServiceConfig)
@@ -407,6 +408,11 @@ class ScenarioConfig:
                 "Scenario termination mode must be a TerminationMode value."
             )
 
+        _validate_non_negative_number(
+            self.max_drain_extension_hours,
+            "Maximum drain extension",
+        )
+
         if not isinstance(self.terminal, TerminalConfig):
             raise ValueError("Scenario terminal must be a TerminalConfig.")
 
@@ -431,6 +437,7 @@ class ScenarioConfig:
             "duration_hours": self.duration_hours,
             "seed": self.seed,
             "termination_mode": self.termination_mode.value,
+            "max_drain_extension_hours": self.max_drain_extension_hours,
             "terminal": self.terminal.to_dict(),
             "traffic": self.traffic.to_dict(),
             "service": self.service.to_dict(),
@@ -452,6 +459,10 @@ class ScenarioConfig:
                         "termination_mode",
                         TerminationMode.HORIZON.value,
                     )
+                ),
+                max_drain_extension_hours=data.get(
+                    "max_drain_extension_hours",
+                    cls.max_drain_extension_hours,
                 ),
                 terminal=TerminalConfig.from_dict(data.get("terminal", {})),
                 traffic=TrafficConfig.from_dict(data.get("traffic", {})),

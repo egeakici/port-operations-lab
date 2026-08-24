@@ -117,6 +117,7 @@ def prepare_discharge_work_for_vessel(
         )
 
         if decision is None:
+            simulation.record_yard_capacity_rejection()
             return None
 
         task = OperationTask(
@@ -220,16 +221,17 @@ def crane_task_process(
         assignment.task_id,
         occurred_at=now,
     )
-    simulation.register_active_task_process(
-        assignment.crane_id,
-        assignment.task_id,
-        simulation.env.active_process,
-    )
-
     started_at = simulation.elapsed_minutes
     rate = _effective_crane_moves_per_hour(
         simulation,
         assignment,
+    )
+    simulation.register_active_task_process(
+        assignment.crane_id,
+        assignment.task_id,
+        simulation.env.active_process,
+        started_at_minutes=started_at,
+        moves_per_hour=rate,
     )
     duration = _remaining_duration_minutes(
         terminal.get_operation_task(assignment.task_id),

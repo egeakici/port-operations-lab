@@ -76,16 +76,31 @@ Current operations contract:
 Current measurement and experiment contract:
 
 - `collect_metrics(simulation)` turns Core events and simulation lifecycle
-  records into vessel KPIs, queue metrics, throughput, utilization, and
-  downtime.
-- `build_event_replay(simulation)` produces JSON-safe replay frames from the
-  domain event log.
-- `build_berth_timeline(...)` and `build_crane_timeline(...)` produce
-  timeline segments for visualization.
+  records into vessel KPIs, queue metrics, throughput, partial handled moves,
+  utilization, downtime, and yard peak occupancy.
+- `build_event_replay(simulation)` and `build_state_replay(simulation)`
+  produce JSON-safe replay frames from the domain event log.
+- `build_berth_timeline(...)`, `build_vessel_timeline(...)`, and
+  `build_crane_timeline(...)` produce timeline segments for visualization.
 - `run_scenario_experiment(...)` builds a terminal from a scenario, runs it,
   and returns metrics plus replay/timeline artifacts.
 - `run_multi_seed_experiment(...)` supports reproducible stochastic
   experiment batches.
+- `aggregate_experiment_results(...)` summarizes multi-seed results with mean,
+  median, standard deviation, min/max, and 95% confidence interval width.
+
+Run a complete scenario from the command line:
+
+```bash
+mini-port-sim \
+  --scenario scenarios/heavy_traffic.json \
+  --seed 42 \
+  --output results/heavy_42
+```
+
+This writes `summary.json`, `metrics.json`, `replay.json`, and
+`timeline.json`. Add `--png` after installing `mini-port-sim[visualization]`
+to export simple PNG timelines.
 
 ## Development Setup
 

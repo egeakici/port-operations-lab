@@ -7,18 +7,18 @@ container-terminal digital-twin and optimization stack.
 
 1. `01-terminal-operations-core`: shared terminal domain model, events, state,
    aggregate commands, integration scenario, and interactive demo. **COMPLETE**
-2. `02-mini-port-simulation`: discrete-event terminal simulator. **IN PROGRESS**
-3. `berth-allocation-lab`: future berth allocation baselines.
+2. `02-mini-port-simulation`: discrete-event terminal simulator. **COMPLETE**
+3. `berth-allocation-lab`: future berth allocation baselines. **NEXT**
 4. `rail-crane-scheduler`: future quay-crane assignment and scheduling logic.
 5. `container-yard-puzzle`: future yard relocation/search core.
 6. `terminal-rl-sandbox`: future Gymnasium/action-masking RL environment.
 7. `ais-port-call-calibrator`: future AIS-based port-call calibration.
 8. `terminal-optimization-benchmark`: future experiment and comparison engine.
 
-Project 1 is complete. Project 2 has modules 1-6 implemented: architecture,
-Core integration, the initial SimPy simulation engine, scenario/RNG contracts,
-vessel arrivals, FCFS berth allocation, and the simplified vessel service
-lifecycle.
+Projects 1 and 2 are complete. MiniPortSim now provides scenario-driven
+discrete-event simulation with vessel arrivals, berth allocation, crane and
+yard constraints, stochastic disruptions, metrics, replay artifacts, timeline
+outputs, and experiment runners.
 
 ## Project 1 Status
 
@@ -60,5 +60,6 @@ python -m pytest -v
 
 ## Current Project
 
-The active preparation project is MiniPortSim, which adds a time-progressing
-discrete-event simulation layer on top of the Terminal Operations Core.
+The next preparation project is Berth Allocation Lab, which will use
+MiniPortSim as a reproducible benchmark world for comparing berth allocation
+policies and optimizers.

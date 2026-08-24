@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from datetime import datetime
+from math import sqrt
+from statistics import median, stdev
 from typing import Any
 
 from terminal_core import Berth, QuayCrane, Terminal, YardBlock
@@ -13,9 +15,11 @@ from mini_port_sim.visualization import (
     BerthTimelineSegment,
     CraneTimelineSegment,
     ReplayFrame,
+    VesselTimelineSegment,
     build_berth_timeline,
     build_crane_timeline,
     build_event_replay,
+    build_vessel_timeline,
 )
 
 
@@ -26,6 +30,7 @@ class ExperimentResult:
     metrics: SimulationMetrics
     replay_frames: tuple[ReplayFrame, ...]
     berth_timeline: tuple[BerthTimelineSegment, ...]
+    vessel_timeline: tuple[VesselTimelineSegment, ...]
     crane_timeline: tuple[CraneTimelineSegment, ...]
 
     def summary(self) -> dict[str, Any]:
@@ -43,9 +48,51 @@ class ExperimentResult:
             ),
             "berth_utilization": self.metrics.berth_utilization,
             "crane_utilization": self.metrics.crane_utilization,
-            "yard_utilization": self.metrics.yard_utilization,
+            "final_yard_utilization": self.metrics.final_yard_utilization,
+            "peak_yard_utilization": self.metrics.peak_yard_utilization,
             "max_queue_length": self.metrics.max_queue_length,
             "total_handled_moves": self.metrics.total_handled_moves,
+        }
+
+
+@dataclass(frozen=True)
+class AggregatedMetric:
+    name: str
+    count: int
+    mean: float
+    median: float
+    stddev: float
+    minimum: float
+    maximum: float
+    ci95_half_width: float
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "count": self.count,
+            "mean": self.mean,
+            "median": self.median,
+            "stddev": self.stddev,
+            "minimum": self.minimum,
+            "maximum": self.maximum,
+            "ci95_half_width": self.ci95_half_width,
+        }
+
+
+@dataclass(frozen=True)
+class ExperimentAggregate:
+    scenario_id: str
+    seed_count: int
+    metrics: dict[str, AggregatedMetric]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "scenario_id": self.scenario_id,
+            "seed_count": self.seed_count,
+            "metrics": {
+                name: metric.to_dict()
+                for name, metric in self.metrics.items()
+            },
         }
 
 
@@ -115,6 +162,7 @@ def run_scenario_experiment(
         metrics=metrics,
         replay_frames=build_event_replay(simulation),
         berth_timeline=build_berth_timeline(simulation),
+        vessel_timeline=build_vessel_timeline(simulation),
         crane_timeline=build_crane_timeline(simulation),
     )
 
@@ -135,6 +183,87 @@ def run_multi_seed_experiment(
         )
         for seed in seeds
     )
+
+
+def aggregate_experiment_results(
+    results: tuple[ExperimentResult, ...],
+) -> ExperimentAggregate:
+    if not results:
+        raise ValueError("Cannot aggregate an empty result set.")
+
+    metric_values = {
+        "completed_vessel_count": [
+            result.metrics.completed_vessel_count for result in results
+        ],
+        "average_waiting_time_minutes": _known(
+            result.metrics.average_waiting_time_minutes
+            for result in results
+        ),
+        "p95_waiting_time_minutes": _known(
+            result.metrics.p95_waiting_time_minutes
+            for result in results
+        ),
+        "average_turnaround_time_minutes": _known(
+            result.metrics.average_turnaround_time_minutes
+            for result in results
+        ),
+        "berth_utilization": [
+            result.metrics.berth_utilization for result in results
+        ],
+        "crane_utilization": [
+            result.metrics.crane_utilization for result in results
+        ],
+        "crane_downtime_minutes": [
+            result.metrics.crane_downtime_minutes for result in results
+        ],
+        "peak_yard_utilization": [
+            result.metrics.peak_yard_utilization for result in results
+        ],
+        "total_handled_moves": [
+            result.metrics.total_handled_moves for result in results
+        ],
+        "yard_capacity_rejection_count": [
+            result.metrics.yard_capacity_rejection_count
+            for result in results
+        ],
+    }
+
+    return ExperimentAggregate(
+        scenario_id=results[0].scenario.scenario_id,
+        seed_count=len(results),
+        metrics={
+            name: _aggregate_metric(name, tuple(values))
+            for name, values in metric_values.items()
+            if values
+        },
+    )
+
+
+def _aggregate_metric(
+    name: str,
+    values: tuple[float, ...],
+) -> AggregatedMetric:
+    count = len(values)
+    stddev = stdev(values) if count > 1 else 0.0
+
+    return AggregatedMetric(
+        name=name,
+        count=count,
+        mean=sum(values) / count,
+        median=float(median(values)),
+        stddev=stddev,
+        minimum=min(values),
+        maximum=max(values),
+        ci95_half_width=(
+            1.96 * stddev / sqrt(count)
+            if count > 1
+            else 0.0
+        ),
+    )
+
+
+def _known(values) -> list[float]:
+    return [float(value) for value in values if value is not None]
 
 
 def _crane_position(

@@ -14,7 +14,10 @@ from mini_port_sim.arrivals import (
 )
 from mini_port_sim.disruptions import crane_failure_process
 from mini_port_sim.experiments import (
+    AggregatedMetric,
+    ExperimentAggregate,
     ExperimentResult,
+    aggregate_experiment_results,
     build_terminal_from_scenario,
     run_multi_seed_experiment,
     run_scenario_experiment,
@@ -54,20 +57,28 @@ from mini_port_sim.scenario import (
     TerminationMode,
     TrafficConfig,
 )
-from mini_port_sim.simulation import PortSimulation
+from mini_port_sim.simulation import PortSimulation, SimulationDrainTimeoutError
 from mini_port_sim.visualization import (
     BerthTimelineSegment,
     CraneTimelineSegment,
     ReplayFrame,
+    SimulationReplayState,
+    VesselTimelineSegment,
     build_berth_timeline,
     build_crane_timeline,
     build_event_replay,
+    build_state_replay,
+    build_vessel_timeline,
+    save_berth_timeline_png,
+    save_crane_timeline_png,
     save_replay_json,
     save_timeline_json,
+    save_vessel_timeline_png,
 )
 
 __all__ = [
     "ARRIVAL_STREAM",
+    "AggregatedMetric",
     "BerthDecision",
     "BerthTimelineSegment",
     "CargoWorkSpec",
@@ -75,6 +86,7 @@ __all__ = [
     "CraneTaskAssignment",
     "DisruptionConfig",
     "ETA_STREAM",
+    "ExperimentAggregate",
     "ExperimentResult",
     "FCFSLeftmostPolicy",
     "FAILURE_STREAM",
@@ -88,6 +100,8 @@ __all__ = [
     "ScenarioConfig",
     "ServiceConfig",
     "SimulationMetrics",
+    "SimulationReplayState",
+    "SimulationDrainTimeoutError",
     "TaskWorkPlan",
     "TerminalConfig",
     "TerminationMode",
@@ -97,13 +111,17 @@ __all__ = [
     "VesselArrivalPlan",
     "VesselLifecycleRecord",
     "VesselMetrics",
+    "VesselTimelineSegment",
     "VESSEL_STREAM",
     "WORKLOAD_STREAM",
     "berth_dispatcher_process",
+    "aggregate_experiment_results",
     "build_berth_timeline",
     "build_crane_timeline",
     "build_event_replay",
+    "build_state_replay",
     "build_terminal_from_scenario",
+    "build_vessel_timeline",
     "collect_metrics",
     "crane_dispatcher_process",
     "crane_failure_process",
@@ -114,8 +132,11 @@ __all__ = [
     "run_multi_seed_experiment",
     "run_scenario_experiment",
     "save_metrics_json",
+    "save_berth_timeline_png",
+    "save_crane_timeline_png",
     "save_replay_json",
     "save_timeline_json",
+    "save_vessel_timeline_png",
     "vessel_arrival_process",
     "vessel_service_process",
 ]
