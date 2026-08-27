@@ -10,6 +10,7 @@ from app.simulation_service import (
     run_simulation_from_ui,
 )
 from app.visual.svg_renderer import render_terminal_replay_svg
+from app.visual import layout
 from app.visual.terminal_replay import (
     build_terminal_replay_scene,
     current_waiting_queue,
@@ -168,3 +169,10 @@ def test_replay_scene_and_svg_use_simulation_backend_outputs() -> None:
     assert "MiniPortSim terminal replay" in svg
     assert "QUAY / BERTH / APRON" in svg
     assert current_waiting_queue(bundle, 0)
+
+
+def test_waiting_anchorage_layout_caps_visible_vessels_before_berth() -> None:
+    rects = layout.anchorage_rects(60)
+
+    assert len(rects) == layout.ANCHORAGE_MAX_VISIBLE
+    assert max(rect.y + rect.height for rect in rects) < layout.QUAY_Y - 90.0

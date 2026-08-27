@@ -6,15 +6,20 @@ from app.visual.models import VisualRect
 
 
 SCENE_WIDTH = 1400.0
-SCENE_HEIGHT = 820.0
+SCENE_HEIGHT = 860.0
 MARGIN_X = 48.0
 WATER_TOP = 36.0
-QUAY_Y = 330.0
-APRON_Y = 370.0
-YARD_Y = 470.0
+QUAY_Y = 360.0
+APRON_Y = 400.0
+YARD_Y = 500.0
 YARD_HEIGHT = 250.0
 QUAY_X = MARGIN_X
 QUAY_WIDTH = SCENE_WIDTH - (2 * MARGIN_X)
+ANCHORAGE_X = QUAY_X + 24.0
+ANCHORAGE_Y = WATER_TOP + 50.0
+ANCHORAGE_WIDTH = QUAY_WIDTH - 48.0
+ANCHORAGE_HEIGHT = 160.0
+ANCHORAGE_MAX_VISIBLE = 30
 
 
 def clamp(value: float, minimum: float, maximum: float) -> float:
@@ -32,20 +37,19 @@ def ratio(value: float, total: float) -> float:
 def anchorage_rects(count: int) -> tuple[VisualRect, ...]:
     if count <= 0:
         return ()
-    columns = min(5, count)
-    gap = 14.0
-    width = 160.0
-    height = 54.0
-    start_x = QUAY_X + 24.0
-    start_y = WATER_TOP + 58.0
+    visible_count = min(count, ANCHORAGE_MAX_VISIBLE)
+    columns = min(10, visible_count)
+    gap = 8.0
+    width = (ANCHORAGE_WIDTH - (columns - 1) * gap) / columns
+    height = 32.0
     return tuple(
         VisualRect(
-            x=start_x + (index % columns) * (width + gap),
-            y=start_y + (index // columns) * (height + gap),
+            x=ANCHORAGE_X + (index % columns) * (width + gap),
+            y=ANCHORAGE_Y + (index // columns) * (height + gap),
             width=width,
             height=height,
         )
-        for index in range(count)
+        for index in range(visible_count)
     )
 
 
@@ -66,4 +70,3 @@ def yard_rects(count: int) -> tuple[VisualRect, ...]:
         )
         for index in range(count)
     )
-

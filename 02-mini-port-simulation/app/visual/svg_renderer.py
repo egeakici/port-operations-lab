@@ -31,6 +31,7 @@ def render_terminal_replay_svg(
     parts = [
         f"<svg viewBox='0 0 {_num(scene.width)} {_num(scene.height)}' "
         "width='100%' preserveAspectRatio='xMidYMid meet' "
+        "style='width:100%;height:auto;display:block;' "
         "role='img' aria-label='MiniPortSim terminal replay'>",
         _defs(),
         _background(scene),
@@ -75,6 +76,13 @@ def _background(scene: TerminalReplayScene) -> str:
         f"<rect x='0' y='0' width='{_num(scene.width)}' height='{_num(layout.QUAY_Y - 6)}' fill='url(#mpsWaterLines)' opacity='0.55' />"
         f"<text x='{_num(layout.MARGIN_X)}' y='30' class='map-title'>SEA / APPROACH / WAITING AREA</text>"
         f"<text x='{_num(scene.width - layout.MARGIN_X)}' y='30' text-anchor='end' class='caption'>{_esc(title)}</text>"
+        f"<rect x='{_num(layout.ANCHORAGE_X)}' y='{_num(layout.ANCHORAGE_Y - 30)}' "
+        f"width='{_num(layout.ANCHORAGE_WIDTH)}' height='{_num(layout.ANCHORAGE_HEIGHT)}' "
+        "rx='8' fill='#0b2733' stroke='#2a6f85' stroke-width='1.5' opacity='0.95' />"
+        f"<text x='{_num(layout.ANCHORAGE_X + 12)}' y='{_num(layout.ANCHORAGE_Y - 10)}' "
+        "class='section-label'>ANCHORAGE / WAITING QUEUE</text>"
+        f"<text x='{_num(layout.ANCHORAGE_X + layout.ANCHORAGE_WIDTH - 12)}' y='{_num(layout.ANCHORAGE_Y - 10)}' "
+        f"text-anchor='end' class='caption'>{len(scene.waiting_vessels) + scene.waiting_overflow_count} waiting</text>"
         f"<rect x='0' y='{_num(layout.QUAY_Y + 18)}' width='{_num(scene.width)}' height='36' fill='#202a33' />"
         f"<line x1='{_num(layout.QUAY_X)}' y1='{_num(layout.QUAY_Y)}' "
         f"x2='{_num(layout.QUAY_X + layout.QUAY_WIDTH)}' y2='{_num(layout.QUAY_Y)}' "
@@ -136,10 +144,7 @@ def _vessel(vessel, *, selected: bool) -> str:
 def _anchorage(scene: TerminalReplayScene, *, selected_vessel_id: str | None) -> str:
     if not scene.waiting_vessels:
         return ""
-    parts = [
-        f"<text x='{_num(layout.QUAY_X + 24)}' y='{_num(layout.WATER_TOP + 44)}' "
-        "class='section-label'>WAITING VESSELS</text>"
-    ]
+    parts = []
     for vessel in scene.waiting_vessels:
         rect = vessel.rect
         fill, stroke = STATUS_STYLES.get(vessel.status, ("#263746", "#9fb4c2"))
@@ -147,10 +152,15 @@ def _anchorage(scene: TerminalReplayScene, *, selected_vessel_id: str | None) ->
         parts.append(
             f"<g><title>{_esc(vessel.vessel_id)} | {_esc(vessel.status.upper())}</title>"
             f"<rect x='{_num(rect.x)}' y='{_num(rect.y)}' width='{_num(rect.width)}' height='{_num(rect.height)}' "
-            f"rx='20' fill='{fill}' stroke='{stroke}' stroke-width='2' class='{cls.strip()}' />"
-            f"<text x='{_num(rect.center_x)}' y='{_num(rect.y + 23)}' text-anchor='middle' class='label'>{_esc(vessel.vessel_id)}</text>"
-            f"<text x='{_num(rect.center_x)}' y='{_num(rect.y + 42)}' text-anchor='middle' class='small'>{_esc(vessel.status.upper())}</text>"
+            f"rx='14' fill='{fill}' stroke='{stroke}' stroke-width='2' class='{cls.strip()}' />"
+            f"<text x='{_num(rect.center_x)}' y='{_num(rect.y + 21)}' text-anchor='middle' class='small'>{_esc(vessel.vessel_id)}</text>"
             "</g>"
+        )
+    if scene.waiting_overflow_count:
+        parts.append(
+            f"<text x='{_num(layout.ANCHORAGE_X + layout.ANCHORAGE_WIDTH - 12)}' "
+            f"y='{_num(layout.ANCHORAGE_Y + layout.ANCHORAGE_HEIGHT - 16)}' "
+            f"text-anchor='end' class='small'>{_esc('+' + str(scene.waiting_overflow_count) + ' more in queue table')}</text>"
         )
     return "".join(parts)
 
@@ -223,4 +233,3 @@ def _num(value: float) -> str:
     if not math.isfinite(value):
         return "0"
     return f"{value:.2f}".rstrip("0").rstrip(".")
-

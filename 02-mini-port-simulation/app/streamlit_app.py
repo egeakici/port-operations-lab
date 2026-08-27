@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sys
 import time
-from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
@@ -115,7 +114,7 @@ def _render_sidebar() -> None:
     else:
         scenario = _render_custom_controls()
 
-    if st.sidebar.button("Run Simulation", type="primary", use_container_width=True):
+    if st.sidebar.button("Run Simulation", type="primary", width="stretch"):
         if scenario is None:
             session_store.store_error("No valid scenario is selected.")
             return
@@ -355,7 +354,7 @@ def _render_overview(bundle) -> None:
             }
             for vessel in metrics.vessel_metrics
         ],
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -369,6 +368,7 @@ def _render_replay(bundle) -> None:
     index = int(st.session_state[session_store.REPLAY_INDEX])
     index = max(0, min(index, len(frames) - 1))
     st.session_state[session_store.REPLAY_INDEX] = index
+    st.session_state[session_store.REPLAY_SLIDER] = index
     scene = build_terminal_replay_scene(bundle, index)
 
     _render_replay_controls(bundle, scene)
@@ -406,7 +406,7 @@ def _render_replay(bundle) -> None:
         selected_crane_id=None if selected_crane == "None" else selected_crane,
         selected_yard_id=None if selected_yard == "None" else selected_yard,
     )
-    components.html(svg, height=760, scrolling=False)
+    components.html(svg, height=900, scrolling=False)
 
     left, right = st.columns([1.1, 1])
     with left:
@@ -429,33 +429,40 @@ def _render_replay(bundle) -> None:
         st.session_state[session_store.REPLAY_PLAYING] = False
 
 
+def _sync_replay_index_from_slider() -> None:
+    st.session_state[session_store.REPLAY_INDEX] = int(
+        st.session_state[session_store.REPLAY_SLIDER]
+    )
+    st.session_state[session_store.REPLAY_PLAYING] = False
+
+
 def _render_replay_controls(bundle, scene) -> None:
     frames = bundle.result.replay_frames
     st.subheader("Terminal Replay")
     st.caption(simulation_clock(bundle.result.simulation.start_time, scene.elapsed_minutes))
     controls = st.columns([0.7, 0.7, 0.9, 0.7, 0.7, 1.1, 4])
-    if controls[0].button("|<", use_container_width=True):
+    if controls[0].button("|<", width="stretch"):
         st.session_state[session_store.REPLAY_INDEX] = 0
         st.rerun()
-    if controls[1].button("<", use_container_width=True):
+    if controls[1].button("<", width="stretch"):
         st.session_state[session_store.REPLAY_INDEX] = max(
             0,
             st.session_state[session_store.REPLAY_INDEX] - 1,
         )
         st.rerun()
     play_label = "Pause" if st.session_state[session_store.REPLAY_PLAYING] else "Play"
-    if controls[2].button(play_label, use_container_width=True):
+    if controls[2].button(play_label, width="stretch"):
         st.session_state[session_store.REPLAY_PLAYING] = not st.session_state[
             session_store.REPLAY_PLAYING
         ]
         st.rerun()
-    if controls[3].button(">", use_container_width=True):
+    if controls[3].button(">", width="stretch"):
         st.session_state[session_store.REPLAY_INDEX] = min(
             len(frames) - 1,
             st.session_state[session_store.REPLAY_INDEX] + 1,
         )
         st.rerun()
-    if controls[4].button(">|", use_container_width=True):
+    if controls[4].button(">|", width="stretch"):
         st.session_state[session_store.REPLAY_INDEX] = len(frames) - 1
         st.rerun()
     controls[5].selectbox(
@@ -466,16 +473,13 @@ def _render_replay_controls(bundle, scene) -> None:
         ),
         key=session_store.REPLAY_SPEED,
     )
-    selected = controls[6].slider(
+    controls[6].slider(
         "Event index",
         min_value=0,
         max_value=len(frames) - 1,
-        value=int(st.session_state[session_store.REPLAY_INDEX]),
-        key="mps_replay_slider",
+        key=session_store.REPLAY_SLIDER,
+        on_change=_sync_replay_index_from_slider,
     )
-    if selected != st.session_state[session_store.REPLAY_INDEX]:
-        st.session_state[session_store.REPLAY_INDEX] = selected
-        st.rerun()
 
 
 def _render_waiting_queue(bundle, frame_index: int) -> None:
@@ -496,7 +500,7 @@ def _render_waiting_queue(bundle, frame_index: int) -> None:
             for index, row in enumerate(rows)
         ],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -642,7 +646,7 @@ def _render_timelines(bundle) -> None:
             height=430,
             margin={"l": 40, "r": 20, "t": 20, "b": 40},
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with timeline_tabs[1]:
         st.plotly_chart(
@@ -658,7 +662,7 @@ def _render_timelines(bundle) -> None:
                 ],
                 title="Vessel timeline",
             ),
-            use_container_width=True,
+            width="stretch",
         )
 
     with timeline_tabs[2]:
@@ -667,7 +671,7 @@ def _render_timelines(bundle) -> None:
                 _crane_timeline_with_idle(bundle),
                 title="Crane timeline",
             ),
-            use_container_width=True,
+            width="stretch",
         )
 
 
@@ -769,7 +773,7 @@ def _render_events(bundle) -> None:
             key=session_store.SELECTED_EVENT_ID,
         )
     with right:
-        if st.button("Jump Replay To Event", use_container_width=True):
+        if st.button("Jump Replay To Event", width="stretch"):
             if selected_event != "None":
                 target = next(row for row in rows if row["event_id"] == selected_event)
                 st.session_state[session_store.REPLAY_INDEX] = nearest_replay_frame_index(
@@ -793,7 +797,7 @@ def _render_events(bundle) -> None:
             for row in filtered
         ],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -848,10 +852,9 @@ def _render_scenario(bundle) -> None:
             file_name="events.csv",
             mime="text/csv",
             key="mps_download_events",
-            use_container_width=True,
+            width="stretch",
         )
 
 
 if __name__ == "__main__":
     main()
-

@@ -10,6 +10,7 @@ SEED = "mps_seed"
 RUN_BUNDLE = "mps_run_bundle"
 RUN_ERROR = "mps_run_error"
 REPLAY_INDEX = "mps_replay_index"
+REPLAY_SLIDER = "mps_replay_slider"
 REPLAY_PLAYING = "mps_replay_playing"
 REPLAY_SPEED = "mps_replay_speed"
 SELECTED_EVENT_ID = "mps_selected_event_id"
@@ -36,6 +37,7 @@ def initialize_session(state: MutableMapping[str, Any] | None = None) -> None:
     store.setdefault(RUN_BUNDLE, None)
     store.setdefault(RUN_ERROR, None)
     store.setdefault(REPLAY_INDEX, 0)
+    store.setdefault(REPLAY_SLIDER, 0)
     store.setdefault(REPLAY_PLAYING, False)
     store.setdefault(REPLAY_SPEED, 1.0)
     store.setdefault(SELECTED_EVENT_ID, None)
@@ -52,6 +54,7 @@ def store_run(bundle: Any, state: MutableMapping[str, Any] | None = None) -> Non
     store[RUN_BUNDLE] = bundle
     store[RUN_ERROR] = None
     store[REPLAY_INDEX] = 0
+    store[REPLAY_SLIDER] = 0
     store[REPLAY_PLAYING] = False
     store[SELECTED_EVENT_ID] = (
         bundle.result.replay_frames[0].event_id
@@ -65,4 +68,3 @@ def store_error(message: str, state: MutableMapping[str, Any] | None = None) -> 
     store = _state(state)
     store[RUN_ERROR] = message
     store[REPLAY_PLAYING] = False
-

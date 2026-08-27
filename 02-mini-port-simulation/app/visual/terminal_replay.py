@@ -61,6 +61,7 @@ def build_terminal_replay_scene(bundle, frame_index: int) -> TerminalReplayScene
         key=lambda item: item[0],
     )
     waiting_rects = layout.anchorage_rects(len(waiting_items))
+    visible_waiting_items = waiting_items[: len(waiting_rects)]
     waiting = tuple(
         VesselReplayVisual(
             vessel_id=vessel_id,
@@ -69,8 +70,9 @@ def build_terminal_replay_scene(bundle, frame_index: int) -> TerminalReplayScene
             length_m=_float_or_none(data.get("length_m")),
             workload_moves=workload_by_vessel.get(vessel_id),
         )
-        for index, (vessel_id, data) in enumerate(waiting_items)
+        for index, (vessel_id, data) in enumerate(visible_waiting_items)
     )
+    waiting_overflow_count = max(0, len(waiting_items) - len(waiting))
 
     berthed: list[VesselReplayVisual] = []
     departed: list[VesselReplayVisual] = []
@@ -103,7 +105,7 @@ def build_terminal_replay_scene(bundle, frame_index: int) -> TerminalReplayScene
                 status=status,
                 rect=VisualRect(
                     x=x,
-                    y=layout.WATER_TOP + 146.0,
+                    y=layout.QUAY_Y - 116.0,
                     width=visual_width,
                     height=76.0,
                 ),
@@ -160,6 +162,7 @@ def build_terminal_replay_scene(bundle, frame_index: int) -> TerminalReplayScene
         berths=berths,
         berthed_vessels=tuple(berthed),
         waiting_vessels=waiting,
+        waiting_overflow_count=waiting_overflow_count,
         departed_vessels=tuple(departed),
         cranes=tuple(cranes),
         yards=tuple(yards),
@@ -167,20 +170,35 @@ def build_terminal_replay_scene(bundle, frame_index: int) -> TerminalReplayScene
 
 
 def current_waiting_queue(bundle, frame_index: int) -> tuple[dict[str, object], ...]:
-    scene = build_terminal_replay_scene(bundle, frame_index)
+    frames = bundle.result.replay_frames
+    if not frames:
+        return ()
+
+    frame_index = max(0, min(frame_index, len(frames) - 1))
+    frame = frames[frame_index]
+    state = frame.state
+    if state is None:
+        return ()
+
     arrival_by_vessel = {
         plan.vessel.vessel_id: plan.arrival_time_minutes
         for plan in bundle.result.simulation.arrival_plans
     }
+    workload_by_vessel = {
+        plan.vessel.vessel_id: plan.vessel.workload_moves
+        for plan in bundle.result.simulation.arrival_plans
+    }
     rows = []
-    for vessel in scene.waiting_vessels:
-        arrival = arrival_by_vessel.get(vessel.vessel_id, scene.elapsed_minutes)
+    for vessel_id, data in state.vessels.items():
+        if data.get("status") not in {"arrived", "waiting"}:
+            continue
+        arrival = arrival_by_vessel.get(vessel_id, frame.elapsed_minutes)
         rows.append(
             {
-                "vessel_id": vessel.vessel_id,
-                "status": vessel.status,
-                "waiting_minutes": max(0.0, scene.elapsed_minutes - arrival),
-                "workload_moves": vessel.workload_moves,
+                "vessel_id": vessel_id,
+                "status": str(data.get("status", "waiting")),
+                "waiting_minutes": max(0.0, frame.elapsed_minutes - arrival),
+                "workload_moves": workload_by_vessel.get(vessel_id),
             }
         )
     return tuple(sorted(rows, key=lambda row: row["waiting_minutes"], reverse=True))
@@ -190,4 +208,3 @@ def _float_or_none(value) -> float | None:
     if value is None:
         return None
     return float(value)
-

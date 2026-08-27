@@ -74,8 +74,8 @@ class TerminalReplayScene:
     berths: tuple[BerthReplayVisual, ...] = ()
     berthed_vessels: tuple[VesselReplayVisual, ...] = ()
     waiting_vessels: tuple[VesselReplayVisual, ...] = ()
+    waiting_overflow_count: int = 0
     departed_vessels: tuple[VesselReplayVisual, ...] = ()
     cranes: tuple[CraneReplayVisual, ...] = ()
     yards: tuple[YardReplayVisual, ...] = ()
     warnings: tuple[str, ...] = field(default_factory=tuple)
-

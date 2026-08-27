@@ -65,6 +65,5 @@ def download_json_button(
         file_name=file_name,
         mime="application/json",
         key=key,
-        use_container_width=True,
+        width="stretch",
     )
-
