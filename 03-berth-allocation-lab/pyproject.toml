@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "berth-allocation-lab"
+version = "0.1.0"
+description = "Berth allocation optimization and experimentation layer for Port Operations Lab."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0,<7",
+    "mini-port-sim==0.1.0",
+    "terminal-core==0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<9",
+]
+
+[project.scripts]
+berth-allocation-lab = "berth_allocation_lab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "src",
+    "../01-terminal-operations-core/src",
+    "../02-mini-port-simulation/src",
+]
+testpaths = ["tests"]
+

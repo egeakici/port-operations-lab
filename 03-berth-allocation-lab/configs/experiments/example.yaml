@@ -1,0 +1,12 @@
+# Scaffold example only. Benchmark execution is implemented in a later step.
+experiment_id: example_experiment_scaffold
+experiment_version: 1
+scenario_selection:
+  scenario_ids:
+    - example_static_scaffold
+split: test
+seeds:
+  - 42
+policies: []
+output_location: experiments/example
+

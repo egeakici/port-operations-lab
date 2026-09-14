@@ -1152,15 +1152,15 @@ berth geometry or feasibility.
 | Problem specification | Step 1 |
 | Vessel/problem schema | Step 2 |
 | Experiment/data contract | Step 2 |
-| Synthetic scenario generator | Step 3 |
-| Continuous BAP geometry | Step 4 |
-| Feasibility constraints | Step 4 |
-| Candidate positions | Step 4 |
-| FCFS / Greedy baselines | Step 5 |
-| Static exact solver | Step 6 |
-| StaticBAPEnv | Step 7 |
-| Static Maskable PPO | Step 8 |
-| DynamicBAPEnv | Step 9 |
-| Dynamic Maskable PPO | Step 10 |
-| Scientific benchmark suite | Step 11 |
-| Results warehouse / reporting | Step 12 |
+| Python package / configuration scaffold | Step 3 |
+| Synthetic scenario schema and generator | Step 4 |
+| Continuous BAP geometry | Step 5 |
+| Feasibility constraints | Step 5 |
+| Candidate positions | Step 5 |
+| FCFS / Greedy baselines | Step 6 |
+| Static exact / candidate-space references | Step 7 |
+| StaticBAPEnv | Step 8 |
+| Static Maskable PPO | Step 9 |
+| DynamicBAPEnv | Step 10 |
+| Dynamic Maskable PPO | Step 11 |
+| Scientific benchmark and results reporting | Step 12 |
