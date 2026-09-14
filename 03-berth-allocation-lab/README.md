@@ -3,7 +3,7 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 1 / problem specification.
+Current status: Step 2 / experiment and data contract.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -24,3 +24,6 @@ Read the frozen Step 1 specification:
 
 - [docs/problem_specification.md](docs/problem_specification.md)
 
+Read the frozen Step 2 experiment/data contract:
+
+- [docs/experiment_data_contract.md](docs/experiment_data_contract.md)

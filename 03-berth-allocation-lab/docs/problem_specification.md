@@ -432,10 +432,14 @@ Future candidate-generator requirements:
 - stable ordering,
 - compatible with action masking,
 - independently unit-testable,
-- shared by FCFS, greedy, exact-solver helpers, and RL masks where appropriate.
+- shared by finite-candidate methods such as FCFS, greedy, RL action
+  generation, RL action masks, and tiny candidate-space enumeration where
+  appropriate.
 
 Candidate generation must be a BAP core component, not policy-specific hidden
-logic.
+logic. It must not constrain a future true continuous mathematical optimizer.
+The physical BAP remains continuous, and a future continuous-BAP reference may
+optimize berth positions outside the finite candidate set.
 
 ## StaticBAP V1 Definition
 
@@ -613,6 +617,22 @@ vessel merely because a feasible placement currently exists.
 `WAIT` allows intentional idling when preserving quay geometry for an expected
 future vessel may reduce total future waiting cost.
 
+`WAIT` must only be exposed to the agent when both conditions hold:
+
+- at least one vessel is waiting,
+- at least one feasible berth assignment currently exists.
+
+If no vessel is waiting, or if vessels are waiting but no feasible assignment
+exists, the agent should not be asked to choose `WAIT`. The environment should
+automatically advance simulation time to the next meaningful event instead.
+
+This distinction is mandatory:
+
+- intentional policy `WAIT`: the agent deliberately chooses not to use an
+  available feasible assignment,
+- automatic environment advancement: the environment moves time forward because
+  there is no useful decision for the agent to make.
+
 The environment must prevent pathological behavior where `WAIT` can be selected
 forever without time progressing. A `WAIT` action must advance simulation to the
 next meaningful future event, such as:
@@ -638,6 +658,7 @@ Conceptually invalid actions include:
 - `min_clearance_m` is violated,
 - vessel is not currently eligible/waiting,
 - candidate is duplicate or otherwise infeasible,
+- `WAIT` is requested when no feasible assignment exists,
 - `WAIT` would fail to advance to a meaningful future event.
 
 The agent should not need to learn obvious physical impossibility through large
@@ -676,6 +697,9 @@ a_1, a_2, ..., a_k
 ```
 
 until no useful feasible assignment remains or the agent selects `WAIT`.
+
+If no feasible assignment exists, the environment advances automatically rather
+than asking the agent to select `WAIT`.
 
 The agent must not be called every minute simply because time has passed.
 
@@ -733,6 +757,18 @@ the evaluation and must not be counted as a clean completed episode.
 ## Exact Optimizer Role
 
 Project 03 Step 1 does not implement an exact solver.
+
+Project 03 must distinguish two reference concepts:
+
+- Candidate-space oracle: tiny brute force or enumeration over the finite
+  candidate representation. This is useful for candidate-generator validation,
+  implementation debugging, and tiny-instance correctness checks.
+- True continuous-BAP mathematical reference: a future exact or high-quality
+  solver that may optimize continuous berth positions independently of the RL
+  candidate-action set.
+
+A candidate-space oracle must not be labeled a continuous optimum unless a later
+proof establishes equivalence for a specific instance class.
 
 The future exact or high-quality mathematical optimizer is intended mainly for:
 
@@ -1072,12 +1108,15 @@ event rather than becoming a no-op loop.
 flowchart TD
     P01[Project 01<br/>Terminal Core<br/>Berth, Vessel, Terminal State]
     P02[Project 02<br/>MiniPortSim<br/>event-driven simulation]
-    CORE[Continuous BAP Core<br/>geometry, feasibility,<br/>candidate positions, objectives]
+    CORE[Continuous BAP Core<br/>geometry, feasibility,<br/>objectives]
+    CAND[Candidate Generator<br/>finite candidate-action encoding]
+    CONTOPT[Future Continuous<br/>Mathematical Optimizer]
     STATIC[StaticBAP<br/>full-instance information]
     DYNAMIC[DynamicBAP<br/>event-driven limited information]
     FCFS[FCFS]
     GREEDY[Greedy]
-    EXACT[Exact / Rolling Horizon]
+    ENUM[Tiny Candidate Enumeration]
+    EXACT[Continuous Exact / Rolling Horizon]
     PPO[Maskable PPO]
     DQN[Future DQN Family]
     EVAL[Evaluation / Benchmark<br/>same scenarios, same seeds, same KPIs]
@@ -1085,19 +1124,19 @@ flowchart TD
     P01 --> P02
     P01 --> CORE
     P02 --> DYNAMIC
+    CORE --> CAND
+    CORE --> CONTOPT
     CORE --> STATIC
     CORE --> DYNAMIC
-    STATIC --> FCFS
-    STATIC --> GREEDY
-    STATIC --> EXACT
-    STATIC --> PPO
-    DYNAMIC --> FCFS
-    DYNAMIC --> GREEDY
-    DYNAMIC --> EXACT
-    DYNAMIC --> PPO
+    CAND --> FCFS
+    CAND --> GREEDY
+    CAND --> ENUM
+    CAND --> PPO
+    CONTOPT --> EXACT
     DYNAMIC --> DQN
     FCFS --> EVAL
     GREEDY --> EVAL
+    ENUM --> EVAL
     EXACT --> EVAL
     PPO --> EVAL
     DQN --> EVAL
@@ -1125,4 +1164,3 @@ berth geometry or feasibility.
 | Dynamic Maskable PPO | Step 10 |
 | Scientific benchmark suite | Step 11 |
 | Results warehouse / reporting | Step 12 |
-
