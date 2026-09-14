@@ -1,0 +1,32 @@
+# Non-calibrated synthetic v1 preset. Not a real terminal distribution.
+scenario_id: synthetic_heavy_001
+scenario_version: 1
+scenario_family: heavy
+formulation: dynamic
+data_provenance: synthetic
+split: test
+seed: 42
+generator_version: synthetic_v1
+scenario_schema_version: 1
+future_horizon_min: 240.0
+terminal:
+  berth_length_m: 1200.0
+  min_clearance_m: 20.0
+  quay_crane_count: 4
+  quay_crane_moves_per_hour: 30.0
+  yard_block_count: 4
+  yard_block_capacity_teu: 2200.0
+traffic:
+  vessel_count: 24
+  mean_interarrival_minutes: 120.0
+  min_vessel_length_m: 200.0
+  max_vessel_length_m: 360.0
+  min_workload_moves: 250
+  max_workload_moves: 900
+service:
+  berthing_preparation_minutes: 30.0
+  service_minutes_per_move: 0.5
+  departure_preparation_minutes: 20.0
+  two_crane_efficiency: 0.92
+  three_crane_efficiency: 0.82
+  four_plus_crane_efficiency: 0.72

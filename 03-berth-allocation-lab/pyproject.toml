@@ -26,10 +26,5 @@ berth-allocation-lab = "berth_allocation_lab.cli:main"
 where = ["src"]
 
 [tool.pytest.ini_options]
-pythonpath = [
-    "src",
-    "../01-terminal-operations-core/src",
-    "../02-mini-port-simulation/src",
-]
+pythonpath = ["src"]
 testpaths = ["tests"]
-

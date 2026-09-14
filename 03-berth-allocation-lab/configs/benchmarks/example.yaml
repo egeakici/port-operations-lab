@@ -3,11 +3,10 @@ benchmark_id: example_benchmark_scaffold
 benchmark_version: 1
 scenario_split: test
 scenario_ids:
-  - example_static_scaffold
+  - synthetic_heavy_001
 seeds:
   - 42
 policies: []
 metrics:
   - total_waiting_time_min
   - mean_waiting_time_min
-

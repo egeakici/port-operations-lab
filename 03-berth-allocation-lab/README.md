@@ -10,6 +10,7 @@ Completed:
 - Step 1: problem specification
 - Step 2: experiment and data contract
 - Step 3: package/configuration scaffold
+- Step 4: synthetic scenario schema and generator
 
 The project scope is continuous berth allocation with two branches:
 
@@ -33,6 +34,10 @@ Read the frozen Step 1 specification:
 Read the frozen Step 2 experiment/data contract:
 
 - [docs/experiment_data_contract.md](docs/experiment_data_contract.md)
+
+Read the Step 4 synthetic scenario note:
+
+- [docs/synthetic_scenarios.md](docs/synthetic_scenarios.md)
 
 ## Package Structure
 
@@ -64,5 +69,13 @@ python -m pytest
 Validate an example config:
 
 ```bash
-berth-allocation-lab --validate-config configs/scenarios/example_static.yaml
+berth-allocation-lab --validate-config configs/scenarios/synthetic_low.yaml
+```
+
+Generate a synthetic BAP instance:
+
+```bash
+berth-allocation-lab \
+  --generate-scenario configs/scenarios/synthetic_low.yaml \
+  --output experiments/examples/synthetic_low.json
 ```
