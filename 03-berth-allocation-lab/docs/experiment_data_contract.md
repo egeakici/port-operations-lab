@@ -1403,14 +1403,14 @@ reference_scope = continuous_problem
 
 | Contract item | Future step using it |
 | --- | --- |
-| Scenario contract | Step 3 Synthetic Generator |
-| Vessel input contract | Step 3 Synthetic Generator, Step 4 Core |
-| Candidate metadata | Step 4 Continuous BAP Core |
-| Event/vessel/run records | Steps 5-12 |
-| Policy/run metadata | Step 5 Baselines onward |
-| Reference-scope metadata | Step 6 Exact / candidate enumeration |
-| RL training metadata | Steps 8-10 |
-| Model artifact metadata | Steps 8-10 |
-| Benchmark aggregate contract | Step 11 Scientific Benchmark |
+| Package/config conventions | Step 3 Scaffold |
+| Scenario contract | Step 4 Synthetic Generator |
+| Vessel input contract | Step 4 Synthetic Generator, Step 5 Core |
+| Candidate metadata | Step 5 Continuous BAP Core |
+| Event/vessel/run records | Steps 6-12 |
+| Policy/run metadata | Step 6 Baselines onward |
+| Reference-scope metadata | Step 7 Exact / candidate enumeration |
+| RL training metadata | Steps 9-11 |
+| Model artifact metadata | Steps 9-11 |
+| Benchmark aggregate contract | Step 12 Scientific Benchmark |
 | Reporting/export formats | Step 12 Results Warehouse |
-

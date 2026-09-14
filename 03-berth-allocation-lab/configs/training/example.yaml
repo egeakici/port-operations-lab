@@ -1,0 +1,10 @@
+# Scaffold example only. RL training is implemented in a later step.
+training_config_id: example_training_scaffold
+training_config_version: 1
+algorithm: maskable_ppo
+formulation: static
+training_seed: 123
+training_scenario_set: synthetic_train_scaffold
+validation_scenario_set: synthetic_validation_scaffold
+total_timesteps: null
+

@@ -1,0 +1,16 @@
+# Generated runtime artifacts for Project 03.
+experiments/*
+models/*
+mlruns/*
+data/raw/*
+data/interim/*
+data/processed/*
+data/synthetic/*
+reports/figures/*
+reports/tables/*
+reports/findings/*
+
+# Keep lightweight documentation/placeholders trackable when added intentionally.
+!**/README.md
+!**/.gitkeep
+
