@@ -14,19 +14,25 @@ from berth_allocation_lab.config import (
 
 
 def test_load_example_scenario_config() -> None:
-    config = load_yaml_config(Path("configs/scenarios/example_static.yaml"))
+    config = load_yaml_config(Path("configs/scenarios/synthetic_low.yaml"))
 
-    assert config["scenario_id"] == "example_static_scaffold"
+    assert config["scenario_id"] == "synthetic_low_001"
     assert config["formulation"] == "static"
-    assert config["min_clearance_m"] == 20.0
+    assert config["terminal"]["min_clearance_m"] == 20.0
     assert "minimum_clearance_m" not in config
 
 
 def test_scenario_metadata_from_mapping() -> None:
-    config = load_yaml_config(Path("configs/scenarios/example_static.yaml"))
+    config = {
+        "scenario_id": "example_metadata",
+        "scenario_version": 1,
+        "formulation": "static",
+        "data_provenance": "synthetic",
+        "seed": 42,
+    }
     metadata = ScenarioConfigMetadata.from_mapping(config)
 
-    assert metadata.scenario_id == "example_static_scaffold"
+    assert metadata.scenario_id == "example_metadata"
     assert metadata.scenario_version == 1
     assert metadata.data_provenance == "synthetic"
     assert metadata.seed == 42
@@ -53,4 +59,3 @@ def test_non_mapping_yaml_raises_validation_error(tmp_path: Path) -> None:
 
     with pytest.raises(ConfigValidationError, match="top-level mapping"):
         load_yaml_config(list_path)
-
