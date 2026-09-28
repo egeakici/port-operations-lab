@@ -3,7 +3,7 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 3 / Python package and configuration scaffold.
+Current status: Step 5 / Continuous BAP core.
 
 Completed:
 
@@ -11,6 +11,10 @@ Completed:
 - Step 2: experiment and data contract
 - Step 3: package/configuration scaffold
 - Step 4: synthetic scenario schema and generator
+- Step 5: continuous BAP geometry, feasibility, scheduling, candidates, and
+  objectives
+
+Next: Step 6 - FCFS and Greedy baselines with a scientific run recorder.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -39,10 +43,14 @@ Read the Step 4 synthetic scenario note:
 
 - [docs/synthetic_scenarios.md](docs/synthetic_scenarios.md)
 
+Read the Step 5 continuous core note:
+
+- [docs/continuous_bap_core.md](docs/continuous_bap_core.md)
+
 ## Package Structure
 
-- `src/berth_allocation_lab/core`: future continuous BAP geometry and
-  feasibility.
+- `src/berth_allocation_lab/core`: shared continuous BAP placement, geometry,
+  feasibility, scheduling, candidate, and objective functions.
 - `src/berth_allocation_lab/config`: scaffold-level YAML config loading.
 - `src/berth_allocation_lab/integration`: future adapters to Project 01 and
   Project 02.
