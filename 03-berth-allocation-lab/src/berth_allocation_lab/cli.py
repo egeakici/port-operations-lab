@@ -42,7 +42,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--compare-baselines",
         metavar="PATH",
-        help="Compare FCFS and Greedy on one static scenario YAML or JSON.",
+        help="Compare FCFS and Greedy Rollout on one static scenario YAML or JSON.",
     )
     parser.add_argument(
         "--static-twin",
@@ -106,7 +106,7 @@ def main(argv: list[str] | None = None) -> int:
             f"Scenario: {instance.scenario_id} | seed: {instance.seed} "
             f"| fingerprint: {instance.content_fingerprint}"
         )
-        print(f"{'Metric':<28} {'FCFS':>15} {'Greedy':>15}")
+        print(f"{'Metric':<28} {'FCFS':>15} {'Greedy Rollout':>15}")
         for name, field in (
             ("Total waiting (min)", "total_waiting_time_min"),
             ("Mean waiting (min)", "mean_waiting_time_min"),

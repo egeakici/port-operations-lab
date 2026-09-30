@@ -6,6 +6,7 @@ import re
 import sys
 import time
 import uuid
+from collections import Counter
 from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,11 +22,12 @@ from berth_allocation_lab.core import (
 from berth_allocation_lab.data import BAPScenarioInstance
 from berth_allocation_lab.evaluation.metrics import (
     METRIC_VERSION,
+    PERCENTILE_METHOD,
     calculate_static_metrics,
 )
 from berth_allocation_lab.policies import (
     StaticFCFS,
-    StaticGreedyLookahead,
+    StaticGreedyRollout,
     StaticPolicy,
     StaticScheduleResult,
 )
@@ -77,6 +79,7 @@ def run_static_policy(
         candidate_generator_version="boundary_candidates_v1",
         objective_version="total_waiting_v1",
         metric_version=METRIC_VERSION,
+        percentile_method=PERCENTILE_METHOD,
         python_version=sys.version.split()[0],
         status="started",
     )
@@ -116,7 +119,7 @@ def run_static_policy(
             )
             summary = _failed_summary(
                 scenario, policy.policy_id, identifier, runtime, status,
-                "invalid_schedule", len(violations),
+                "invalid_schedule", len(violations), schedule,
             )
             vessels = _vessel_results(
                 scenario, identifier, policy.policy_id, schedule, valid=False
@@ -142,8 +145,9 @@ def run_static_policy(
                 mean_turnaround_time_min=metrics.mean_turnaround_time_min,
                 p95_turnaround_time_min=metrics.p95_turnaround_time_min,
                 berth_utilization=metrics.berth_utilization,
+                occupied_quay_length_minutes=metrics.occupied_quay_length_minutes,
+                utilization_window_min=metrics.utilization_window_min,
                 throughput_vessels=metrics.throughput_vessels,
-                schedule_end_time_min=metrics.schedule_end_time_min,
                 algorithm_runtime_seconds=runtime,
                 objective_value=metrics.objective_value,
                 status="completed",
@@ -164,7 +168,7 @@ def run_static_policy(
         )
         summary = _failed_summary(
             scenario, policy.policy_id, identifier, runtime,
-            "failed", "exception", len(violations),
+            "failed", "exception", len(violations), schedule,
         )
         vessels = _vessel_results(
             scenario, identifier, policy.policy_id, schedule, valid=False
@@ -192,7 +196,7 @@ def run_static_policy(
             failed_summary = _failed_summary(
                 scenario, policy.policy_id, identifier,
                 result.summary.algorithm_runtime_seconds,
-                "failed", "recording_failed", len(result.violations),
+                "failed", "recording_failed", len(result.violations), schedule,
             )
             result = replace(
                 result,
@@ -202,7 +206,7 @@ def run_static_policy(
                     scenario, identifier, policy.policy_id, schedule, valid=False
                 ),
             )
-            recorder.record_failure(failed_manifest, failed_summary)
+            recorder.record_failure(failed_manifest, failed_summary, result.vessels)
     return result
 
 
@@ -216,7 +220,7 @@ def compare_static_baselines(
         raise ValueError("Baseline comparison requires a static scenario instance.")
     return (
         run_static_policy(scenario, StaticFCFS(), output_dir),
-        run_static_policy(scenario, StaticGreedyLookahead(), output_dir),
+        run_static_policy(scenario, StaticGreedyRollout(), output_dir),
     )
 
 
@@ -228,21 +232,10 @@ def _vessel_results(
     *,
     valid: bool,
 ) -> tuple[VesselResult, ...]:
-    by_id: dict[str, BAPPlacement] = {}
-    duplicate_ids: set[str] = set()
-    if schedule is not None:
-        for placement in schedule.placements:
-            if not isinstance(placement, BAPPlacement):
-                continue
-            if placement.vessel_id in by_id:
-                duplicate_ids.add(placement.vessel_id)
-            else:
-                by_id[placement.vessel_id] = placement
+    by_id = _unambiguous_placements(scenario, schedule)
     rows = []
     for vessel in scenario.vessels:
-        placement = (
-            None if vessel.vessel_id in duplicate_ids else by_id.get(vessel.vessel_id)
-        )
+        placement = by_id.get(vessel.vessel_id)
         rows.append(
             VesselResult(
                 run_id=run_id,
@@ -274,6 +267,29 @@ def _vessel_results(
     return tuple(rows)
 
 
+def _unambiguous_placements(
+    scenario: BAPScenarioInstance,
+    schedule: StaticScheduleResult | None,
+) -> dict[str, BAPPlacement]:
+    """Keep only known vessel IDs with exactly one valid placement object."""
+
+    input_counts = Counter(v.vessel_id for v in scenario.vessels)
+    if schedule is None:
+        return {}
+    placement_counts = Counter(
+        placement.vessel_id
+        for placement in schedule.placements
+        if isinstance(placement, BAPPlacement)
+    )
+    return {
+        placement.vessel_id: placement
+        for placement in schedule.placements
+        if isinstance(placement, BAPPlacement)
+        and input_counts[placement.vessel_id] == 1
+        and placement_counts[placement.vessel_id] == 1
+    }
+
+
 def _failed_summary(
     scenario: BAPScenarioInstance,
     policy_id: str,
@@ -282,7 +298,12 @@ def _failed_summary(
     status: str,
     validation_status: str,
     violation_count: int,
+    schedule: StaticScheduleResult | None,
 ) -> RunSummary:
+    unambiguous = _unambiguous_placements(scenario, schedule)
+    unresolved_count = sum(
+        vessel.vessel_id not in unambiguous for vessel in scenario.vessels
+    )
     return RunSummary(
         run_id=run_id,
         scenario_id=scenario.scenario_id,
@@ -292,7 +313,7 @@ def _failed_summary(
         policy_id=policy_id,
         vessel_count_generated=scenario.vessel_count,
         vessel_count_completed=0,
-        vessel_count_unresolved=scenario.vessel_count,
+        vessel_count_unresolved=unresolved_count,
         nominal_duration_min=scenario.nominal_duration_min,
         simulation_end_time_min=None,
         total_waiting_time_min=None,
@@ -301,8 +322,9 @@ def _failed_summary(
         mean_turnaround_time_min=None,
         p95_turnaround_time_min=None,
         berth_utilization=None,
+        occupied_quay_length_minutes=None,
+        utilization_window_min=None,
         throughput_vessels=0,
-        schedule_end_time_min=None,
         algorithm_runtime_seconds=runtime,
         objective_value=None,
         status=status,

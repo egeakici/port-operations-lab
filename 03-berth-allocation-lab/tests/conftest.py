@@ -19,7 +19,7 @@ def manual_vessels() -> tuple[BAPVesselInput, ...]:
 
 @pytest.fixture
 def manual_static_scenario() -> BAPScenarioInstance:
-    """Three-vessel case where lookahead changes B's berth choice."""
+    """Three-vessel case where rollout changes B's berth choice."""
 
     return BAPScenarioInstance(
         scenario_id="manual_static_001",

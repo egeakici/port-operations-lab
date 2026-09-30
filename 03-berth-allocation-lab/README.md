@@ -13,7 +13,7 @@ Completed:
 - Step 4: synthetic scenario schema and generator
 - Step 5: continuous BAP geometry, feasibility, scheduling, candidates, and
   objectives
-- Step 6: static FCFS and Greedy Lookahead policies, common KPIs, and run records
+- Step 6: static FCFS and Greedy Rollout policies, common KPIs, and run records
 
 Next: Step 7 - tiny candidate-space enumeration / static exact reference.
 
@@ -28,7 +28,7 @@ The v1 primary objective is to minimize total vessel waiting time. Quay-crane,
 yard, truck, and equipment scheduling policies are treated as fixed or
 exogenous behavior in Project 03 v1.
 
-Current methods are static FCFS and static Greedy Lookahead. Planned methods
+Current methods are static FCFS and static Greedy Rollout. Planned methods
 include small-instance exact optimization, rolling-horizon references,
 Maskable PPO, and later DQN-family experiments.
 
@@ -56,7 +56,7 @@ Read the Step 6 baseline and recording note:
 
 - `src/berth_allocation_lab/core`: shared continuous BAP placement, geometry,
   feasibility, scheduling, candidate, and objective functions.
-- `src/berth_allocation_lab/policies`: static FCFS and Greedy Lookahead.
+- `src/berth_allocation_lab/policies`: static FCFS and Greedy Rollout.
 - `src/berth_allocation_lab/evaluation`: shared KPIs and static runner.
 - `src/berth_allocation_lab/tracking`: scientific records and local artifacts.
 - `src/berth_allocation_lab/config`: scaffold-level YAML config loading.

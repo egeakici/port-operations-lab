@@ -7,9 +7,9 @@ from berth_allocation_lab.data import BAPScenarioInstance
 from berth_allocation_lab.policies.base import (
     StaticDecisionRecord,
     StaticScheduleResult,
-    candidate_starts,
     ordered_vessels,
-    placement_at,
+    require_static_scenario,
+    select_fcfs_placement,
 )
 
 
@@ -21,32 +21,23 @@ class StaticFCFS:
     algorithm_version = "v1"
 
     def schedule(self, scenario: BAPScenarioInstance) -> StaticScheduleResult:
+        require_static_scenario(scenario)
         placements: list[BAPPlacement] = []
         decisions: list[StaticDecisionRecord] = []
         for index, vessel in enumerate(ordered_vessels(scenario.vessels)):
-            choices = candidate_starts(vessel, placements, scenario)
-            if not choices:
-                raise ValueError(f"No candidate for vessel {vessel.vessel_id}.")
-            selected_index = min(
-                range(len(choices)),
-                key=lambda choice_index: (
-                    choices[choice_index][1],
-                    choices[choice_index][0],
-                ),
-            )
-            position, start = choices[selected_index]
-            placement = placement_at(vessel, position, start)
+            selection = select_fcfs_placement(vessel, placements, scenario)
+            placement = selection.placement
             placements.append(placement)
             decisions.append(
                 StaticDecisionRecord(
                     decision_index=index,
                     vessel_id=vessel.vessel_id,
                     policy_id=self.policy_id,
-                    candidate_count=len(choices),
-                    candidate_positions_m=tuple(x for x, _ in choices),
-                    selected_candidate_index=selected_index,
-                    selected_berth_position_m=position,
-                    selected_start_time_min=start,
+                    candidate_count=len(selection.candidates),
+                    candidate_positions_m=tuple(x for x, _ in selection.candidates),
+                    selected_candidate_index=selection.candidate_index,
+                    selected_berth_position_m=placement.berth_position_m,
+                    selected_start_time_min=placement.berth_start_time_min,
                     selected_waiting_time_min=waiting_time(vessel, placement),
                 )
             )

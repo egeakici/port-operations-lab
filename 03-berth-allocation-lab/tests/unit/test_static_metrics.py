@@ -5,9 +5,11 @@ from dataclasses import replace
 import pytest
 
 from berth_allocation_lab.core import BAPPlacement
+from berth_allocation_lab.core import NUMERICAL_TOLERANCE
 from berth_allocation_lab.data import BAPScenarioInstance, BAPVesselInput
 from berth_allocation_lab.evaluation.metrics import (
     calculate_static_metrics,
+    berth_utilization_from_components,
     percentile_type7,
     schedule_end_time,
 )
@@ -46,6 +48,8 @@ def test_metric_values_on_simple_complete_schedule(
     assert metrics.schedule_end_time_min == 35.0
     assert metrics.throughput_vessels == 2
     assert metrics.berth_utilization == pytest.approx(3000.0 / (200.0 * 35.0))
+    assert metrics.occupied_quay_length_minutes == 3000.0
+    assert metrics.utilization_window_min == 35.0
     assert metrics.objective_value == metrics.total_waiting_time_min
 
 
@@ -67,3 +71,14 @@ def test_invalid_physical_schedule_rejected_before_metrics(
     )
     with pytest.raises(ValueError, match="valid complete"):
         calculate_static_metrics(manual_static_scenario, placements)
+
+
+def test_utilization_helper_snaps_only_rounding_noise() -> None:
+    assert berth_utilization_from_components(50.0, 100.0, 1.0) == 0.5
+    assert berth_utilization_from_components(
+        100.0 * (1.0 + NUMERICAL_TOLERANCE / 2.0), 100.0, 1.0
+    ) == 1.0
+    with pytest.raises(ValueError, match="exceeds physical"):
+        berth_utilization_from_components(
+            100.0 * (1.0 + NUMERICAL_TOLERANCE * 10.0), 100.0, 1.0
+        )

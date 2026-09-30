@@ -11,6 +11,7 @@ from berth_allocation_lab.tracking.records import (
     RunManifest,
     RunSummary,
     ScientificRunResult,
+    VesselResult,
 )
 
 
@@ -66,9 +67,18 @@ class ScientificRunRecorder:
         _write_json(self.run_dir / "run_summary.json", asdict(result.summary))
         _write_json(self.run_dir / "manifest.json", asdict(result.manifest))
 
-    def record_failure(self, manifest: RunManifest, summary: RunSummary) -> None:
+    def record_failure(
+        self,
+        manifest: RunManifest,
+        summary: RunSummary,
+        vessels: tuple[VesselResult, ...],
+    ) -> None:
         """Preserve a failed manifest when normal artifact serialization fails."""
 
+        _write_jsonl(
+            self.run_dir / "vessels.jsonl",
+            (asdict(vessel) for vessel in vessels),
+        )
         _write_json(self.run_dir / "run_summary.json", asdict(summary))
         _write_json(self.run_dir / "manifest.json", asdict(manifest))
 

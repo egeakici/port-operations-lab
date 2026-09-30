@@ -4,9 +4,14 @@ from dataclasses import replace
 
 import pytest
 
-from berth_allocation_lab.core import is_schedule_feasible, total_waiting_time
+from berth_allocation_lab.core import (
+    NUMERICAL_TOLERANCE,
+    is_schedule_feasible,
+    total_waiting_time,
+)
 from berth_allocation_lab.data import BAPScenarioInstance, BAPVesselInput
-from berth_allocation_lab.policies import StaticFCFS, StaticGreedyLookahead
+from berth_allocation_lab.policies import StaticFCFS, StaticGreedyRollout
+from berth_allocation_lab.policies.base import select_fcfs_placement
 
 
 def test_fcfs_manual_placement_and_waiting(
@@ -27,18 +32,31 @@ def test_fcfs_manual_placement_and_waiting(
     )
 
 
-def test_greedy_lookahead_changes_position_without_changing_order(
+def test_greedy_rollout_strictly_improves_manual_fixture(
     manual_static_scenario: BAPScenarioInstance,
 ) -> None:
     fcfs = StaticFCFS().schedule(manual_static_scenario)
-    greedy = StaticGreedyLookahead().schedule(manual_static_scenario)
+    greedy = StaticGreedyRollout().schedule(manual_static_scenario)
 
     assert [p.vessel_id for p in greedy.placements] == ["A", "B", "C"]
-    assert greedy.placements[1].berth_position_m == 250.0
+    assert greedy.placements[0].berth_position_m == 400.0
+    assert greedy.placements[1].berth_position_m == 0.0
     assert fcfs.placements[1].berth_position_m == 110.0
-    # B at 250 leaves room for C at 0 once A leaves at minute 100.
+    assert fcfs.decision_records[1].candidate_positions_m == (0.0, 110.0, 250.0)
+    assert select_fcfs_placement(
+        manual_static_scenario.vessels[1],
+        fcfs.placements[:1],
+        manual_static_scenario,
+    ).placement == fcfs.placements[1]
+    # A at 400 lets B start at 0, then C fits at 260 after A departs.
+    assert greedy.placements[2].berth_position_m == 260.0
     assert greedy.placements[2].berth_start_time_min == 100.0
     assert total_waiting_time(manual_static_scenario.vessels, greedy.placements) == 0.0
+    assert (
+        total_waiting_time(manual_static_scenario.vessels, greedy.placements)
+        < total_waiting_time(manual_static_scenario.vessels, fcfs.placements)
+        - NUMERICAL_TOLERANCE
+    )
     assert greedy.decision_records[1].selected_score == 0.0
     assert is_schedule_feasible(
         manual_static_scenario.vessels,
@@ -48,10 +66,10 @@ def test_greedy_lookahead_changes_position_without_changing_order(
     )
 
 
-@pytest.mark.parametrize("policy", [StaticFCFS(), StaticGreedyLookahead()])
+@pytest.mark.parametrize("policy", [StaticFCFS(), StaticGreedyRollout()])
 def test_repeated_schedule_is_deterministic_and_input_unchanged(
     manual_static_scenario: BAPScenarioInstance,
-    policy: StaticFCFS | StaticGreedyLookahead,
+    policy: StaticFCFS | StaticGreedyRollout,
 ) -> None:
     before = manual_static_scenario.to_dict()
     first = policy.schedule(manual_static_scenario)
@@ -63,10 +81,10 @@ def test_repeated_schedule_is_deterministic_and_input_unchanged(
     assert all(d.candidate_positions_m == tuple(sorted(d.candidate_positions_m)) for d in first.decision_records)
 
 
-@pytest.mark.parametrize("policy", [StaticFCFS(), StaticGreedyLookahead()])
+@pytest.mark.parametrize("policy", [StaticFCFS(), StaticGreedyRollout()])
 def test_arrival_id_order_breaks_ties(
     manual_static_scenario: BAPScenarioInstance,
-    policy: StaticFCFS | StaticGreedyLookahead,
+    policy: StaticFCFS | StaticGreedyRollout,
 ) -> None:
     vessels = (
         BAPVesselInput("Z", 0.0, 100.0, 30.0),
@@ -92,8 +110,22 @@ def test_greedy_candidate_evaluation_has_no_state_leakage(
     manual_static_scenario: BAPScenarioInstance,
 ) -> None:
     original = manual_static_scenario.to_dict()
-    result = StaticGreedyLookahead().schedule(manual_static_scenario)
+    result = StaticGreedyRollout().schedule(manual_static_scenario)
     assert len(result.placements) == 3
     assert [d.decision_index for d in result.decision_records] == [0, 1, 2]
     assert manual_static_scenario.to_dict() == original
     assert all(d.selected_score is not None and d.selected_score >= 0 for d in result.decision_records)
+
+
+@pytest.mark.parametrize("policy", [StaticFCFS(), StaticGreedyRollout()])
+def test_direct_static_policy_api_rejects_dynamic_instance(
+    manual_static_scenario: BAPScenarioInstance,
+    policy: StaticFCFS | StaticGreedyRollout,
+) -> None:
+    dynamic = replace(
+        manual_static_scenario,
+        formulation="dynamic",
+        future_horizon_min=240.0,
+    )
+    with pytest.raises(ValueError, match="static scenario"):
+        policy.schedule(dynamic)

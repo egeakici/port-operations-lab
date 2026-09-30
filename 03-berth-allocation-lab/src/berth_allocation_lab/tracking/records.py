@@ -33,6 +33,7 @@ class RunManifest:
     candidate_generator_version: str
     objective_version: str
     metric_version: str
+    percentile_method: str
     python_version: str
     status: str
     failure_type: str | None = None
@@ -76,8 +77,9 @@ class RunSummary:
     mean_turnaround_time_min: float | None
     p95_turnaround_time_min: float | None
     berth_utilization: float | None
+    occupied_quay_length_minutes: float | None
+    utilization_window_min: float | None
     throughput_vessels: int
-    schedule_end_time_min: float | None
     algorithm_runtime_seconds: float
     objective_value: float | None
     status: str

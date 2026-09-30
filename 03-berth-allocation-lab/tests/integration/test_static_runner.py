@@ -73,10 +73,19 @@ def test_recorder_round_trip_and_metadata(
     assert manifest["policy_id"] == "static_fcfs_v1"
     assert manifest["status"] == "completed"
     assert manifest["metric_version"] == "static_metrics_v1_type7"
+    assert manifest["percentile_method"] == "type7_linear"
+    assert manifest["scenario_split"] == manual_static_scenario.split
+    assert manifest["project_version"]
+    assert manifest["data_provenance"] == manual_static_scenario.data_provenance
     assert scenario == manual_static_scenario.to_dict()
     assert summary["objective_value"] == 900.0
+    assert summary["simulation_end_time_min"] == 1100.0
+    assert "schedule_end_time_min" not in summary
+    assert summary["occupied_quay_length_minutes"] == 280000.0
+    assert summary["utilization_window_min"] == 1100.0
     assert len(decisions) == len(vessels) == 3
     assert decisions[1]["decision_index"] == 1
+    assert decisions[1]["record_schema_version"] == 1
     assert decisions[1]["run_id"] == "fixed_run_001"
     assert decisions[1]["scenario_id"] == manual_static_scenario.scenario_id
     assert "simulation_time_min" not in decisions[1]
@@ -115,6 +124,8 @@ def test_invalid_policy_is_recorded_without_valid_kpis(
     assert result.summary.total_waiting_time_min is None
     assert result.manifest.status == "failed"
     assert result.summary.violation_count > 0
+    assert result.summary.vessel_count_unresolved == 0
+    assert result.summary.vessel_count_completed == 0
     assert result.violations
     assert result.vessels[0].berth_start_time_min == 0.0
     assert result.vessels[0].waiting_time_min is None
@@ -132,6 +143,7 @@ def test_policy_exception_is_visible_and_keeps_source_scenario(
     )
     assert result.manifest.status == "failed"
     assert result.manifest.failure_type == "RuntimeError"
+    assert result.summary.vessel_count_unresolved == 3
     assert result.summary.objective_value is None
     assert (tmp_path / "crash_run" / "scenario.json").exists()
 
@@ -151,6 +163,11 @@ def test_serialization_failure_updates_manifest_and_summary(
     summary = json.loads((run_dir / "run_summary.json").read_text())
     assert manifest["status"] == summary["status"] == "failed"
     assert summary["total_waiting_time_min"] is None
+    vessel_rows = [
+        json.loads(line)
+        for line in (run_dir / "vessels.jsonl").read_text().splitlines()
+    ]
+    assert all(not row["completed"] for row in vessel_rows)
 
 
 def test_missing_placement_is_recorded_as_unresolved(
@@ -163,8 +180,26 @@ def test_missing_placement_is_recorded_as_unresolved(
 
     result = run_static_policy(manual_static_scenario, MissingPolicy())
     assert result.manifest.status == "invalid_unresolved_vessels"
-    assert result.summary.vessel_count_unresolved == 3
+    assert result.summary.vessel_count_unresolved == 1
     assert result.summary.objective_value is None
+    assert [v.completion_status for v in result.vessels] == [
+        "failed", "failed", "unresolved"
+    ]
+
+
+def test_duplicate_placement_is_ambiguous_not_completed(
+    manual_static_scenario: BAPScenarioInstance,
+) -> None:
+    class DuplicatePolicy(StaticFCFS):
+        def schedule(self, scenario: BAPScenarioInstance) -> StaticScheduleResult:
+            full = super().schedule(scenario)
+            return replace(full, placements=(*full.placements, full.placements[1]))
+
+    result = run_static_policy(manual_static_scenario, DuplicatePolicy())
+    assert not result.summary.is_valid
+    assert result.summary.vessel_count_unresolved == 1
+    assert result.vessels[1].completion_status == "unresolved"
+    assert result.vessels[1].berth_position_m is None
 
 
 def test_dynamic_instance_is_rejected_without_relabeling(

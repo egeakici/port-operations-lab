@@ -13,6 +13,9 @@ from berth_allocation_lab.core import (
 from berth_allocation_lab.data import BAPScenarioInstance, BAPVesselInput
 
 
+STATIC_DECISION_SCHEMA_VERSION = 1
+
+
 @dataclass(frozen=True)
 class StaticDecisionRecord:
     """One offline scheduling choice; decision_index is not simulation time."""
@@ -27,6 +30,16 @@ class StaticDecisionRecord:
     selected_start_time_min: float
     selected_waiting_time_min: float
     selected_score: float | None = None
+    record_schema_version: int = STATIC_DECISION_SCHEMA_VERSION
+
+
+@dataclass(frozen=True)
+class FCFSSelection:
+    """The canonical next FCFS placement and its decision metadata."""
+
+    placement: BAPPlacement
+    candidate_index: int
+    candidates: tuple[tuple[float, float], ...]
 
 
 @dataclass(frozen=True)
@@ -44,6 +57,13 @@ class StaticPolicy(Protocol):
     algorithm_version: str
 
     def schedule(self, scenario: BAPScenarioInstance) -> StaticScheduleResult: ...
+
+
+def require_static_scenario(scenario: BAPScenarioInstance) -> None:
+    """Guard public offline policy APIs against dynamic scenario metadata."""
+
+    if scenario.formulation != "static":
+        raise ValueError("Static policy requires a static scenario instance.")
 
 
 def ordered_vessels(
@@ -92,4 +112,26 @@ def placement_at(
         berth_start_time_min=start,
         length_m=vessel.length_m,
         service_time_min=vessel.service_time_min,
+    )
+
+
+def select_fcfs_placement(
+    vessel: BAPVesselInput,
+    placements: Sequence[BAPPlacement],
+    scenario: BAPScenarioInstance,
+) -> FCFSSelection:
+    """Choose the minimum (earliest start, berth position) core candidate."""
+
+    choices = candidate_starts(vessel, placements, scenario)
+    if not choices:
+        raise ValueError(f"No candidate for vessel {vessel.vessel_id}.")
+    selected_index = min(
+        range(len(choices)),
+        key=lambda j: (choices[j][1], choices[j][0]),
+    )
+    position, start = choices[selected_index]
+    return FCFSSelection(
+        placement=placement_at(vessel, position, start),
+        candidate_index=selected_index,
+        candidates=choices,
     )

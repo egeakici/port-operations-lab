@@ -1,4 +1,4 @@
-"""Static one-step waiting-time lookahead over core berth candidates."""
+"""Static greedy rollout using an FCFS completion for every current choice."""
 
 from __future__ import annotations
 
@@ -10,17 +10,20 @@ from berth_allocation_lab.policies.base import (
     candidate_starts,
     ordered_vessels,
     placement_at,
+    require_static_scenario,
+    select_fcfs_placement,
 )
 
 
-class StaticGreedyLookahead:
-    """Evaluate remaining vessels independently for each current candidate."""
+class StaticGreedyRollout:
+    """Score each current candidate by a realizable FCFS suffix schedule."""
 
-    policy_id = "static_greedy_lookahead_v1"
+    policy_id = "static_greedy_rollout_v1"
     policy_family = "greedy"
     algorithm_version = "v1"
 
     def schedule(self, scenario: BAPScenarioInstance) -> StaticScheduleResult:
+        require_static_scenario(scenario)
         ordered = ordered_vessels(scenario.vessels)
         placements: list[BAPPlacement] = []
         decisions: list[StaticDecisionRecord] = []
@@ -34,16 +37,9 @@ class StaticGreedyLookahead:
                 temporary = (*placements, proposed)
                 score = waiting_time(vessel, proposed)
                 for future in ordered[index + 1 :]:
-                    future_choices = candidate_starts(future, temporary, scenario)
-                    if not future_choices:
-                        raise ValueError(f"No candidate for vessel {future.vessel_id}.")
-                    future_position, future_start = min(
-                        future_choices, key=lambda choice: (choice[1], choice[0])
-                    )
-                    score += waiting_time(
-                        future,
-                        placement_at(future, future_position, future_start),
-                    )
+                    selection = select_fcfs_placement(future, temporary, scenario)
+                    temporary = (*temporary, selection.placement)
+                    score += waiting_time(future, selection.placement)
                 scored.append((score, start, position))
             selected_index = min(range(len(choices)), key=lambda j: scored[j])
             position, start = choices[selected_index]

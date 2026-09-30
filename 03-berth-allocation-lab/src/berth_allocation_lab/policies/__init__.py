@@ -6,12 +6,12 @@ from berth_allocation_lab.policies.base import (
     StaticScheduleResult,
 )
 from berth_allocation_lab.policies.fcfs import StaticFCFS
-from berth_allocation_lab.policies.greedy import StaticGreedyLookahead
+from berth_allocation_lab.policies.greedy import StaticGreedyRollout
 
 __all__ = [
     "StaticDecisionRecord",
     "StaticFCFS",
-    "StaticGreedyLookahead",
+    "StaticGreedyRollout",
     "StaticPolicy",
     "StaticScheduleResult",
 ]
