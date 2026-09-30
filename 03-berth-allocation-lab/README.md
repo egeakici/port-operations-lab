@@ -3,7 +3,7 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 5 / Continuous BAP core.
+Current status: Step 6 / static baselines and scientific run recorder.
 
 Completed:
 
@@ -13,8 +13,9 @@ Completed:
 - Step 4: synthetic scenario schema and generator
 - Step 5: continuous BAP geometry, feasibility, scheduling, candidates, and
   objectives
+- Step 6: static FCFS and Greedy Lookahead policies, common KPIs, and run records
 
-Next: Step 6 - FCFS and Greedy baselines with a scientific run recorder.
+Next: Step 7 - tiny candidate-space enumeration / static exact reference.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -27,9 +28,9 @@ The v1 primary objective is to minimize total vessel waiting time. Quay-crane,
 yard, truck, and equipment scheduling policies are treated as fixed or
 exogenous behavior in Project 03 v1.
 
-Planned method families include FCFS, greedy policies, small-instance exact
-optimization, rolling-horizon references, Maskable PPO, and later DQN-family
-experiments. These methods are not implemented yet.
+Current methods are static FCFS and static Greedy Lookahead. Planned methods
+include small-instance exact optimization, rolling-horizon references,
+Maskable PPO, and later DQN-family experiments.
 
 Read the frozen Step 1 specification:
 
@@ -47,10 +48,17 @@ Read the Step 5 continuous core note:
 
 - [docs/continuous_bap_core.md](docs/continuous_bap_core.md)
 
+Read the Step 6 baseline and recording note:
+
+- [docs/static_baselines.md](docs/static_baselines.md)
+
 ## Package Structure
 
 - `src/berth_allocation_lab/core`: shared continuous BAP placement, geometry,
   feasibility, scheduling, candidate, and objective functions.
+- `src/berth_allocation_lab/policies`: static FCFS and Greedy Lookahead.
+- `src/berth_allocation_lab/evaluation`: shared KPIs and static runner.
+- `src/berth_allocation_lab/tracking`: scientific records and local artifacts.
 - `src/berth_allocation_lab/config`: scaffold-level YAML config loading.
 - `src/berth_allocation_lab/integration`: future adapters to Project 01 and
   Project 02.
@@ -87,3 +95,12 @@ berth-allocation-lab \
   --generate-scenario configs/scenarios/synthetic_low.yaml \
   --output experiments/examples/synthetic_low.json
 ```
+
+Compare baselines on one generated static instance:
+
+```bash
+berth-allocation-lab --compare-baselines configs/scenarios/synthetic_low.yaml
+```
+
+Use `--static-twin` with the medium/heavy YAML presets, which are dynamic by
+default. Per-run artifacts are written to `experiments/runs`.

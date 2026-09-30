@@ -6,6 +6,8 @@ from pathlib import Path
 
 from berth_allocation_lab import __version__
 from berth_allocation_lab.config import ConfigError, load_yaml_config
+from berth_allocation_lab.data import BAPScenarioInstance
+from berth_allocation_lab.evaluation import compare_static_baselines
 from berth_allocation_lab.scenarios import (
     SyntheticScenarioConfig,
     SyntheticScenarioGenerator,
@@ -35,7 +37,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--output",
         metavar="PATH",
-        help="Output JSON path for --generate-scenario.",
+        help="Generated JSON path, or run directory root for comparison.",
+    )
+    parser.add_argument(
+        "--compare-baselines",
+        metavar="PATH",
+        help="Compare FCFS and Greedy on one static scenario YAML or JSON.",
+    )
+    parser.add_argument(
+        "--static-twin",
+        action="store_true",
+        help="Explicitly generate a static twin of a dynamic YAML preset.",
     )
     args = parser.parse_args(argv)
 
@@ -71,6 +83,49 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
         return 0
+
+    if args.compare_baselines:
+        try:
+            source = Path(args.compare_baselines)
+            if source.suffix.lower() == ".json":
+                if args.static_twin:
+                    parser.error("--static-twin applies only to YAML configs.")
+                instance = BAPScenarioInstance.load_json(source)
+            else:
+                config = SyntheticScenarioConfig.load_yaml(source)
+                if config.formulation == "dynamic" and args.static_twin:
+                    config = config.with_formulation("static")
+                instance = SyntheticScenarioGenerator().generate(config)
+            fcfs, greedy = compare_static_baselines(
+                instance,
+                args.output or Path("experiments") / "runs",
+            )
+        except (ConfigError, OSError, ValueError, TypeError) as error:
+            parser.error(str(error))
+        print(
+            f"Scenario: {instance.scenario_id} | seed: {instance.seed} "
+            f"| fingerprint: {instance.content_fingerprint}"
+        )
+        print(f"{'Metric':<28} {'FCFS':>15} {'Greedy':>15}")
+        for name, field in (
+            ("Total waiting (min)", "total_waiting_time_min"),
+            ("Mean waiting (min)", "mean_waiting_time_min"),
+            ("P95 waiting (min)", "p95_waiting_time_min"),
+            ("Mean turnaround (min)", "mean_turnaround_time_min"),
+            ("P95 turnaround (min)", "p95_turnaround_time_min"),
+            ("Berth utilization", "berth_utilization"),
+            ("Runtime (s)", "algorithm_runtime_seconds"),
+        ):
+            first = getattr(fcfs.summary, field)
+            second = getattr(greedy.summary, field)
+            first_text = f"{first:.4f}" if first is not None else "n/a"
+            second_text = f"{second:.4f}" if second is not None else "n/a"
+            print(f"{name:<28} {first_text:>15} {second_text:>15}")
+        print(f"Runs: {fcfs.manifest.run_id}, {greedy.manifest.run_id}")
+        return 0 if fcfs.summary.is_valid and greedy.summary.is_valid else 1
+
+    if args.static_twin:
+        parser.error("--static-twin requires --compare-baselines.")
 
     parser.print_help()
     return 0
