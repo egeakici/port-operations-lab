@@ -1,0 +1,375 @@
+"""Reproducible Maskable PPO training on StaticBAPEnv (Step 9).
+
+One run = one experiment config + one training seed, written to
+``<output>/<experiment_id>/seed_<training_seed>/``; an existing run directory
+is never overwritten. Validation (deterministic, masked, raw vessel-minutes)
+runs at timestep 0, every ``eval_freq`` timesteps and after the final update;
+the best checkpoint is chosen by mean validation waiting only.
+"""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import json
+import math
+import statistics
+import time
+import uuid
+from dataclasses import asdict
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Callable
+
+import yaml
+from sb3_contrib import MaskablePPO
+from stable_baselines3.common.callbacks import BaseCallback
+from stable_baselines3.common.monitor import Monitor
+
+from berth_allocation_lab.envs import MIXTURE_SELECTION_VERSION, StaticBAPEnv
+from berth_allocation_lab.policies import StaticFCFS, StaticGreedyRollout
+from berth_allocation_lab.rl.config import SELECTION_METRIC, StaticPPOExperimentConfig
+from berth_allocation_lab.rl.evaluation import is_improvement, validation_waiting
+from berth_allocation_lab.rl.policy import (
+    MaskablePPOStaticPolicy,
+    build_model_metadata,
+    dependency_versions,
+    hardware_metadata,
+    save_checkpoint,
+)
+from berth_allocation_lab.rl.suites import (
+    ScenarioSuite,
+    SplitLeakageError,
+    audit_split_isolation,
+    build_config_suite,
+    build_mixture,
+    historical_fixture_fingerprints,
+)
+from berth_allocation_lab.rl.wrappers import TrainingRewardScale
+from berth_allocation_lab.tracking.git_metadata import get_git_metadata
+
+
+TRAINING_MANIFEST_VERSION = 1
+SELECTION_RULE = ("lowest mean validation total waiting (raw minutes) over all scenarios, "
+                  "evaluated at timestep 0, every eval_freq timesteps and after the final update; "
+                  "ties within 1e-9 keep the earliest timestep; evaluations with any invalid "
+                  "schedule are never selected")
+TRAIN_LOG_FIELDS = (
+    "timesteps", "episodes", "mean_episode_raw_return", "mean_episode_total_waiting_min",
+    "policy_gradient_loss", "value_loss", "entropy_loss", "approx_kl", "clip_fraction",
+    "clip_range", "explained_variance", "loss", "learning_rate", "n_updates",
+)
+EPISODE_FIELDS = (
+    "timesteps", "scenario_id", "scenario_seed", "scenario_family", "scenario_split",
+    "vessel_count", "scenario_fingerprint", "physical_fingerprint", "episode_return",
+    "total_waiting_time_min",
+)
+
+
+def run_directory(config: StaticPPOExperimentConfig, training_seed: int,
+                  output_root: str | Path | None = None) -> Path:
+    root = Path(output_root) if output_root is not None else config.resolve(config.output_dir)
+    return root / config.experiment_id / f"seed_{training_seed}"
+
+
+class _StaticPPOMonitor(BaseCallback):
+    """Validation, best-checkpoint saving and raw-unit training logs."""
+
+    def __init__(self, *, policy_factory: Callable[[], MaskablePPOStaticPolicy],
+                 validation_suite: ScenarioSuite, eval_freq: int,
+                 save_best: Callable[[dict[str, Any]], None]) -> None:
+        super().__init__(verbose=0)
+        self.policy_factory = policy_factory
+        self.validation_suite = validation_suite
+        self.eval_freq = eval_freq
+        self.save_best = save_best
+        self.next_eval = eval_freq
+        self.history: list[dict[str, Any]] = []
+        self.best: dict[str, Any] | None = None
+        self.train_rows: list[dict[str, Any]] = []
+        self.episode_rows: list[dict[str, Any]] = []
+        self.validation_seconds = 0.0
+        self.failure: tuple[str, str] | None = None
+        self._last_updates = None
+        self._logged_episodes = 0
+
+    def _evaluate(self) -> None:
+        started = time.perf_counter()
+        result = validation_waiting(self.policy_factory(), self.validation_suite)
+        seconds = time.perf_counter() - started
+        self.validation_seconds += seconds
+        entry = {"timesteps": self.num_timesteps, "suite": self.validation_suite.name,
+                 "suite_split": self.validation_suite.split, "evaluation_seconds": seconds, **result}
+        self.history.append(entry)
+        if is_improvement(entry["mean_total_waiting_time_min"],
+                          None if self.best is None else self.best["mean_total_waiting_time_min"]):
+            self.best = entry
+            self.save_best(entry)
+
+    def _harvest_train_metrics(self) -> None:
+        values = {k.split("/", 1)[1]: v for k, v in self.logger.name_to_value.items()
+                  if k.startswith("train/")}
+        if not values or values.get("n_updates") == self._last_updates:
+            return
+        self._last_updates = values.get("n_updates")
+        episodes = self.episode_rows[self._logged_episodes:]
+        self._logged_episodes = len(self.episode_rows)
+        row = {
+            "timesteps": self.num_timesteps,
+            "episodes": len(self.episode_rows),
+            "mean_episode_raw_return": _mean(e["episode_return"] for e in episodes),
+            "mean_episode_total_waiting_min": _mean(e["total_waiting_time_min"] for e in episodes),
+            **{k: v for k, v in values.items() if k in TRAIN_LOG_FIELDS},
+        }
+        self.train_rows.append(row)
+        bad = [k for k, v in values.items() if isinstance(v, float) and not math.isfinite(v)]
+        if bad and self.failure is None:
+            self.failure = ("nonfinite_loss", f"Non-finite PPO statistics: {', '.join(sorted(bad))}.")
+
+    def _on_training_start(self) -> None:
+        self._evaluate()
+
+    def _on_rollout_start(self) -> None:
+        self._harvest_train_metrics()
+        if self.failure is None and self.num_timesteps >= self.next_eval:
+            self._evaluate()
+            self.next_eval = (self.num_timesteps // self.eval_freq + 1) * self.eval_freq
+
+    def _on_step(self) -> bool:
+        for info, done in zip(self.locals["infos"], self.locals["dones"]):
+            if done:
+                self.episode_rows.append({"timesteps": self.num_timesteps,
+                                          **{k: info.get(k) for k in EPISODE_FIELDS[1:]}})
+        return self.failure is None
+
+    def _on_training_end(self) -> None:
+        self._harvest_train_metrics()
+        if self.failure is None and (not self.history or self.history[-1]["timesteps"] != self.num_timesteps):
+            self._evaluate()
+
+
+def train_static_ppo(
+    config: StaticPPOExperimentConfig,
+    training_seed: int,
+    *,
+    output_root: str | Path | None = None,
+    total_timesteps: int | None = None,
+    eval_freq: int | None = None,
+    device: str | None = None,
+) -> dict[str, Any]:
+    """Train one seed and return its manifest; failures are recorded, not hidden.
+
+    Classified failures (non-finite losses, split leakage, no valid validation
+    checkpoint) return a manifest with ``status="failed"``. Exceptions and
+    interrupts are written to the manifest and then re-raised.
+    """
+
+    if isinstance(training_seed, bool) or not isinstance(training_seed, int) or training_seed < 0:
+        raise ValueError("training_seed must be a non-negative integer.")
+    total = config.training.total_timesteps if total_timesteps is None else total_timesteps
+    frequency = config.training.eval_freq if eval_freq is None else eval_freq
+    for name, value in (("total_timesteps", total), ("eval_freq", frequency)):
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ValueError(f"{name} must be a positive integer.")
+    run_dir = run_directory(config, training_seed, output_root)
+    if run_dir.exists():
+        raise FileExistsError(f"Run directory {run_dir} exists; refusing to overwrite it.")
+    run_dir.mkdir(parents=True)
+
+    root = config.project_root()
+    overrides = {k: v for k, v in (("total_timesteps", total_timesteps), ("eval_freq", eval_freq),
+                                   ("device", device), ("output_root", output_root)) if v is not None}
+    plain_config = json.loads(json.dumps(config.to_dict(), default=str))
+    (run_dir / "config.yaml").write_text(
+        yaml.safe_dump({"config": plain_config, "overrides": json.loads(json.dumps(overrides, default=str))},
+                       sort_keys=False), encoding="utf-8")
+    git_commit, git_dirty = get_git_metadata()
+    run_id = f"{config.experiment_id}__seed_{training_seed}__{uuid.uuid4().hex[:8]}"
+    manifest: dict[str, Any] = {
+        "training_manifest_version": TRAINING_MANIFEST_VERSION,
+        "training_run_id": run_id,
+        "experiment_id": config.experiment_id,
+        "experiment_version": config.experiment_version,
+        "policy_id": config.policy_id,
+        "policy_family": "maskable_ppo",
+        "algorithm": "MaskablePPO",
+        "algorithm_version": "v1",
+        "formulation": "static",
+        "training_seed": training_seed,
+        "action_masking_enabled": True,
+        "training_reward_scale": config.reward_scale,
+        "total_timesteps_requested": total,
+        "eval_freq": frequency,
+        "hyperparameters": asdict(config.ppo),
+        "policy_kwargs": config.ppo.policy_kwargs(),
+        "config_source": _relative(config.source_path, root),
+        "config_sha256": config.source_sha256,
+        "overrides": json.loads(json.dumps(overrides, default=str)),
+        "git_commit_hash": git_commit,
+        "git_dirty": git_dirty,
+        "dependency_versions": dependency_versions(),
+        "hardware": hardware_metadata(),
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "status": "started",
+        "failure_type": None,
+        "failure_message": None,
+    }
+    started = time.perf_counter()
+    learn_seconds: float | None = None
+    monitor: _StaticPPOMonitor | None = None
+    model: MaskablePPO | None = None
+    try:
+        train_mixture = build_mixture(config.components, "train", root, config.max_vessels)
+        validation_suite = build_config_suite(config, config.validation)
+        test_suite = build_config_suite(config, config.test)  # identities audited, never evaluated here
+        historical = historical_fixture_fingerprints(root)
+        audit_split_isolation({"validation": validation_suite.identities(),
+                               "test": test_suite.identities()}, historical)
+        manifest["training_scenario_set"] = {
+            "split": "train", "partition_rule": "seed % 3 == 0",
+            "mixture_selection_version": MIXTURE_SELECTION_VERSION,
+            "components": [_component_record(c, config, root) for c in config.components],
+        }
+        manifest["validation_scenario_set"] = validation_suite.identities()
+        manifest["test_scenario_set_identities"] = test_suite.identities()
+        manifest["validation_baselines"] = {
+            "fcfs_mean_total_waiting_time_min": validation_waiting(StaticFCFS(), validation_suite)[
+                "mean_total_waiting_time_min"],
+            "rollout_mean_total_waiting_time_min": validation_waiting(StaticGreedyRollout(), validation_suite)[
+                "mean_total_waiting_time_min"],
+        }
+
+        env = StaticBAPEnv(scenario_provider=train_mixture, max_vessels=config.max_vessels,
+                           time_scale_min=config.time_scale_min, length_scale_m=config.length_scale_m,
+                           policy_id=config.policy_id)
+        ppo = config.ppo
+        model = MaskablePPO(
+            ppo.policy, Monitor(TrainingRewardScale(env, config.reward_scale)),
+            gamma=ppo.gamma, learning_rate=ppo.learning_rate, n_steps=ppo.n_steps,
+            batch_size=ppo.batch_size, n_epochs=ppo.n_epochs, gae_lambda=ppo.gae_lambda,
+            clip_range=ppo.clip_range, ent_coef=ppo.ent_coef, vf_coef=ppo.vf_coef,
+            max_grad_norm=ppo.max_grad_norm, policy_kwargs=ppo.policy_kwargs(),
+            seed=training_seed, device=device or ppo.device, verbose=0,
+        )
+        manifest["device"] = str(model.device)
+        base_metadata = {
+            "experiment_id": config.experiment_id, "training_run_id": run_id,
+            "training_seed": training_seed, "max_vessels": config.max_vessels,
+            "time_scale_min": config.time_scale_min, "length_scale_m": config.length_scale_m,
+            "reward_scale": config.reward_scale, "policy": ppo.policy,
+            "net_arch": ppo.policy_kwargs()["net_arch"], "gamma": ppo.gamma,
+            "git_commit_hash": git_commit, "git_dirty": git_dirty,
+        }
+
+        def save_best(entry: dict[str, Any]) -> None:
+            save_checkpoint(model, run_dir / "best_validation_model.zip", {
+                **base_metadata, "checkpoint_kind": "best_validation", "timesteps": entry["timesteps"],
+                "model_id": f"{run_id}/best_validation@{entry['timesteps']}",
+                "validation_mean_total_waiting_time_min": entry["mean_total_waiting_time_min"],
+            })
+
+        monitor = _StaticPPOMonitor(
+            policy_factory=lambda: MaskablePPOStaticPolicy(model, build_model_metadata(model, base_metadata)),
+            validation_suite=validation_suite, eval_freq=frequency, save_best=save_best,
+        )
+        learn_started = time.perf_counter()
+        model.learn(total_timesteps=total, callback=monitor, log_interval=None, use_masking=True)
+        learn_seconds = time.perf_counter() - learn_started
+        save_checkpoint(model, run_dir / "final_model.zip", {
+            **base_metadata, "checkpoint_kind": "final", "timesteps": model.num_timesteps,
+            "model_id": f"{run_id}/final@{model.num_timesteps}",
+        })
+        manifest["total_timesteps_completed"] = model.num_timesteps
+        manifest["checkpoints"] = {"final": {"path": "final_model.zip",
+                                             "model_id": f"{run_id}/final@{model.num_timesteps}"}}
+        if monitor.best is not None:
+            manifest["checkpoints"]["best_validation"] = {
+                "path": "best_validation_model.zip",
+                "model_id": f"{run_id}/best_validation@{monitor.best['timesteps']}"}
+        manifest["selection"] = {
+            "metric": SELECTION_METRIC, "rule": SELECTION_RULE,
+            "selected_timesteps": None if monitor.best is None else monitor.best["timesteps"],
+            "selected_mean_total_waiting_time_min": (
+                None if monitor.best is None else monitor.best["mean_total_waiting_time_min"]),
+        }
+        manifest["split_audit"] = audit_split_isolation({
+            "train_episodes": monitor.episode_rows, "validation": validation_suite.identities(),
+            "test": test_suite.identities()}, historical)
+        manifest["training_episodes"] = len(monitor.episode_rows)
+        manifest["distinct_training_scenarios"] = len({e["scenario_id"] for e in monitor.episode_rows})
+        if monitor.failure is not None:
+            manifest["failure_type"], manifest["failure_message"] = monitor.failure
+            manifest["status"] = "failed"
+        elif monitor.best is None:
+            manifest.update(status="failed", failure_type="no_valid_validation_checkpoint",
+                            failure_message="No validation evaluation produced valid schedules.")
+        else:
+            manifest["status"] = "completed"
+    except SplitLeakageError as error:
+        manifest.update(status="failed", failure_type="split_leakage", failure_message=str(error))
+    except KeyboardInterrupt:
+        manifest.update(status="interrupted", failure_type="interrupted",
+                        failure_message="Training interrupted; no final model was declared.")
+        if model is not None:
+            model.save(run_dir / "interrupted_model.zip")
+        raise
+    except Exception as error:
+        manifest.update(status="failed", failure_type=type(error).__name__, failure_message=str(error))
+        raise
+    finally:
+        wall = time.perf_counter() - started
+        validation_seconds = monitor.validation_seconds if monitor is not None else 0.0
+        # learning = model.learn() wall time minus in-training validation;
+        # setup (suites, audits, validation baselines) is reported separately.
+        learning = None if learn_seconds is None else learn_seconds - validation_seconds
+        manifest.update(
+            ended_at=datetime.now(timezone.utc).isoformat(),
+            training_runtime_seconds=wall,
+            validation_runtime_seconds=validation_seconds,
+            learning_runtime_seconds=learning,
+            setup_and_audit_runtime_seconds=None if learn_seconds is None else wall - learn_seconds,
+        )
+        completed = manifest.get("total_timesteps_completed")
+        manifest["learning_steps_per_second"] = (
+            completed / learning if completed and learning and learning > 0 else None)
+        if monitor is not None:
+            _write_csv(run_dir / "training_log.csv", TRAIN_LOG_FIELDS, monitor.train_rows)
+            _write_csv(run_dir / "train_episodes.csv", EPISODE_FIELDS, monitor.episode_rows)
+            (run_dir / "validation_metrics.json").write_text(json.dumps({
+                "selection_metric": SELECTION_METRIC, "selection_rule": SELECTION_RULE,
+                "best_timesteps": None if monitor.best is None else monitor.best["timesteps"],
+                "history": monitor.history}, indent=2), encoding="utf-8")
+        (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
+    return manifest
+
+
+def _component_record(component, config: StaticPPOExperimentConfig, root: Path) -> dict[str, Any]:
+    synthetic = component.synthetic_config(root)
+    return {**asdict(component), "scenario_family": synthetic.scenario_family,
+            "resolved_vessel_count": synthetic.traffic.vessel_count,
+            "source_sha256": _sha256(config.resolve(component.source_config))}
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _relative(path: str | None, root: Path) -> str | None:
+    if path is None:
+        return None
+    try:
+        return Path(path).resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return Path(path).as_posix()
+
+
+def _mean(values) -> float | None:
+    values = [v for v in values if v is not None]
+    return statistics.fmean(values) if values else None
+
+
+def _write_csv(path: Path, fields: tuple[str, ...], rows: list[dict[str, Any]]) -> None:
+    with path.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)

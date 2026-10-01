@@ -14,17 +14,23 @@ from berth_allocation_lab.envs.static_observation import (
     VESSEL_FEATURES,
 )
 from berth_allocation_lab.envs.static_scenario_provider import (
+    MIXTURE_SELECTION_VERSION,
     SAMPLED_SEED_LIMIT,
     SPLIT_SEED_OFFSETS,
     SPLIT_SEED_STRIDE,
+    MixtureScenarioProvider,
     ScenarioProvider,
     SyntheticScenarioProvider,
+    iter_split_seeds,
+    sample_split_seed,
     split_of_seed,
 )
 
 __all__ = [
     "CANDIDATE_FEATURES",
     "ENVIRONMENT_VERSION",
+    "MIXTURE_SELECTION_VERSION",
+    "MixtureScenarioProvider",
     "OBSERVATION_VERSION",
     "PLACEMENT_FEATURES",
     "PROVIDER_SEED_UPPER_BOUND",
@@ -37,5 +43,7 @@ __all__ = [
     "SyntheticScenarioProvider",
     "TERMINAL_FEATURES",
     "VESSEL_FEATURES",
+    "iter_split_seeds",
+    "sample_split_seed",
     "split_of_seed",
 ]

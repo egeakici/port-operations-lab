@@ -1,0 +1,47 @@
+# Step 9 integration smoke: tiny budget, verifies the pipeline only.
+# Results from this config are not performance evidence.
+schema_version: 1
+experiment_id: static_ppo_smoke_v1
+experiment_version: 1
+description: Pipeline smoke on tiny congested 6/7/8-vessel instances.
+max_vessels: 8
+reward_scale: 0.0006944444444444445  # 1/1440, training signal only
+output_dir: experiments/rl/static_ppo
+components:
+  - name: tiny_n6
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: bap_tiny_n6
+    vessel_count: 6
+    excluded_seeds: [0, 1, 42]
+  - name: tiny_n7
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: bap_tiny_n7
+    vessel_count: 7
+    excluded_seeds: [0, 1, 42]
+  - name: tiny_n8
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: bap_tiny_n8
+    vessel_count: 8
+    excluded_seeds: [0, 1, 42]
+training:
+  training_seeds: [11, 23]
+  total_timesteps: 2048
+  eval_freq: 1024
+ppo:
+  gamma: 1.0
+  n_steps: 256
+  batch_size: 64
+  n_epochs: 2
+  net_arch: {pi: [64, 64], vf: [64, 64]}
+  device: cpu
+validation:
+  seeds_per_component: 2
+test:
+  seeds_per_component: 2
+diagnostics:
+  - name: low_traffic
+    seeds_per_component: 2
+    components:
+      - name: low
+        source_config: configs/scenarios/synthetic_low.yaml
+        base_scenario_id: bap_low

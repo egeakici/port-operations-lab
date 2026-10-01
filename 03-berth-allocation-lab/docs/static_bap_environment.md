@@ -224,6 +224,24 @@ partition is rejected by the provider rather than silently overlapping with
 training. A plain callable provider without `sample_seed` keeps the uniform
 draw and receives no partition guarantee.
 
+### Reserved seeds and mixtures (added in Step 9)
+
+`SyntheticScenarioProvider(..., excluded_seeds=...)` reserves seeds of one
+configuration, such as historically inspected Step 7 fixtures: `provider(s)`
+raises for a reserved seed and `sample_seed` never returns one. The default is
+empty, so earlier behavior is unchanged.
+
+`MixtureScenarioProvider(components, weights)` combines same-split providers
+(for example tiny 6/7/8-vessel or static MEDIUM/HEAVY). For seed `s` the
+component is a pure function of the partition index `s // 3`:
+`u = int(sha256(f"bap_mixture_v1:{s // 3}")[:8]) / 2**64` is compared with the
+cumulative normalized weights (`MIXTURE_SELECTION_VERSION =
+"sha256_partition_index_v1"`). The selected component generates the instance,
+so family, split, seed and scenario ID are its own and nothing is relabelled.
+`sample_seed` draws split seeds until the selected component does not reserve
+the seed. `vessel_count` is the largest component size, which the environment
+capacity must cover.
+
 Reset info: `scenario_id`, `scenario_seed`, `scenario_fingerprint`,
 `scenario_split`, `vessel_count`, `environment_version`.
 

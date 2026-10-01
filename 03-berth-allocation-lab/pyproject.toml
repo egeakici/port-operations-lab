@@ -12,6 +12,9 @@ dependencies = [
     "gymnasium>=1.0,<2",
     "numpy>=1.24",
     "PyYAML>=6.0,<7",
+    "sb3-contrib>=2.8,<3",
+    "stable-baselines3>=2.8,<3",
+    "torch>=2.3",
     "mini-port-sim==0.1.0",
     "terminal-core==0.1.0",
 ]
@@ -30,4 +33,4 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-markers = ["slow: multi-seed implementation invariant checks"]
+markers = ["slow: multi-seed invariant checks and multi-run RL training workflows"]

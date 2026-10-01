@@ -3,7 +3,7 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 8 / StaticBAP Gymnasium environment.
+Current status: Step 9 / Static Maskable PPO.
 
 Completed:
 
@@ -17,9 +17,12 @@ Completed:
 - Step 7: tiny fixed-order candidate-space exact reference and certified gaps
 - Step 8: StaticBAP Gymnasium environment with candidate-index actions,
   action masks and FCFS/Rollout/exact-reference replay validation
+- Step 9: Static Maskable PPO training, split-disjoint scenario mixtures,
+  validation-only checkpoint selection and paired evaluation against FCFS,
+  Greedy Rollout and certified tiny Exact
 
-Completed: Steps 1-8. Current: Step 8 - StaticBAP Environment.
-Next: Step 9 - Static Maskable PPO.
+Completed: Steps 1-9. Current: Step 9 - Static Maskable PPO.
+Next: Step 10 - DynamicBAP Environment.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -35,8 +38,9 @@ exogenous behavior in Project 03 v1.
 Current methods are static FCFS, static Greedy Rollout, and tiny candidate-space
 enumeration. The reference is exact only within fixed-order, finite candidate
 decisions with earliest service starts, not unrestricted continuous BAP.
-`StaticBAPEnv` exposes the same fixed-order candidate decisions to RL agents;
-it is ready for agent integration, but no PPO model has been trained.
+`StaticBAPEnv` exposes the same fixed-order candidate decisions to RL agents.
+Step 9 trains MaskablePPO policies on it; see the Step 9 note for the measured
+pilot results, which are short-budget pilots, not established performance.
 Planned methods include continuous optimization, rolling-horizon references,
 Maskable PPO, and later DQN-family experiments.
 
@@ -69,14 +73,20 @@ Read the Step 8 environment definition:
 
 - [docs/static_bap_environment.md](docs/static_bap_environment.md)
 
+Read the Step 9 training/evaluation definition and pilot results:
+
+- [docs/static_maskable_ppo.md](docs/static_maskable_ppo.md)
+
 ## Package Structure
 
 - `src/berth_allocation_lab/core`: shared continuous BAP placement, geometry,
   feasibility, scheduling, candidate, and objective functions.
 - `src/berth_allocation_lab/policies`: static FCFS and Greedy Rollout.
 - `src/berth_allocation_lab/solvers`: tiny candidate-space enumeration.
-- `src/berth_allocation_lab/envs`: `StaticBAPEnv` and the synthetic scenario
-  provider.
+- `src/berth_allocation_lab/envs`: `StaticBAPEnv`, split-aware synthetic and
+  mixture scenario providers.
+- `src/berth_allocation_lab/rl`: Static Maskable PPO configs, scenario suites,
+  leakage audit, training, checkpoint inference and paired evaluation.
 - `src/berth_allocation_lab/evaluation`: shared KPIs and static runner.
 - `src/berth_allocation_lab/tracking`: scientific records and local artifacts.
 - `src/berth_allocation_lab/config`: scaffold-level YAML config loading.
@@ -156,3 +166,16 @@ in `(arrival_time_min, vessel_id)` order; the core sets the earliest feasible
 start and the reward is the negative waiting time, so the undiscounted episode
 return equals minus total waiting. Use `scenario_provider=SyntheticScenarioProvider(...)`
 for reproducible generated instances with an explicit dataset split.
+
+## Static Maskable PPO
+
+```bash
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny.yaml     --total-timesteps 10000 --eval-freq 2000 --output-dir experiments/rl/pilot
+python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny.yaml     --experiment-dir experiments/rl/pilot/static_ppo_tiny_v1     --output experiments/rl/pilot_evaluations/static_ppo_tiny_v1
+```
+
+Training uses `gamma = 1.0`, action masks at every decision and a fixed
+training-only reward scale; checkpoints are selected on validation instances
+only, and evaluation reports raw vessel-minutes paired with FCFS, Greedy
+Rollout and (for tiny instances) the certified candidate-space Exact reference.
+Model files stay under the Git-ignored `experiments/` directory.
