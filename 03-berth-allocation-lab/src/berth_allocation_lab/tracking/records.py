@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from berth_allocation_lab.evaluation.metrics import StaticMetrics
+    from berth_allocation_lab.solvers.reference_types import CandidateEnumerationDiagnostics
 
 from berth_allocation_lab.core import BAPPlacement, ScheduleViolation
 from berth_allocation_lab.data import BAPScenarioInstance
@@ -38,6 +43,10 @@ class RunManifest:
     status: str
     failure_type: str | None = None
     failure_message: str | None = None
+    solver_family: str | None = None
+    solver_version: str | None = None
+    reference_scope: str | None = None
+    optimality_status: str | None = None
 
 
 @dataclass(frozen=True)
@@ -86,6 +95,13 @@ class RunSummary:
     is_valid: bool
     validation_status: str
     violation_count: int
+    reference_scope: str | None = None
+    optimality_status: str | None = None
+    best_feasible_objective: float | None = None
+    certified_optimal_objective: float | None = None
+    solver_runtime_seconds: float | None = None
+    time_limit_seconds: float | None = None
+    optimality_gap: float | None = None
 
 
 @dataclass(frozen=True)
@@ -97,6 +113,8 @@ class ScientificRunResult:
     vessels: tuple[VesselResult, ...]
     summary: RunSummary
     violations: tuple[ScheduleViolation, ...]
+    solver_diagnostics: CandidateEnumerationDiagnostics | None = None
+    incumbent_metrics: StaticMetrics | None = None
 
     @property
     def placements(self) -> tuple[BAPPlacement, ...]:

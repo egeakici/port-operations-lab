@@ -27,6 +27,7 @@ class ScientificRunRecorder:
         _write_json(self.run_dir / "scenario.json", scenario.to_dict())
 
     def finish(self, result: ScientificRunResult) -> None:
+        self.record_solver_diagnostics(result)
         _write_jsonl(
             self.run_dir / "placements.jsonl",
             (
@@ -66,6 +67,21 @@ class ScientificRunRecorder:
         )
         _write_json(self.run_dir / "run_summary.json", asdict(result.summary))
         _write_json(self.run_dir / "manifest.json", asdict(result.manifest))
+
+    def record_solver_diagnostics(self, result: ScientificRunResult) -> None:
+        if result.solver_diagnostics is not None:
+            _write_json(self.run_dir / "solver_diagnostics.json", {
+                "run_id": result.manifest.run_id,
+                "scenario_id": result.scenario.scenario_id,
+                **asdict(result.solver_diagnostics),
+            })
+            _write_json(self.run_dir / "incumbent_metrics.json", {
+                "record_schema_version": 1,
+                "run_id": result.manifest.run_id,
+                "scenario_id": result.scenario.scenario_id,
+                "optimality_status": result.solver_diagnostics.optimality_status,
+                "metrics": asdict(result.incumbent_metrics) if result.incumbent_metrics else None,
+            })
 
     def record_failure(
         self,

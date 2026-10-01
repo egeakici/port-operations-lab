@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol, Sequence
+from typing import TYPE_CHECKING, Protocol, Sequence
+
+if TYPE_CHECKING:
+    from berth_allocation_lab.solvers.reference_types import CandidateEnumerationDiagnostics
 
 from berth_allocation_lab.core import (
     BAPPlacement,
@@ -49,6 +52,7 @@ class StaticScheduleResult:
     policy_id: str
     placements: tuple[BAPPlacement, ...]
     decision_records: tuple[StaticDecisionRecord, ...]
+    solver_diagnostics: CandidateEnumerationDiagnostics | None = None
 
 
 class StaticPolicy(Protocol):

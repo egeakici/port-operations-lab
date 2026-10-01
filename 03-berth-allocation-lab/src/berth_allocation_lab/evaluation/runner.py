@@ -19,6 +19,7 @@ from berth_allocation_lab.core import (
     turnaround_time,
     waiting_time,
 )
+from berth_allocation_lab.core.numerics import is_close
 from berth_allocation_lab.data import BAPScenarioInstance
 from berth_allocation_lab.evaluation.metrics import (
     METRIC_VERSION,
@@ -94,11 +95,20 @@ def run_static_policy(
     started_at = time.perf_counter()
     schedule: StaticScheduleResult | None = None
     violations = ()
+    diagnostics = None
+    incumbent_metrics = None
     try:
         schedule = policy.schedule(scenario)
         runtime = time.perf_counter() - started_at
+        diagnostics = schedule.solver_diagnostics
         if schedule.policy_id != policy.policy_id:
             raise ValueError("Policy result ID differs from policy identity.")
+        if diagnostics is not None:
+            if diagnostics.scenario_fingerprint != scenario.content_fingerprint:
+                raise ValueError("Solver diagnostics belong to a different scenario.")
+            if diagnostics.optimality_status == "failed":
+                raise ValueError(diagnostics.failure_message or
+                                 f"Reference search stopped: {diagnostics.termination_reason}.")
         violations = find_schedule_violations(
             scenario.vessels,
             schedule.placements,
@@ -126,6 +136,13 @@ def run_static_policy(
             )
         else:
             metrics = calculate_static_metrics(scenario, schedule.placements)
+            if diagnostics is not None:
+                if not is_close(metrics.objective_value, diagnostics.best_feasible_objective):
+                    raise ValueError("Solver objective differs from validated metrics.")
+                if diagnostics.optimality_status == "optimal" and not is_close(
+                    metrics.objective_value, diagnostics.certified_optimal_objective
+                ):
+                    raise ValueError("Certified objective differs from validated metrics.")
             manifest = replace(manifest, status="completed")
             summary = RunSummary(
                 run_id=identifier,
@@ -174,6 +191,49 @@ def run_static_policy(
             scenario, identifier, policy.policy_id, schedule, valid=False
         )
 
+    if diagnostics is not None:
+        if not summary.is_valid:
+            manifest = replace(
+                manifest, status="failed",
+                failure_type=diagnostics.failure_type or manifest.failure_type,
+                failure_message=diagnostics.failure_message or manifest.failure_message,
+            )
+            summary = replace(summary, status="failed")
+            diagnostics = replace(
+                diagnostics, optimality_status="failed",
+                best_feasible_objective=None, certified_optimal_objective=None, optimality_gap=None,
+                failure_type=manifest.failure_type,
+                failure_message=manifest.failure_message,
+            )
+        elif diagnostics.optimality_status == "feasible":
+            incumbent_metrics = metrics
+            manifest = replace(manifest, status="completed_with_limit")
+            # Keep physical completion/vessel records, but exclude an uncertified
+            # incumbent from headline reference KPIs and certified gap tables.
+            summary = replace(
+                summary, status="completed_with_limit", validation_status="valid_uncertified",
+                total_waiting_time_min=None, mean_waiting_time_min=None,
+                p95_waiting_time_min=None, mean_turnaround_time_min=None,
+                p95_turnaround_time_min=None, berth_utilization=None,
+                occupied_quay_length_minutes=None, utilization_window_min=None,
+                objective_value=None,
+            )
+        manifest = replace(
+            manifest, solver_family=diagnostics.solver_family,
+            solver_version=diagnostics.solver_version,
+            reference_scope=diagnostics.reference_scope,
+            optimality_status=diagnostics.optimality_status,
+        )
+        summary = replace(
+            summary, reference_scope=diagnostics.reference_scope,
+            optimality_status=diagnostics.optimality_status,
+            best_feasible_objective=diagnostics.best_feasible_objective,
+            certified_optimal_objective=diagnostics.certified_optimal_objective,
+            solver_runtime_seconds=diagnostics.solver_runtime_seconds,
+            time_limit_seconds=diagnostics.time_limit_seconds,
+            optimality_gap=diagnostics.optimality_gap,
+        )
+        schedule = replace(schedule, solver_diagnostics=diagnostics)
     result = ScientificRunResult(
         scenario=scenario,
         manifest=manifest,
@@ -182,6 +242,8 @@ def run_static_policy(
         vessels=vessels,
         summary=summary,
         violations=violations,
+        solver_diagnostics=diagnostics,
+        incumbent_metrics=incumbent_metrics,
     )
     if recorder is not None:
         try:
@@ -192,6 +254,7 @@ def run_static_policy(
                 status="failed",
                 failure_type="serialization_failure",
                 failure_message=str(error),
+                optimality_status="failed" if diagnostics is not None else None,
             )
             failed_summary = _failed_summary(
                 scenario, policy.policy_id, identifier,
@@ -205,8 +268,27 @@ def run_static_policy(
                 vessels=_vessel_results(
                     scenario, identifier, policy.policy_id, schedule, valid=False
                 ),
+                solver_diagnostics=(replace(
+                    diagnostics, optimality_status="failed", best_feasible_objective=None,
+                    certified_optimal_objective=None,
+                    optimality_gap=None, failure_type="serialization_failure",
+                    failure_message=str(error),
+                ) if diagnostics is not None else None),
+                incumbent_metrics=None,
             )
+            if diagnostics is not None:
+                failed_summary = replace(
+                    failed_summary, reference_scope=diagnostics.reference_scope,
+                    optimality_status="failed", solver_runtime_seconds=diagnostics.solver_runtime_seconds,
+                    time_limit_seconds=diagnostics.time_limit_seconds,
+                )
+                result = replace(result, summary=failed_summary)
+                result = replace(result, schedule=replace(
+                    result.schedule, solver_diagnostics=result.solver_diagnostics,
+                ))
             recorder.record_failure(failed_manifest, failed_summary, result.vessels)
+            if result.solver_diagnostics is not None:
+                recorder.record_solver_diagnostics(result)
     return result
 
 
