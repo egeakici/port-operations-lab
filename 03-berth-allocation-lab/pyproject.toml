@@ -9,6 +9,8 @@ description = "Berth allocation optimization and experimentation layer for Port 
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "gymnasium>=1.0,<2",
+    "numpy>=1.24",
     "PyYAML>=6.0,<7",
     "mini-port-sim==0.1.0",
     "terminal-core==0.1.0",

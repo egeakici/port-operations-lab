@@ -3,7 +3,7 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 7 / tiny candidate-space enumeration and exact reference.
+Current status: Step 8 / StaticBAP Gymnasium environment.
 
 Completed:
 
@@ -15,8 +15,11 @@ Completed:
   objectives
 - Step 6: static FCFS and Greedy Rollout policies, common KPIs, and run records
 - Step 7: tiny fixed-order candidate-space exact reference and certified gaps
+- Step 8: StaticBAP Gymnasium environment with candidate-index actions,
+  action masks and FCFS/Rollout/exact-reference replay validation
 
-Completed: Steps 1-7. Next: Step 8 - StaticBAP Environment.
+Completed: Steps 1-8. Current: Step 8 - StaticBAP Environment.
+Next: Step 9 - Static Maskable PPO.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -32,6 +35,8 @@ exogenous behavior in Project 03 v1.
 Current methods are static FCFS, static Greedy Rollout, and tiny candidate-space
 enumeration. The reference is exact only within fixed-order, finite candidate
 decisions with earliest service starts, not unrestricted continuous BAP.
+`StaticBAPEnv` exposes the same fixed-order candidate decisions to RL agents;
+it is ready for agent integration, but no PPO model has been trained.
 Planned methods include continuous optimization, rolling-horizon references,
 Maskable PPO, and later DQN-family experiments.
 
@@ -60,12 +65,18 @@ Read the Step 7 reference definition and measured audit:
 - [docs/candidate_space_reference.md](docs/candidate_space_reference.md)
 - [docs/step7_validation.md](docs/step7_validation.md)
 
+Read the Step 8 environment definition:
+
+- [docs/static_bap_environment.md](docs/static_bap_environment.md)
+
 ## Package Structure
 
 - `src/berth_allocation_lab/core`: shared continuous BAP placement, geometry,
   feasibility, scheduling, candidate, and objective functions.
 - `src/berth_allocation_lab/policies`: static FCFS and Greedy Rollout.
 - `src/berth_allocation_lab/solvers`: tiny candidate-space enumeration.
+- `src/berth_allocation_lab/envs`: `StaticBAPEnv` and the synthetic scenario
+  provider.
 - `src/berth_allocation_lab/evaluation`: shared KPIs and static runner.
 - `src/berth_allocation_lab/tracking`: scientific records and local artifacts.
 - `src/berth_allocation_lab/config`: scaffold-level YAML config loading.
@@ -123,3 +134,25 @@ berth-allocation-lab --run-candidate-reference configs/scenarios/synthetic_tiny_
 Defaults are 6 vessels and 250000 search nodes. Explicit `--max-vessels 8`
 allows larger tiny inputs; `--time-limit-seconds` is optional. Limits never
 truncate inputs or turn feasible incumbents into certified optima.
+
+## StaticBAP Environment
+
+```python
+from berth_allocation_lab.envs import StaticBAPEnv
+
+env = StaticBAPEnv(
+    scenario=scenario,
+    max_vessels=8,
+)
+
+obs, info = env.reset(seed=42)
+
+mask = env.action_masks()
+obs, reward, terminated, truncated, info = env.step(int(mask.nonzero()[0][0]))
+```
+
+Each action selects a canonical candidate berth position for the next vessel
+in `(arrival_time_min, vessel_id)` order; the core sets the earliest feasible
+start and the reward is the negative waiting time, so the undiscounted episode
+return equals minus total waiting. Use `scenario_provider=SyntheticScenarioProvider(...)`
+for reproducible generated instances with an explicit dataset split.
