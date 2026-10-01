@@ -24,6 +24,8 @@ from berth_allocation_lab.policies.base import (
     require_static_scenario,
 )
 from berth_allocation_lab.solvers.reference_types import (
+    SEARCH_LIMIT_FAILURE,
+    SEARCH_LIMIT_REASONS,
     CandidateEnumerationConfig,
     CandidateEnumerationDiagnostics,
     CandidateEnumerationResult,
@@ -143,6 +145,12 @@ class StaticCandidateEnumeration:
                         if source != "dfs_leaf":
                             raise ValueError("Certification requires a DFS leaf, not a heuristic.")
                         status = "optimal"
+                elif reason in SEARCH_LIMIT_REASONS:
+                    # A resource stop without incumbent is a recorded search
+                    # outcome, not a program error.
+                    status = "timeout" if reason == "time_limit" else "failed"
+                    failure_type = SEARCH_LIMIT_FAILURE
+                    failure_message = f"Search stopped by {reason} before any valid incumbent."
         except Exception as error:
             status, reason = "failed", None
             failure_type, failure_message = type(error).__name__, str(error)

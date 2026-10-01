@@ -12,6 +12,11 @@ if TYPE_CHECKING:
     from berth_allocation_lab.policies.base import StaticDecisionRecord
 
 
+# A node/time limit stopped the search before any valid incumbent existed.
+SEARCH_LIMIT_FAILURE = "search_limit_reached"
+SEARCH_LIMIT_REASONS = frozenset({"node_limit", "time_limit"})
+
+
 @dataclass(frozen=True)
 class CandidateEnumerationConfig:
     max_vessels: int = 6
@@ -42,7 +47,7 @@ class CandidateEnumerationConfig:
 @dataclass(frozen=True)
 class CandidateEnumerationDiagnostics:
     scenario_fingerprint: str
-    optimality_status: Literal["optimal", "feasible", "failed"]
+    optimality_status: Literal["optimal", "feasible", "timeout", "failed"]
     best_feasible_objective: float | None
     certified_optimal_objective: float | None
     nodes_explored: int

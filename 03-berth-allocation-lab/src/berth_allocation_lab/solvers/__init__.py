@@ -2,13 +2,14 @@
 
 from berth_allocation_lab.solvers.candidate_enumeration import StaticCandidateEnumeration
 from berth_allocation_lab.solvers.reference_types import (
+    SEARCH_LIMIT_FAILURE,
     CandidateEnumerationConfig,
     CandidateEnumerationDiagnostics,
     CandidateEnumerationResult,
 )
 
 __all__ = [
-    "StaticCandidateEnumeration", "CandidateEnumerationConfig",
+    "SEARCH_LIMIT_FAILURE", "StaticCandidateEnumeration", "CandidateEnumerationConfig",
     "CandidateEnumerationDiagnostics", "CandidateEnumerationResult",
 ]
 

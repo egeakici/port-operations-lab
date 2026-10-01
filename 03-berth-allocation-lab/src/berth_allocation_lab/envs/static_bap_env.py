@@ -42,7 +42,7 @@ from berth_allocation_lab.policies.base import (
 
 
 ENVIRONMENT_VERSION = "static_bap_env_v1"
-# Generated scenarios draw seeds from [0, 2**31 - 1].
+# Providers without sample_seed receive seeds drawn from [0, 2**31 - 1].
 PROVIDER_SEED_UPPER_BOUND = 2**31
 
 
@@ -129,7 +129,12 @@ class StaticBAPEnv(gym.Env):
         if self._provider is None:
             scenario = self._fixed_scenario
         else:
-            generation_seed = int(self.np_random.integers(0, PROVIDER_SEED_UPPER_BOUND))
+            # A split-aware provider samples only seeds of its own split.
+            sample_seed = getattr(self._provider, "sample_seed", None)
+            generation_seed = (
+                int(sample_seed(self.np_random)) if callable(sample_seed)
+                else int(self.np_random.integers(0, PROVIDER_SEED_UPPER_BOUND))
+            )
             scenario = self._provider(generation_seed)
             self._validate_scenario(scenario)
             if scenario.seed != generation_seed:

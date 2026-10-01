@@ -121,6 +121,8 @@ def test_node_limit_never_certifies(manual_static_scenario, incumbent, status):
     assert result.diagnostics.nodes_explored == 1
     assert result.diagnostics.certified_optimal_objective is None
     assert result.diagnostics.optimality_gap is None
+    assert result.diagnostics.failure_type == ("search_limit_reached" if incumbent == "none" else None)
+    assert (result.diagnostics.best_feasible_objective is None) == (incumbent == "none")
     with pytest.raises(ValueError, match="certified"):
         candidate_space_reference_gap(900, result.diagnostics)
 
@@ -139,8 +141,12 @@ def test_time_limit_with_controlled_clock(manual_static_scenario, monkeypatch, a
     monkeypatch.setattr(module, "perf_counter", lambda: next(ticks, 2))
     result = Solver(Config(time_limit_seconds=1)).solve(manual_static_scenario)
     assert result.diagnostics.termination_reason == "time_limit"
-    assert result.diagnostics.optimality_status == ("feasible" if after_heuristic else "failed")
+    # Without any incumbent the stop is the contract's "timeout", not an error.
+    assert result.diagnostics.optimality_status == ("feasible" if after_heuristic else "timeout")
+    assert result.diagnostics.failure_type == (None if after_heuristic else "search_limit_reached")
     assert result.diagnostics.certified_optimal_objective is None
+    assert (result.diagnostics.best_feasible_objective is None) is not after_heuristic
+    assert (result.best_placements == ()) is not after_heuristic
 
 
 def test_size_limit_and_static_guard(manual_static_scenario):

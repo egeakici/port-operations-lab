@@ -32,6 +32,7 @@ from berth_allocation_lab.policies import (
     StaticPolicy,
     StaticScheduleResult,
 )
+from berth_allocation_lab.solvers.reference_types import SEARCH_LIMIT_FAILURE
 from berth_allocation_lab.tracking.git_metadata import get_git_metadata
 from berth_allocation_lab.tracking.records import (
     RunManifest,
@@ -97,6 +98,7 @@ def run_static_policy(
     violations = ()
     diagnostics = None
     incumbent_metrics = None
+    limit_stop = False
     try:
         schedule = policy.schedule(scenario)
         runtime = time.perf_counter() - started_at
@@ -106,16 +108,33 @@ def run_static_policy(
         if diagnostics is not None:
             if diagnostics.scenario_fingerprint != scenario.content_fingerprint:
                 raise ValueError("Solver diagnostics belong to a different scenario.")
-            if diagnostics.optimality_status == "failed":
+            if diagnostics.failure_type == SEARCH_LIMIT_FAILURE:
+                limit_stop = True
+            elif diagnostics.optimality_status == "failed":
                 raise ValueError(diagnostics.failure_message or
                                  f"Reference search stopped: {diagnostics.termination_reason}.")
-        violations = find_schedule_violations(
+        violations = () if limit_stop else find_schedule_violations(
             scenario.vessels,
             schedule.placements,
             scenario.berth_length_m,
             scenario.min_clearance_m,
         )
-        if violations:
+        if limit_stop:
+            # Recorded search outcome without a schedule, not an exception.
+            manifest = replace(
+                manifest,
+                status="failed",
+                failure_type=SEARCH_LIMIT_FAILURE,
+                failure_message=diagnostics.failure_message,
+            )
+            summary = _failed_summary(
+                scenario, policy.policy_id, identifier, runtime,
+                "failed", SEARCH_LIMIT_FAILURE, 0, schedule,
+            )
+            vessels = _vessel_results(
+                scenario, identifier, policy.policy_id, schedule, valid=False
+            )
+        elif violations:
             unresolved = any(
                 v.code is ScheduleViolationCode.MISSING_PLACEMENT
                 for v in violations
@@ -192,11 +211,19 @@ def run_static_policy(
         )
 
     if diagnostics is not None:
-        if not summary.is_valid:
+        if limit_stop:
+            # Keep the solver's timeout/failed status and limit classification.
+            pass
+        elif not summary.is_valid:
+            # Prefer the solver's own error over the runner's wrapper, but never
+            # let a limit label mask a genuine runner-side error.
+            solver_error = diagnostics.failure_type not in (None, SEARCH_LIMIT_FAILURE)
             manifest = replace(
                 manifest, status="failed",
-                failure_type=diagnostics.failure_type or manifest.failure_type,
-                failure_message=diagnostics.failure_message or manifest.failure_message,
+                failure_type=diagnostics.failure_type if solver_error else manifest.failure_type,
+                failure_message=(
+                    diagnostics.failure_message if solver_error else None
+                ) or manifest.failure_message,
             )
             summary = replace(summary, status="failed")
             diagnostics = replace(

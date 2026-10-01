@@ -180,19 +180,49 @@ float32 raises. All physics, rewards and validation use raw float64 units.
 Gymnasium's RNG but never changes the scenario.
 
 **Generated mode.** `provider(seed) -> BAPScenarioInstance`. On reset the
-environment calls `super().reset(seed=seed)`, draws a generation seed from
-`self.np_random` uniformly in `[0, 2**31 - 1]`, calls the provider, then
-validates type, static formulation, capacity and that `scenario.seed` equals
-the drawn seed. `reset(seed=42)` reproduces the same scenario and initial
-observation; `reset(seed=None)` continues the existing RNG stream. A failed
-reset leaves no usable episode.
+environment calls `super().reset(seed=seed)` and draws a generation seed from
+`self.np_random`: with `provider.sample_seed(self.np_random)` when the provider
+defines `sample_seed`, otherwise uniformly in `[0, 2**31 - 1]`. It then calls
+the provider and validates type, static formulation, capacity and that
+`scenario.seed` equals the drawn seed. `reset(seed=42)` reproduces the same
+scenario and initial observation; `reset(seed=None)` continues the existing RNG
+stream. A failed reset leaves no usable episode.
 
 `SyntheticScenarioProvider(config, base_scenario_id=..., split=...)` wraps the
 existing generator. For seed `s` it generates with
-`scenario_id = f"{base_scenario_id}_seed{s}"`, `seed = s` and the explicit
-`split`, preserving every other configuration field and never mutating the
-source config. A base ID already ending in `_seed<N>` is rejected, and a
-dynamic config must be converted explicitly with `with_formulation("static")`.
+`scenario_id = f"{base_scenario_id}_{split}_seed{s}"`, `seed = s` and the
+explicit `split`, preserving every other configuration field and never
+mutating the source config. A base ID already ending in `_seed<N>` is
+rejected, and a dynamic config must be converted explicitly with
+`with_formulation("static")`.
+
+### Split-disjoint seed partition
+
+Generation seeds are partitioned by split so that training and evaluation
+instances cannot overlap:
+
+```text
+offset(train) = 0, offset(validation) = 1, offset(test) = 2
+seed s belongs to split p  <=>  s % 3 == offset(p)
+```
+
+- `provider(s)` raises `ValueError` when `s` belongs to another split, so the
+  same base ID and seed can never yield one instance for two splits.
+- `provider.sample_seed(rng)` returns `3 * u + offset(split)` with `u` drawn
+  uniformly by `rng.integers`, covering exactly that split's seeds in
+  `[0, 2**31 - 1)`.
+- Each split therefore yields different seeds, scenario IDs, vessel sets and
+  fingerprints for the same generation index `u`.
+- `split_of_seed(s)` returns the owning split; `SPLIT_SEED_OFFSETS`,
+  `SPLIT_SEED_STRIDE` and `SAMPLED_SEED_LIMIT` are exported from
+  `berth_allocation_lab.envs`.
+
+Explicit evaluation seed lists (for example a fixed validation or test set in
+Step 9 or the Step 12 benchmark) must follow the same partition: validation
+seeds are `1, 4, 7, ...`, test seeds `2, 5, 8, ...`. A list that ignores the
+partition is rejected by the provider rather than silently overlapping with
+training. A plain callable provider without `sample_seed` keeps the uniform
+draw and receives no partition guarantee.
 
 Reset info: `scenario_id`, `scenario_seed`, `scenario_fingerprint`,
 `scenario_split`, `vessel_count`, `environment_version`.
@@ -202,10 +232,11 @@ Both modes reject non-static scenarios through `require_static_scenario`.
 **Known issue for Step 9 planning.** The current presets assign the split by
 traffic family (`low -> train`, `medium -> validation`, `heavy -> test`, and
 the Step 7 tiny congested preset is `test`). The Step 2 contract intends
-splits as disjoint instances/seeds. The provider therefore requires an
-explicit split, which is part of each instance's identity and fingerprint.
-Step 9 must define explicit training configurations and separate validation
-and test instances rather than reusing the test-oriented Step 7 preset.
+splits as disjoint instances/seeds. The provider therefore ignores the preset
+split, requires an explicit one, writes it into each instance's identity and
+fingerprint, and enforces the seed partition above. Step 9 must still define
+explicit training configurations rather than reusing the test-oriented Step 7
+preset as a training distribution.
 
 ## Reward, Return And Termination
 

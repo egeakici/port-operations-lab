@@ -3,13 +3,15 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from gymnasium.utils import seeding
 
 from berth_allocation_lab.core import (
     NUMERICAL_TOLERANCE as EPS, candidate_positions, earliest_feasible_start, total_waiting_time,
 )
 from berth_allocation_lab.data import BAPVesselInput as Vessel
 from berth_allocation_lab.envs import (
-    PROVIDER_SEED_UPPER_BOUND, StaticBAPEnv, StaticBAPEnvConsistencyError, SyntheticScenarioProvider,
+    PROVIDER_SEED_UPPER_BOUND, SAMPLED_SEED_LIMIT, SPLIT_SEED_OFFSETS, StaticBAPEnv,
+    StaticBAPEnvConsistencyError, SyntheticScenarioProvider, split_of_seed,
 )
 from berth_allocation_lab.envs import static_bap_env as env_module
 from berth_allocation_lab.scenarios import SyntheticScenarioConfig, SyntheticScenarioGenerator
@@ -71,7 +73,8 @@ def test_provider_construction(provider):
     env = StaticBAPEnv(scenario_provider=provider, max_vessels=8)
     obs, info = env.reset(seed=7)
     assert 0 <= info["scenario_seed"] < PROVIDER_SEED_UPPER_BOUND
-    assert info["scenario_id"] == f"step8_unit_tiny_seed{info['scenario_seed']}"
+    assert info["scenario_seed"] % 3 == 1
+    assert info["scenario_id"] == f"step8_unit_tiny_validation_seed{info['scenario_seed']}"
     assert info["scenario_split"] == "validation"
     assert env.scenario.vessel_count == 6
     assert env.observation_space.contains(obs)
@@ -488,10 +491,10 @@ def test_render_ansi_and_disabled(manual_static_scenario):
 
 def test_provider_identity_split_and_no_config_mutation(provider):
     source = provider.config
-    first, again, other = provider(5), provider(5), provider(6)
+    first, again, other = provider(4), provider(4), provider(7)
     assert first == again and first.content_fingerprint == again.content_fingerprint
     assert first.content_fingerprint != other.content_fingerprint and first.vessels != other.vessels
-    assert first.scenario_id == "step8_unit_tiny_seed5" and first.seed == 5
+    assert first.scenario_id == "step8_unit_tiny_validation_seed4" and first.seed == 4
     assert first.split == "validation" and source.split == "test"
     assert provider.config is source and source.seed == 42
     assert source.scenario_id == "synthetic_tiny_congested_n6_seed42"
@@ -500,7 +503,7 @@ def test_provider_identity_split_and_no_config_mutation(provider):
     assert first.berth_length_m == source.terminal.berth_length_m
     assert first.vessel_count == source.traffic.vessel_count
     direct = SyntheticScenarioGenerator().generate(
-        replace(source, scenario_id="step8_unit_tiny_seed5", seed=5, split="validation"))
+        replace(source, scenario_id="step8_unit_tiny_validation_seed4", seed=4, split="validation"))
     assert direct == first
 
 
@@ -523,3 +526,77 @@ def test_provider_rejects_dynamic_config_and_bad_seeds(provider):
     for seed in (-1, True, 1.5):
         with pytest.raises(ValueError):
             provider(seed)
+
+
+# Split-disjoint seed partition
+
+@pytest.fixture
+def split_providers(provider):
+    return {split: SyntheticScenarioProvider(provider.config, base_scenario_id="step8_split", split=split)
+            for split in ("train", "validation", "test")}
+
+
+def test_no_seed_is_valid_for_two_splits(split_providers):
+    for seed in range(45):
+        accepted = []
+        for split, split_provider in split_providers.items():
+            try:
+                split_provider(seed)
+                accepted.append(split)
+            except ValueError as error:
+                assert "belongs to" in str(error)
+        assert accepted == [split_of_seed(seed)]
+        assert seed % 3 == SPLIT_SEED_OFFSETS[accepted[0]]
+
+
+def test_sample_seed_stays_in_partition_and_range(split_providers):
+    class Extreme:
+        def __init__(self, pick):
+            self.pick = pick
+
+        def integers(self, low, high):
+            return low if self.pick == "low" else high - 1
+
+    for split, split_provider in split_providers.items():
+        offset = SPLIT_SEED_OFFSETS[split]
+        samples = [split_provider.sample_seed(np.random.default_rng(i)) for i in range(200)]
+        assert all(s % 3 == offset and 0 <= s < SAMPLED_SEED_LIMIT for s in samples)
+        assert len(set(samples)) == 200
+        assert split_provider.sample_seed(Extreme("low")) == offset
+        highest = split_provider.sample_seed(Extreme("high"))
+        # The largest draw is the split's last seed below the limit.
+        assert highest % 3 == offset and highest < SAMPLED_SEED_LIMIT <= highest + 3
+        assert split_provider.sample_seed(np.random.default_rng(7)) == split_provider.sample_seed(np.random.default_rng(7))
+
+
+def test_splits_never_share_instances_for_same_generation_index(split_providers):
+    for index in range(25):
+        scenarios = {split: split_provider(3 * index + SPLIT_SEED_OFFSETS[split])
+                     for split, split_provider in split_providers.items()}
+        assert len({s.vessels for s in scenarios.values()}) == 3
+        assert len({s.content_fingerprint for s in scenarios.values()}) == 3
+        assert len({s.scenario_id for s in scenarios.values()}) == 3
+        for split, scenario in scenarios.items():
+            assert scenario.scenario_id == f"step8_split_{split}_seed{scenario.seed}"
+            assert scenario.split == split
+
+
+def test_env_samples_split_seeds_deterministically(split_providers):
+    first_ids = {}
+    for split, split_provider in split_providers.items():
+        env = StaticBAPEnv(scenario_provider=split_provider, max_vessels=6)
+        _, info = env.reset(seed=42)
+        expected = split_provider.sample_seed(seeding.np_random(42)[0])
+        assert info["scenario_seed"] == expected and expected % 3 == SPLIT_SEED_OFFSETS[split]
+        assert f"_{split}_seed" in info["scenario_id"]
+        later = [env.reset()[1]["scenario_seed"] for _ in range(5)]
+        assert all(split_of_seed(seed) == split for seed in later)
+        assert env.reset(seed=42)[1] == info
+        first_ids[split] = (info["scenario_id"], info["scenario_fingerprint"])
+    assert len({ids for ids, _ in first_ids.values()}) == len({fp for _, fp in first_ids.values()}) == 3
+
+
+def test_plain_callable_provider_keeps_uniform_draw(manual_static_scenario):
+    env = StaticBAPEnv(scenario_provider=lambda seed: replace(manual_static_scenario, seed=seed), max_vessels=3)
+    _, info = env.reset(seed=42)
+    assert info["scenario_seed"] == int(seeding.np_random(42)[0].integers(0, PROVIDER_SEED_UPPER_BOUND))

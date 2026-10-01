@@ -69,6 +69,8 @@ def test_cutoff_artifacts_never_supply_certified_metrics(manual_static_scenario,
                                     ("manifest.json", "run_summary.json", "solver_diagnostics.json")]
     assert manifest["status"] == summary["status"] == status
     assert diagnostics["termination_reason"] == "node_limit"
+    assert manifest["failure_type"] == ("search_limit_reached" if incumbent == "none" else None)
+    assert manifest["optimality_status"] == ("failed" if incumbent == "none" else "feasible")
     assert summary["objective_value"] is None
     assert summary["total_waiting_time_min"] is None
     assert summary["optimality_gap"] is diagnostics["certified_optimal_objective"] is None
@@ -101,6 +103,55 @@ def test_size_limit_record_and_error_record(manual_static_scenario, tmp_path, mo
     assert result.solver_diagnostics.optimality_status == "failed"
     assert "controlled core failure" in result.manifest.failure_message
     assert result.summary.certified_optimal_objective is None
+    # A genuine error keeps its exception class; it is never a search limit.
+    assert result.manifest.failure_type == result.solver_diagnostics.failure_type == "RuntimeError"
+    assert result.solver_diagnostics.termination_reason is None
+    assert result.summary.validation_status == "exception"
+
+
+@pytest.mark.parametrize("limit,optimality", [("time_limit", "timeout"), ("node_limit", "failed")])
+def test_limit_without_incumbent_is_classified_not_raised(manual_static_scenario, tmp_path, monkeypatch,
+                                                         limit, optimality):
+    if limit == "time_limit":
+        from berth_allocation_lab.solvers import candidate_enumeration as module
+        ticks = iter([0])
+        monkeypatch.setattr(module, "perf_counter", lambda: next(ticks, 2))
+        config = Config(time_limit_seconds=1, initial_incumbent="none")
+    else:
+        config = Config(max_search_nodes=1, initial_incumbent="none")
+    result = run_static_policy(manual_static_scenario, Solver(config), tmp_path, run_id=limit)
+    root = tmp_path / limit
+    manifest, summary, diagnostics = [read_json(root, name) for name in
+                                    ("manifest.json", "run_summary.json", "solver_diagnostics.json")]
+    assert manifest["status"] == summary["status"] == "failed"
+    assert manifest["failure_type"] == diagnostics["failure_type"] == "search_limit_reached"
+    assert manifest["optimality_status"] == summary["optimality_status"] == diagnostics["optimality_status"] == optimality
+    assert diagnostics["termination_reason"] == limit
+    assert limit in manifest["failure_message"] and "ValueError" not in manifest["failure_message"]
+    assert summary["validation_status"] == "search_limit_reached"
+    for key in ("objective_value", "total_waiting_time_min", "mean_waiting_time_min", "p95_waiting_time_min",
+                "mean_turnaround_time_min", "berth_utilization", "best_feasible_objective",
+                "certified_optimal_objective", "optimality_gap"):
+        assert summary[key] is None, key
+    assert diagnostics["best_feasible_objective"] is diagnostics["certified_optimal_objective"] is None
+    assert read_json(root, "violations.json") == []
+    assert read_json(root, "incumbent_metrics.json")["metrics"] is None
+    assert summary["vessel_count_completed"] == 0 and summary["vessel_count_unresolved"] == 3
+    assert not result.summary.is_valid and result.placements == ()
+
+
+def test_runner_error_is_not_masked_by_limit_diagnostics(manual_static_scenario):
+    class WrongScenario(Solver):
+        def schedule(self, scenario):
+            result = super().schedule(scenario)
+            return replace(result, solver_diagnostics=replace(result.solver_diagnostics,
+                                                              scenario_fingerprint="other"))
+
+    result = run_static_policy(manual_static_scenario,
+                               WrongScenario(Config(max_search_nodes=1, initial_incumbent="none")))
+    assert result.manifest.failure_type == result.solver_diagnostics.failure_type == "ValueError"
+    assert "different scenario" in result.manifest.failure_message
+    assert result.manifest.optimality_status == "failed"
 
 
 def test_bad_certified_objective_is_not_persisted_as_optimal(manual_static_scenario, tmp_path):
