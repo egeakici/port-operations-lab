@@ -32,7 +32,8 @@ from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecEnv
 
 from berth_allocation_lab.envs import MIXTURE_SELECTION_VERSION, MixtureScenarioProvider, StaticBAPEnv
 from berth_allocation_lab.policies import StaticFCFS, StaticGreedyRollout
-from berth_allocation_lab.rl.config import SELECTION_METRIC, StaticPPOExperimentConfig
+from berth_allocation_lab.rl.candidate_scoring import CandidateScoringMaskablePolicy
+from berth_allocation_lab.rl.config import CANDIDATE_ARCHITECTURE, SELECTION_METRIC, StaticPPOExperimentConfig
 from berth_allocation_lab.rl.evaluation import is_improvement, validation_waiting
 from berth_allocation_lab.rl.progress import progress_bar
 from berth_allocation_lab.rl.policy import (
@@ -306,9 +307,11 @@ def train_static_ppo(
         "experiment_id": config.experiment_id,
         "experiment_version": config.experiment_version,
         "policy_id": config.policy_id,
+        "policy_architecture": config.policy_architecture,
+        "architecture_hyperparameters": asdict(config.architecture) if config.policy_architecture == CANDIDATE_ARCHITECTURE else {"net_arch": config.ppo.policy_kwargs()["net_arch"]},
         "policy_family": "maskable_ppo",
         "algorithm": "MaskablePPO",
-        "algorithm_version": "v1",
+        "algorithm_version": "v2" if config.policy_architecture == CANDIDATE_ARCHITECTURE else "v1",
         "formulation": "static",
         "training_seed": training_seed,
         "action_masking_enabled": True,
@@ -316,7 +319,7 @@ def train_static_ppo(
         "total_timesteps_requested": total,
         "eval_freq": frequency,
         "hyperparameters": asdict(config.ppo),
-        "policy_kwargs": config.ppo.policy_kwargs(),
+        "policy_kwargs": config.policy_kwargs(),
         "config_source": _relative(config.source_path, root),
         "config_sha256": config.source_sha256,
         "overrides": json.loads(json.dumps(overrides, default=str)),
@@ -359,11 +362,12 @@ def train_static_ppo(
         ppo = config.ppo
         vec_env = _training_vec_env(config, train_mixture)
         model = MaskablePPO(
-            ppo.policy, vec_env,
+            CandidateScoringMaskablePolicy if config.policy_architecture == CANDIDATE_ARCHITECTURE else ppo.policy,
+            vec_env,
             gamma=ppo.gamma, learning_rate=ppo.learning_rate, n_steps=ppo.n_steps,
             batch_size=ppo.batch_size, n_epochs=ppo.n_epochs, gae_lambda=ppo.gae_lambda,
             clip_range=ppo.clip_range, ent_coef=ppo.ent_coef, vf_coef=ppo.vf_coef,
-            max_grad_norm=ppo.max_grad_norm, policy_kwargs=ppo.policy_kwargs(),
+            max_grad_norm=ppo.max_grad_norm, policy_kwargs=config.policy_kwargs(),
             seed=training_seed, device=device or ppo.device, verbose=0,
         )
         if ppo.n_envs > 1:
@@ -378,6 +382,7 @@ def train_static_ppo(
             "time_scale_min": config.time_scale_min, "length_scale_m": config.length_scale_m,
             "reward_scale": config.reward_scale, "policy": ppo.policy,
             "net_arch": ppo.policy_kwargs()["net_arch"], "gamma": ppo.gamma,
+            "policy_id": config.policy_id,
             "git_commit_hash": git_commit, "git_dirty": git_dirty,
         }
 

@@ -29,6 +29,7 @@ from berth_allocation_lab.tracking.git_metadata import get_git_metadata
 
 
 DECISION_RULE_VERSION = "static_ppo_v1_extended_validation_rule_v1"
+V2_DECISION_RULE_VERSION = "v2_rule_1"
 DECISION_RULE_REFERENCE = "docs/static_maskable_ppo.md#extended-v1-campaign"
 TINY_GAP_CLOSURE_THRESHOLD = 0.25
 MEDIUM_HEAVY_FCFS_RATIO_THRESHOLD = 1.10
@@ -87,6 +88,8 @@ def regime_decision(kind: str, config: StaticPPOExperimentConfig,
             "selected_timesteps": selection.get("selected_timesteps"),
             "checkpoint_id": None if best is None else best["model_id"],
             "checkpoint_sha256": None if best is None else _sha256(run_dir / best["path"]),
+            "validation_physical_fingerprints": [r["physical_fingerprint"] for r in
+                                                 manifest.get("validation_scenario_set", [])],
             "ppo_validation_mean_min": ppo,
             "fcfs_validation_mean_min": fcfs,
             "rollout_validation_mean_min": rollout,
@@ -161,8 +164,9 @@ def verify_validation_decision(path: str | Path, config: StaticPPOExperimentConf
     if sidecar.read_text(encoding="utf-8").split()[0] != digest:
         raise ValidationDecisionError("Validation decision does not match its recorded SHA-256.")
     decision = json.loads(path.read_text(encoding="utf-8"))
-    if decision.get("decision_rule_version") != DECISION_RULE_VERSION or not decision.get(
-            "final_testing_permitted"):
+    expected_rule = (V2_DECISION_RULE_VERSION if config.policy_architecture == "candidate_scoring_v2"
+                     else DECISION_RULE_VERSION)
+    if decision.get("decision_rule_version") != expected_rule or not decision.get("final_testing_permitted"):
         raise ValidationDecisionError("The recorded decision does not permit final testing.")
     regime = next((r for r in decision["regimes"].values() if r["experiment_id"] == config.experiment_id
                    and r["config_sha256"] == config.source_sha256), None)
@@ -172,6 +176,95 @@ def verify_validation_decision(path: str | Path, config: StaticPPOExperimentConf
     for model_id, digest_value in checkpoint_hashes.items():
         if selected.get(model_id) != digest_value:
             raise ValidationDecisionError(f"Checkpoint {model_id} was not the recorded selection.")
-    return {"path": path.as_posix(), "sha256": digest, "decision_rule_version": DECISION_RULE_VERSION,
+    return {"path": path.as_posix(), "sha256": digest, "decision_rule_version": expected_rule,
             "regime": regime["regime"], "criterion_met": regime["criterion_met"],
             "conclusion": decision["conclusion"]}
+
+
+def compare_validation_architectures(v1: list[float], v2: list[float],
+                                     fcfs: float, rollout: float) -> dict[str, Any]:
+    """Frozen v2_rule_1 on matched training seeds; no test data are accepted."""
+
+    if len(v1) != 3 or len(v2) != 3:
+        raise ValidationDecisionError("Exactly three matched seeds are required per architecture.")
+    mean_v1, mean_v2 = sum(v1) / 3, sum(v2) / 3
+    paired_wins = sum(new < old for old, new in zip(v1, v2))
+    v2_better = mean_v2 < mean_v1 and paired_wins >= 2
+    v1_better_or_equal = mean_v1 <= mean_v2
+    denominator = fcfs - rollout
+    return {
+        "v1_mean_validation_waiting_min": mean_v1,
+        "v2_mean_validation_waiting_min": mean_v2,
+        "v2_paired_seed_wins": paired_wins,
+        "v2_better": v2_better,
+        "v1_better_or_equal": v1_better_or_equal,
+        "winner": "v2" if v2_better else "v1" if v1_better_or_equal else "mixed",
+        "fcfs_validation_mean_min": fcfs, "rollout_validation_mean_min": rollout,
+        "v1_gap_closed": None if denominator <= 0 else (fcfs - mean_v1) / denominator,
+        "v2_gap_closed": None if denominator <= 0 else (fcfs - mean_v2) / denominator,
+    }
+
+
+def record_v2_validation_decision(regimes: dict[str, tuple[Any, list[Path], Any, list[Path]]],
+                                  output: str | Path) -> dict[str, Any]:
+    """Persist v1-v2 validation comparison once, with checkpoint hashes."""
+
+    output = Path(output)
+    if output.exists() or output.with_name(output.name + ".sha256").exists():
+        raise FileExistsError("v2 validation decision already exists.")
+    results = {}
+    for name, (old_config, old_dirs, new_config, new_dirs) in regimes.items():
+        old = regime_decision(name, old_config, old_dirs)
+        new = regime_decision(name, new_config, new_dirs)
+        if not old["complete"] or not new["complete"]:
+            raise ValidationDecisionError(f"{name}: all six run manifests must be complete and config-matched.")
+        old_seeds = {s["training_seed"]: s for s in old["seeds"]}
+        new_seeds = {s["training_seed"]: s for s in new["seeds"]}
+        if sorted(old_seeds) != sorted(new_seeds):
+            raise ValidationDecisionError(f"{name}: training seeds are not matched.")
+        ordered = sorted(old_seeds)
+        validation_suites = [tuple(s["validation_physical_fingerprints"])
+                             for s in (*old_seeds.values(), *new_seeds.values())]
+        if len(set(validation_suites)) != 1:
+            raise ValidationDecisionError(f"{name}: validation scenario fingerprints differ.")
+        fcfs = old_seeds[ordered[0]]["fcfs_validation_mean_min"]
+        rollout = old_seeds[ordered[0]]["rollout_validation_mean_min"]
+        if any(s["fcfs_validation_mean_min"] != fcfs or
+               s["rollout_validation_mean_min"] != rollout for s in (*old_seeds.values(), *new_seeds.values())):
+            raise ValidationDecisionError(f"{name}: validation baselines differ across versions or seeds.")
+        compared = compare_validation_architectures(
+            [old_seeds[s]["ppo_validation_mean_min"] for s in ordered],
+            [new_seeds[s]["ppo_validation_mean_min"] for s in ordered], fcfs, rollout)
+        paired = [{"training_seed": seed,
+                   "v1_validation_waiting_min": old_seeds[seed]["ppo_validation_mean_min"],
+                   "v2_validation_waiting_min": new_seeds[seed]["ppo_validation_mean_min"],
+                   "v2_minus_v1_min": (new_seeds[seed]["ppo_validation_mean_min"] -
+                                       old_seeds[seed]["ppo_validation_mean_min"]),
+                   "v2_lower": (new_seeds[seed]["ppo_validation_mean_min"] <
+                                old_seeds[seed]["ppo_validation_mean_min"])} for seed in ordered]
+        new_records = [{key: value for key, value in new_seeds[seed].items()
+                        if key not in {"passes", "gap_closure", "ppo_over_fcfs"}}
+                       for seed in ordered]
+        results[name] = {**compared, "regime": name, "experiment_id": new_config.experiment_id,
+                         "config_sha256": new_config.source_sha256,
+                         "v1_experiment_id": old_config.experiment_id,
+                         "v1_config_sha256": old_config.source_sha256,
+                         "matched_seeds": ordered, "paired_validation": paired,
+                         "v1_seeds": old["seeds"], "seeds": new_records,
+                         "criterion_met": compared["v2_better"]}
+    winners = [r["winner"] for r in results.values()]
+    conclusion = winners[0] if len(set(winners)) == 1 and winners[0] in {"v1", "v2"} else "mixed"
+    commit, dirty = get_git_metadata()
+    decision = {"decision_rule_version": V2_DECISION_RULE_VERSION,
+                "decision_rule_reference": "docs/static_maskable_ppo.md#v2-candidate-scoring-campaign-pre-registered-v2_rule_1",
+                "decided_at": datetime.now(timezone.utc).isoformat(),
+                "source_git_commit": commit, "source_git_dirty_at_decision": dirty,
+                "uses_test_results": False, "regimes": results, "conclusion": conclusion,
+                "final_testing_permitted": True}
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("x", encoding="utf-8") as file:
+        json.dump(decision, file, indent=2, sort_keys=True)
+    digest = _sha256(output)
+    with output.with_name(output.name + ".sha256").open("x", encoding="utf-8") as file:
+        file.write(f"{digest}  {output.name}\n")
+    return {**decision, "sha256": digest}

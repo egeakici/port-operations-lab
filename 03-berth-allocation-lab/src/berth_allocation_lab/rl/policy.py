@@ -25,7 +25,9 @@ from sb3_contrib import MaskablePPO
 from berth_allocation_lab.data import BAPScenarioInstance
 from berth_allocation_lab.envs import ENVIRONMENT_VERSION, OBSERVATION_VERSION, StaticBAPEnv
 from berth_allocation_lab.policies.base import StaticScheduleResult
-from berth_allocation_lab.rl.config import POLICY_ID
+from berth_allocation_lab.rl.candidate_scoring import CandidateScoringMaskablePolicy
+from berth_allocation_lab.rl.config import (CANDIDATE_ARCHITECTURE, FLAT_ARCHITECTURE,
+                                            POLICY_ID, V2_POLICY_ID)
 
 
 MODEL_METADATA_VERSION = 1
@@ -71,21 +73,31 @@ def metadata_path(checkpoint: str | Path) -> Path:
 def build_model_metadata(model: MaskablePPO, metadata: dict[str, Any]) -> dict[str, Any]:
     """Versioned model record; ``metadata`` adds run fields (seed, scales, ...)."""
 
+    architecture = (CANDIDATE_ARCHITECTURE if isinstance(model.policy, CandidateScoringMaskablePolicy)
+                    else FLAT_ARCHITECTURE)
     return {
         "model_metadata_version": MODEL_METADATA_VERSION,
         "policy_id": POLICY_ID,
         "policy_family": "maskable_ppo",
         "algorithm": "MaskablePPO",
-        "algorithm_version": "v1",
+        "algorithm_version": "v2" if architecture == CANDIDATE_ARCHITECTURE else "v1",
         "environment_id": ENVIRONMENT_ID,
         "environment_version": ENVIRONMENT_VERSION,
         "observation_definition_version": OBSERVATION_VERSION,
         "reward_definition_version": REWARD_DEFINITION_VERSION,
         "candidate_generator_version": CANDIDATE_GENERATOR_VERSION,
         "action_capacity": int(model.action_space.n),
+        "policy_architecture": architecture,
+        "architecture_hyperparameters": (
+            {key: list(value) if isinstance(value, tuple) else value
+             for key, value in model.policy._get_constructor_parameters().items()
+             if key in {"vessel_embedding_dim", "context_dim", "scorer_layers", "value_layers"}}
+            if architecture == CANDIDATE_ARCHITECTURE else
+            {"net_arch": model.policy.net_arch}),
         "dependency_versions": dependency_versions(),
         "created_at": datetime.now(timezone.utc).isoformat(),
         **metadata,
+        "policy_architecture": architecture,
     }
 
 
@@ -99,7 +111,8 @@ def save_checkpoint(model: MaskablePPO, path: str | Path, metadata: dict[str, An
     return path
 
 
-def load_checkpoint(path: str | Path, device: str = "cpu") -> tuple[MaskablePPO, dict[str, Any]]:
+def load_checkpoint(path: str | Path, device: str = "cpu", *,
+                    expected_architecture: str | None = None) -> tuple[MaskablePPO, dict[str, Any]]:
     path = Path(path)
     sidecar = metadata_path(path)
     if not path.is_file() or not sidecar.is_file():
@@ -110,15 +123,23 @@ def load_checkpoint(path: str | Path, device: str = "cpu") -> tuple[MaskablePPO,
     model = MaskablePPO.load(path, device=device)
     if int(model.action_space.n) != metadata.get("action_capacity"):
         raise CheckpointCompatibilityError("Checkpoint action space differs from its metadata.")
+    architecture = metadata.get("policy_architecture", FLAT_ARCHITECTURE)
+    actual = (CANDIDATE_ARCHITECTURE if isinstance(model.policy, CandidateScoringMaskablePolicy)
+              else FLAT_ARCHITECTURE)
+    if architecture != actual or (expected_architecture is not None and architecture != expected_architecture):
+        raise CheckpointCompatibilityError("Checkpoint policy_architecture differs from requested/model architecture.")
     return model, metadata
 
 
 def check_checkpoint_compatibility(metadata: dict[str, Any], model: MaskablePPO,
-                                   env: StaticBAPEnv) -> None:
+                                   env: StaticBAPEnv, *, expected_architecture: str | None = None) -> None:
     """Reject a checkpoint whose schema, capacity, scales or spaces differ."""
 
+    architecture = metadata.get("policy_architecture", FLAT_ARCHITECTURE)
+    actual = (CANDIDATE_ARCHITECTURE if isinstance(model.policy, CandidateScoringMaskablePolicy)
+              else FLAT_ARCHITECTURE)
     expected = {
-        "policy_id": POLICY_ID,
+        "policy_id": V2_POLICY_ID if actual == CANDIDATE_ARCHITECTURE else POLICY_ID,
         "environment_version": ENVIRONMENT_VERSION,
         "observation_definition_version": OBSERVATION_VERSION,
         "max_vessels": env.max_vessels,
@@ -128,6 +149,15 @@ def check_checkpoint_compatibility(metadata: dict[str, Any], model: MaskablePPO,
     }
     errors = [f"{key}: checkpoint {metadata.get(key)!r} != environment {value!r}"
               for key, value in expected.items() if metadata.get(key) != value]
+    if architecture != actual or (expected_architecture is not None and architecture != expected_architecture):
+        errors.append("policy_architecture differs from model or requested architecture")
+    if actual == CANDIDATE_ARCHITECTURE:
+        saved = metadata.get("architecture_hyperparameters") or {}
+        for key in ("vessel_embedding_dim", "context_dim", "scorer_layers", "value_layers"):
+            if saved.get(key) != getattr(model.policy, key):
+                if not (isinstance(getattr(model.policy, key), tuple) and
+                        saved.get(key) == list(getattr(model.policy, key))):
+                    errors.append(f"architecture_hyperparameters.{key} differs from model")
     if int(model.action_space.n) != env.action_capacity:
         errors.append("model action space differs from environment action capacity")
     if model.observation_space != env.observation_space:
@@ -161,11 +191,13 @@ class MaskablePPOStaticPolicy:
     algorithm_version = "v1"
 
     def __init__(self, model: MaskablePPO, metadata: dict[str, Any]) -> None:
-        if metadata.get("policy_id") != POLICY_ID:
-            raise CheckpointCompatibilityError(f"Checkpoint policy_id must be {POLICY_ID}.")
+        expected = V2_POLICY_ID if isinstance(model.policy, CandidateScoringMaskablePolicy) else POLICY_ID
+        if metadata.get("policy_id") != expected:
+            raise CheckpointCompatibilityError(f"Checkpoint policy_id must be {expected}.")
         self.model = model
         self.metadata = dict(metadata)
-        self.policy_id = POLICY_ID
+        self.policy_id = expected
+        self.algorithm_version = "v2" if expected == V2_POLICY_ID else "v1"
 
     @classmethod
     def load(cls, path: str | Path, device: str = "cpu") -> "MaskablePPOStaticPolicy":

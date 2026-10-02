@@ -21,6 +21,9 @@ from berth_allocation_lab.scenarios import SyntheticScenarioConfig
 
 RL_CONFIG_SCHEMA_VERSION = 1
 POLICY_ID = "static_maskable_ppo_v1"
+V2_POLICY_ID = "static_maskable_ppo_v2"
+FLAT_ARCHITECTURE = "flat_mlp_v1"
+CANDIDATE_ARCHITECTURE = "candidate_scoring_v2"
 SUPPORTED_POLICY = "MultiInputPolicy"
 SELECTION_METRIC = "mean_validation_total_waiting_time_min"
 DEFAULT_REWARD_SCALE = 1.0 / 1440.0
@@ -86,6 +89,18 @@ class PPOHyperparameters:
 
 
 @dataclass(frozen=True)
+class CandidateArchitecture:
+    vessel_embedding_dim: int = 64
+    context_dim: int = 128
+    scorer_layers: tuple[int, ...] = (128, 128)
+    value_layers: tuple[int, ...] = (128, 128)
+
+    def policy_kwargs(self) -> dict[str, Any]:
+        return {"vessel_embedding_dim": self.vessel_embedding_dim, "context_dim": self.context_dim,
+                "scorer_layers": self.scorer_layers, "value_layers": self.value_layers}
+
+
+@dataclass(frozen=True)
 class TrainingSettings:
     training_seeds: tuple[int, ...]
     total_timesteps: int
@@ -124,6 +139,8 @@ class StaticPPOExperimentConfig:
     prior_configs: tuple[str, ...] = ()
     require_validation_decision: bool = False
     policy_id: str = POLICY_ID
+    policy_architecture: str = FLAT_ARCHITECTURE
+    architecture: CandidateArchitecture = field(default_factory=CandidateArchitecture)
     selection_metric: str = SELECTION_METRIC
     schema_version: int = RL_CONFIG_SCHEMA_VERSION
     source_path: str | None = field(default=None, compare=False)
@@ -142,7 +159,7 @@ class StaticPPOExperimentConfig:
         _reject_unknown(data, {
             "schema_version", "experiment_id", "experiment_version", "description", "max_vessels",
             "time_scale_min", "length_scale_m", "reward_scale", "exact_max_vessels", "output_dir",
-            "policy_id", "selection_metric", "components", "training", "ppo", "validation", "test",
+            "policy_id", "policy_architecture", "architecture", "selection_metric", "components", "training", "ppo", "validation", "test",
             "diagnostics", "seed_exclusive_suites", "prior_configs", "require_validation_decision",
         }, "experiment")
         components = tuple(_component(c) for c in _list(data, "components"))
@@ -154,6 +171,11 @@ class StaticPPOExperimentConfig:
                               if not f.startswith("net_arch")}, "ppo")
         if not isinstance(net_arch, dict) or set(net_arch) != {"pi", "vf"}:
             raise RLConfigError("ppo.net_arch must define exactly pi and vf layer lists.")
+        architecture = dict(data.get("architecture", {}) or {})
+        _reject_unknown(architecture, set(CandidateArchitecture.__dataclass_fields__), "architecture")
+        for layers in ("scorer_layers", "value_layers"):
+            if layers in architecture:
+                architecture[layers] = tuple(architecture[layers])
         config = cls(
             schema_version=data.get("schema_version", RL_CONFIG_SCHEMA_VERSION),
             experiment_id=data.get("experiment_id"),
@@ -169,6 +191,8 @@ class StaticPPOExperimentConfig:
             prior_configs=tuple(data.get("prior_configs", ()) or ()),
             require_validation_decision=data.get("require_validation_decision", False),
             policy_id=data.get("policy_id", POLICY_ID),
+            policy_architecture=data.get("policy_architecture", FLAT_ARCHITECTURE),
+            architecture=CandidateArchitecture(**architecture),
             selection_metric=data.get("selection_metric", SELECTION_METRIC),
             components=components,
             training=TrainingSettings(
@@ -196,8 +220,18 @@ class StaticPPOExperimentConfig:
         for name in ("time_scale_min", "length_scale_m", "reward_scale"):
             _positive_number(getattr(self, name), name)
         _text(self.output_dir, "output_dir")
-        if self.policy_id != POLICY_ID:
-            raise RLConfigError(f"policy_id must be {POLICY_ID}.")
+        expected_id = {FLAT_ARCHITECTURE: POLICY_ID,
+                       CANDIDATE_ARCHITECTURE: V2_POLICY_ID}.get(self.policy_architecture)
+        if expected_id is None or self.policy_id != expected_id:
+            raise RLConfigError("policy_id must match policy_architecture.")
+        for name in ("vessel_embedding_dim", "context_dim"):
+            _positive_int(getattr(self.architecture, name), f"architecture.{name}")
+        for name in ("scorer_layers", "value_layers"):
+            layers = getattr(self.architecture, name)
+            if not layers:
+                raise RLConfigError(f"architecture.{name} must be non-empty.")
+            for width in layers:
+                _positive_int(width, f"architecture.{name} width")
         if self.selection_metric != SELECTION_METRIC:
             raise RLConfigError(f"selection_metric must be {SELECTION_METRIC}.")
         if not self.components:
@@ -268,6 +302,12 @@ class StaticPPOExperimentConfig:
 
     def resolve(self, relative: str) -> Path:
         return _resolve(self.project_root(), relative)
+
+    def policy_kwargs(self) -> dict[str, Any]:
+        kwargs = self.ppo.policy_kwargs()
+        if self.policy_architecture == CANDIDATE_ARCHITECTURE:
+            kwargs.update(self.architecture.policy_kwargs())
+        return kwargs
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

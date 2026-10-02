@@ -1,0 +1,72 @@
+# Candidate-scoring v2; experimental settings match static_ppo_tiny_extended.yaml.
+schema_version: 1
+experiment_id: static_ppo_tiny_v2
+experiment_version: 1
+description: Extended v1 run of the tiny congested 6/7/8-vessel regime.
+max_vessels: 8
+time_scale_min: 1440.0
+length_scale_m: 1000.0
+reward_scale: 0.0006944444444444445
+exact_max_vessels: 8
+output_dir: experiments/rl/extended_v1
+seed_exclusive_suites: true
+require_validation_decision: true
+policy_id: static_maskable_ppo_v2
+policy_architecture: candidate_scoring_v2
+prior_configs:
+  - configs/rl/static_ppo_smoke.yaml
+  - configs/rl/static_ppo_tiny.yaml
+  - configs/rl/static_ppo_medium_heavy.yaml
+components:
+  - name: tiny_n6
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: bap_tiny_n6
+    vessel_count: 6
+    weight: 1.0
+    excluded_seeds: [0, 1, 42]
+  - name: tiny_n7
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: bap_tiny_n7
+    vessel_count: 7
+    weight: 1.0
+    excluded_seeds: [0, 1, 42]
+  - name: tiny_n8
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: bap_tiny_n8
+    vessel_count: 8
+    weight: 1.0
+    excluded_seeds: [0, 1, 42]
+training:
+  training_seeds: [11, 23, 37]
+  total_timesteps: 300000
+  eval_freq: 10000
+ppo:
+  policy: MultiInputPolicy
+  gamma: 1.0
+  learning_rate: 0.0003
+  n_envs: 8
+  vec_env: dummy
+  n_steps: 256
+  batch_size: 256
+  n_epochs: 10
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  net_arch: {pi: [128, 128], vf: [128, 128]}
+  device: cpu
+validation:
+  seeds_per_component: 20
+  first_seed: 1000000
+test:
+  seeds_per_component: 50
+  first_seed: 2000000
+diagnostics:
+  - name: low_traffic
+    seeds_per_component: 20
+    first_seed: 3000000
+    components:
+      - name: low
+        source_config: configs/scenarios/synthetic_low.yaml
+        base_scenario_id: bap_low

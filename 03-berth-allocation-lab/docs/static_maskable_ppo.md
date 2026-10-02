@@ -499,6 +499,50 @@ to the stronger Rollout baseline. Future questions include candidate-scoring
 architectures, richer training distributions, and replication on fresh
 empirically calibrated scenarios; none was started in this campaign.
 
+## v2 Candidate-Scoring Campaign (pre-registered, `v2_rule_1`)
+
+This rule is frozen before any v2 training. The flat v1 MLP gives each
+candidate slot separate output weights; v2 shares one scoring network across
+candidate rows. The hypothesis is faster and better learning of a common
+placement rule. Extended v1 validation closed about 64% of the FCFS-to-Rollout
+gap in tiny after a plateau around 60-100k steps. MEDIUM/HEAVY was still
+improving near 500k steps, at approximately 1.06-1.11 times FCFS. These are
+validation observations, not a reason to alter v2's frozen settings.
+
+v2 uses `static_obs_v1` unchanged, a shared vessel encoder with masked
+mean/max pooling, a global context network, a shared per-candidate scorer,
+and a value head using masked candidate embeddings. Its budgets, PPO settings,
+training seeds, suite seeds, and evaluation protocol match extended v1.
+Default dimensions are a 64-unit vessel embedding, 128-unit context,
+two 128-unit candidate-scorer layers and two 128-unit value layers.
+`policy_architecture` defaults to `flat_mlp_v1` for old configurations;
+the new v2 configurations select `candidate_scoring_v2` explicitly.
+
+**Decision rule (`v2_rule_1`, validation only).** Use each seed's
+`best_validation_model.zip`. For each regime, v2 is better than v1 only if
+the mean of the three v2 seed validation-waiting means is strictly lower than
+the mean of the three matched v1 seed means **and** v2 is strictly lower for
+at least two of the three matched seeds. A tie is not a win. Carry v2 to
+Step 11 dynamic PPO if v2 is better in both regimes; carry v1 if v1 is better
+or equal in both; otherwise report a mixed result and defer the architecture
+choice to a documented discussion. Report the fraction of the FCFS-to-Rollout
+validation gap closed for each regime and version; if the denominator is not
+positive, the fraction is undefined. Record this validation decision once,
+before opening v2 test results, in an exclusive-creation JSON artifact with
+a SHA-256 sidecar. Final test results for both versions use identical frozen
+scenarios, paired per scenario, and never change this decision.
+
+After all six v2 runs have finished, the validation-only decision can be
+recorded with the additional `--mode v2` of
+`scripts/record_validation_decision.py`, passing the extended v1 configs as
+`--tiny-config` / `--medium-heavy-config`, the new configs as
+`--v2-tiny-config` / `--v2-medium-heavy-config`, and a new output path. The
+file and its `.sha256` sidecar are created exclusively. Only after that
+decision should both versions be evaluated on the shared test suites.
+`scripts/compare_static_ppo_versions.py --v1-evaluation <dir>
+--v2-evaluation <dir> --output <new-json>` checks physical fingerprints before
+reporting paired scenario differences and family/seed summaries.
+
 ## Known Limitations
 
 - Fixed vessel order and the finite candidate model: PPO cannot beat the
