@@ -224,27 +224,45 @@ runtimes, validity, paired deltas, exact fields), `aggregate.json`,
 
 ```bash
 # smoke (pipeline only)
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_smoke.yaml
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_smoke.yaml --progress
 
 # multi-seed pilot (3 seeds x 10k timesteps per regime)
 python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny.yaml \
-    --total-timesteps 10000 --eval-freq 2000 --output-dir experiments/rl/pilot
+    --total-timesteps 10000 --eval-freq 2000 --output-dir experiments/rl/pilot --progress
 python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy.yaml \
-    --total-timesteps 10000 --eval-freq 2000 --output-dir experiments/rl/pilot
+    --total-timesteps 10000 --eval-freq 2000 --output-dir experiments/rl/pilot --progress
 
 # held-out paired evaluation (test suite + diagnostics), no retraining
 python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny.yaml \
     --experiment-dir experiments/rl/pilot/static_ppo_tiny_v1 \
-    --output experiments/rl/pilot_evaluations/static_ppo_tiny_v1
+    --output experiments/rl/pilot_evaluations/static_ppo_tiny_v1 --progress
 
 # learning curves
 python scripts/plot_static_ppo_learning.py \
     --experiment-dir experiments/rl/pilot/static_ppo_tiny_v1 --output tiny_curves.png
 
 # extended experiment (config default budget, explicit launch)
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny.yaml
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy.yaml
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny.yaml --progress
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy.yaml --progress
 ```
+
+`--progress` defaults to off and uses plain `tqdm` (no rich renderer). New display
+output is stderr-only; the scripts' existing summaries/reports stay on stdout.
+Each training seed has a timestep bar labeled with the experiment/regime ID,
+seed and its index among the requested seeds. The postfix shows learning steps/s
+(elapsed learning time excluding validation), latest/best validation waiting
+and FCFS/Rollout validation means, rounded to one decimal minute. Every existing
+validation event also prints a permanent line, including timestep zero and the
+final validation. Baseline setup shows scenario progress and cache hits.
+Evaluation shows scenario counters for FCFS, Rollout, eligible Exact instances
+and each PPO checkpoint, separately for every test/diagnostic suite.
+
+The flag is display-only, never a saved override or manifest field. Scenario and
+method execution order, RNG streams, checkpoint selection, and scientific
+outputs are unchanged. Wall-clock timing measurements naturally vary, including
+display overhead. Bars close on normal completion, exceptions and interrupts.
+If PPO finishes a rollout past the requested budget, the bar stops at its
+configured total; actual completed timesteps continue to be recorded as before.
 
 ## Measured Pilot (2026-10-01)
 
@@ -360,17 +378,17 @@ Commands (Windows PowerShell, from `03-berth-allocation-lab`; each training
 command refuses to start if its run directory exists):
 
 ```powershell
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 11
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 23
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 37
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 11
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 23
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 37
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 11 --progress
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 23 --progress
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 37 --progress
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 11 --progress
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 23 --progress
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 37 --progress
 python scripts/plot_static_ppo_learning.py --experiment-dir experiments/rl/extended_v1/static_ppo_tiny_v1_extended --output experiments/rl/extended_v1/curves_tiny.png
 python scripts/plot_static_ppo_learning.py --experiment-dir experiments/rl/extended_v1/static_ppo_medium_heavy_v1_extended --output experiments/rl/extended_v1/curves_medium_heavy.png
 python scripts/record_validation_decision.py --tiny-config configs/rl/static_ppo_tiny_extended.yaml --medium-heavy-config configs/rl/static_ppo_medium_heavy_extended.yaml --output experiments/rl/extended_v1/validation_decision.json
-python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --experiment-dir experiments/rl/extended_v1/static_ppo_tiny_v1_extended --validation-decision experiments/rl/extended_v1/validation_decision.json --output experiments/rl/extended_v1/evaluation_tiny
-python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --experiment-dir experiments/rl/extended_v1/static_ppo_medium_heavy_v1_extended --validation-decision experiments/rl/extended_v1/validation_decision.json --output experiments/rl/extended_v1/evaluation_medium_heavy
+python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --experiment-dir experiments/rl/extended_v1/static_ppo_tiny_v1_extended --validation-decision experiments/rl/extended_v1/validation_decision.json --output experiments/rl/extended_v1/evaluation_tiny --progress
+python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --experiment-dir experiments/rl/extended_v1/static_ppo_medium_heavy_v1_extended --validation-decision experiments/rl/extended_v1/validation_decision.json --output experiments/rl/extended_v1/evaluation_medium_heavy --progress
 ```
 
 ## Known Limitations

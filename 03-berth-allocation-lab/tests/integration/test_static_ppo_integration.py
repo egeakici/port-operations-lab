@@ -2,6 +2,7 @@
 
 import csv
 import json
+import random
 import runpy
 from dataclasses import replace
 from pathlib import Path
@@ -290,6 +291,80 @@ def build_config_suite_mixture(vec_config):
 def test_single_environment_seeding_is_unchanged(trained):
     _, manifest = trained
     assert manifest["environment_seeds"] == [11] and manifest["n_envs"] == 1
+
+
+@pytest.mark.parametrize("n_envs", [1, 2])
+def test_progress_preserves_training_history_selection_parameters_and_rng(config, tmp_path, capsys, n_envs):
+    short = replace(config, ppo=replace(config.ppo, n_envs=n_envs, n_steps=32,
+                                       batch_size=32, n_epochs=1))
+    manifests, directories, states = [], [], []
+    for enabled in (False, True):
+        root = tmp_path / ("visible" if enabled else "quiet")
+        manifests.append(train_static_ppo(
+            short, 11, output_root=root, total_timesteps=128, eval_freq=64,
+            progress=enabled, progress_description="tiny seed 11 (1/2)",
+        ))
+        directories.append(run_directory(short, 11, root))
+        states.append((random.getstate(), np.random.get_state(), torch.get_rng_state()))
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        if enabled:
+            assert "tiny seed 11 (1/2)" in captured.err
+            assert "learning steps/s" in captured.err and "cache_hits" in captured.err
+            for step in (0, 64, 128):
+                assert f"timestep={step} validation=" in captured.err
+            assert "FCFS=" in captured.err and "Rollout=" in captured.err and "best=" in captured.err
+            assert "128/128" in captured.err
+        else:
+            assert captured.err == ""
+    assert all(m["status"] == "completed" for m in manifests)
+    assert manifests[0].keys() == manifests[1].keys()
+    for field in ("selection", "validation_baselines", "hyperparameters", "environment_seeds",
+                  "validation_scenario_set", "test_scenario_set_identities", "split_audit"):
+        assert manifests[0][field] == manifests[1][field]
+    assert states[0][0] == states[1][0]
+    for first, second in zip(states[0][1], states[1][1]):
+        np.testing.assert_equal(first, second)
+    assert torch.equal(states[0][2], states[1][2])
+    assert {p.name for p in directories[0].iterdir()} == {p.name for p in directories[1].iterdir()}
+    histories = []
+    for directory in directories:
+        history = json.loads((directory / "validation_metrics.json").read_text())
+        for entry in history["history"]:
+            entry.pop("evaluation_seconds")  # wall-clock measurements are not deterministic
+        histories.append(history)
+        assert "progress" not in json.loads((directory / "manifest.json").read_text())["overrides"]
+    assert histories[0] == histories[1]
+    for name in ("train_episodes.csv", "training_log.csv"):
+        assert (directories[0] / name).read_bytes() == (directories[1] / name).read_bytes()
+    for checkpoint in ("final_model.zip", "best_validation_model.zip"):
+        first = load_checkpoint(directories[0] / checkpoint)[0]
+        second = load_checkpoint(directories[1] / checkpoint)[0]
+        assert torch.equal(parameters(first), parameters(second))
+
+
+def test_evaluation_progress_stays_on_stderr_and_preserves_rows(trained, config, tmp_path, capsys):
+    evaluate = runpy.run_path(str(ROOT / "scripts" / "evaluate_static_ppo.py"))["main"]
+    run_dir, _ = trained
+    results = []
+    for enabled in (False, True):
+        output = tmp_path / ("visible" if enabled else "quiet")
+        args = ["--config", str(SMOKE), "--run-dir", str(run_dir), "--output", str(output),
+                "--seeds-per-component", "1"]
+        assert evaluate([*args, "--progress"] if enabled else args) == 0
+        captured = capsys.readouterr()
+        assert "cache_hits" not in captured.out
+        if enabled:
+            for suite in ("test", "low_traffic"):
+                for method in ("FCFS", "Rollout", "Exact", "PPO seed_11"):
+                    assert f"{suite} {method}" in captured.err
+        else:
+            assert captured.err == ""
+        rows = [json.loads(line) for line in (output / "per_instance.jsonl").read_text().splitlines()]
+        for row in rows:
+            row.pop("algorithm_runtime_seconds")
+        results.append(rows)
+    assert results[0] == results[1]
 
 
 def test_test_suites_require_the_recorded_decision(trained, config, tmp_path):

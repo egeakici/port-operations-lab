@@ -23,6 +23,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--eval-freq", type=int, help="Override validation frequency (recorded).")
     parser.add_argument("--output-dir", type=Path, help="Override the output root (recorded).")
     parser.add_argument("--device", choices=("cpu", "cuda", "auto"))
+    parser.add_argument("--progress", action="store_true", help="Show terminal progress on stderr only.")
     args = parser.parse_args(argv)
 
     config = StaticPPOExperimentConfig.load_yaml(args.config)
@@ -31,10 +32,11 @@ def main(argv: list[str] | None = None) -> int:
         if run_directory(config, seed, args.output_dir).exists():
             parser.error(f"{run_directory(config, seed, args.output_dir)} exists; choose --output-dir.")
     failures = 0
-    for seed in seeds:
+    for index, seed in enumerate(seeds, start=1):
         manifest = train_static_ppo(config, seed, output_root=args.output_dir,
                                     total_timesteps=args.total_timesteps, eval_freq=args.eval_freq,
-                                    device=args.device)
+                                    device=args.device, progress=args.progress,
+                                    progress_description=f"{config.experiment_id} seed {seed} ({index}/{len(seeds)})")
         selection = manifest.get("selection") or {}
         baselines = manifest.get("validation_baselines") or {}
         print(f"seed {seed}: status={manifest['status']} timesteps={manifest.get('total_timesteps_completed')} "

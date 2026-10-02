@@ -180,9 +180,13 @@ for reproducible generated instances with an explicit dataset split.
 ## Static Maskable PPO
 
 ```bash
-python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny.yaml     --total-timesteps 10000 --eval-freq 2000 --output-dir experiments/rl/pilot
-python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny.yaml     --experiment-dir experiments/rl/pilot/static_ppo_tiny_v1     --output experiments/rl/pilot_evaluations/static_ppo_tiny_v1
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny.yaml     --total-timesteps 10000 --eval-freq 2000 --output-dir experiments/rl/pilot --progress
+python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny.yaml     --experiment-dir experiments/rl/pilot/static_ppo_tiny_v1     --output experiments/rl/pilot_evaluations/static_ppo_tiny_v1 --progress
 ```
+
+`--progress` is optional (default off). Plain tqdm bars and permanent validation
+lines go to stderr; existing summary/report output remains on stdout. The display
+does not enter configs/manifests or change seeds, checkpoint selection or results.
 
 The pre-registered extended v1 campaign (300k/500k timesteps, 8 environments,
 fresh 20/50-per-component validation/test suites, validation decision rule

@@ -31,6 +31,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--record-runs", action="store_true", help="Also write per-run scientific records.")
     parser.add_argument("--device", default="cpu", choices=("cpu", "cuda", "auto"))
+    parser.add_argument("--progress", action="store_true", help="Show terminal progress on stderr only.")
     parser.add_argument("--validation-decision", type=Path,
                         help="Recorded validation_decision.json; required for test suites of "
                              "experiments with require_validation_decision.")
@@ -42,6 +43,7 @@ def main(argv: list[str] | None = None) -> int:
         config, run_dirs, output_dir=args.output, suites=args.suite, checkpoint=args.checkpoint,
         seeds_per_component=args.seeds_per_component, seeds=args.seeds,
         record_runs=args.record_runs, device=args.device, validation_decision=args.validation_decision,
+        progress=args.progress,
     )
     print((output / "report.md").read_text(encoding="utf-8"))
     rows = [json.loads(line) for line in (output / "per_instance.jsonl").read_text().splitlines()]

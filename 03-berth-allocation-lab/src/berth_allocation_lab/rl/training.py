@@ -15,6 +15,7 @@ import json
 import math
 import os
 import statistics
+import sys
 import time
 import uuid
 from dataclasses import asdict
@@ -33,6 +34,7 @@ from berth_allocation_lab.envs import MIXTURE_SELECTION_VERSION, MixtureScenario
 from berth_allocation_lab.policies import StaticFCFS, StaticGreedyRollout
 from berth_allocation_lab.rl.config import SELECTION_METRIC, StaticPPOExperimentConfig
 from berth_allocation_lab.rl.evaluation import is_improvement, validation_waiting
+from berth_allocation_lab.rl.progress import progress_bar
 from berth_allocation_lab.rl.policy import (
     MaskablePPOStaticPolicy,
     build_model_metadata,
@@ -103,7 +105,8 @@ def _training_vec_env(config: StaticPPOExperimentConfig, mixture: MixtureScenari
     return SubprocVecEnv(factories) if config.ppo.vec_env == "subproc" else DummyVecEnv(factories)
 
 
-def cached_baseline_means(suite: ScenarioSuite, cache_path: Path) -> dict[str, Any]:
+def cached_baseline_means(suite: ScenarioSuite, cache_path: Path, *,
+                          progress: bool = False) -> dict[str, Any]:
     """FCFS/Rollout validation means, computed once per scenario fingerprint.
 
     The JSON cache lives in the experiment directory and is shared by every
@@ -115,15 +118,20 @@ def cached_baseline_means(suite: ScenarioSuite, cache_path: Path) -> dict[str, A
     means = {}
     for name, policy in (("fcfs", StaticFCFS()), ("rollout", StaticGreedyRollout())):
         values = []
-        for scenario in suite.scenarios:
-            key = f"{policy.policy_id}:{scenario.content_fingerprint}"
-            if key in cache:
-                hits += 1
-            else:
-                misses += 1
-                single = ScenarioSuite(suite.name, suite.split, (scenario,))
-                cache[key] = validation_waiting(policy, single)["per_scenario"][0]["total_waiting_time_min"]
-            values.append(cache[key])
+        with progress_bar(enabled=progress, total=len(suite.scenarios),
+                          description=f"{suite.name} {name.upper()} references") as bar:
+            for scenario in suite.scenarios:
+                key = f"{policy.policy_id}:{scenario.content_fingerprint}"
+                if key in cache:
+                    hits += 1
+                else:
+                    misses += 1
+                    single = ScenarioSuite(suite.name, suite.split, (scenario,))
+                    cache[key] = validation_waiting(policy, single)["per_scenario"][0]["total_waiting_time_min"]
+                values.append(cache[key])
+                if bar is not None:
+                    bar.set_postfix(cache_hits=hits, cache_misses=misses, refresh=False)
+                    bar.update(1)
         means[f"{name}_mean_total_waiting_time_min"] = (
             statistics.fmean(values) if values and None not in values else None)
     cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -138,7 +146,8 @@ class _StaticPPOMonitor(BaseCallback):
 
     def __init__(self, *, policy_factory: Callable[[], MaskablePPOStaticPolicy],
                  validation_suite: ScenarioSuite, eval_freq: int,
-                 save_best: Callable[[dict[str, Any]], None]) -> None:
+                 save_best: Callable[[dict[str, Any]], None],
+                 progress=None, baseline_means: dict[str, Any] | None = None) -> None:
         super().__init__(verbose=0)
         self.policy_factory = policy_factory
         self.validation_suite = validation_suite
@@ -153,6 +162,10 @@ class _StaticPPOMonitor(BaseCallback):
         self.failure: tuple[str, str] | None = None
         self._last_updates = None
         self._logged_episodes = 0
+        self.progress = progress
+        self.baseline_means = baseline_means or {}
+        self._progress_started = 0.0
+        self._progress_refreshed = 0.0
 
     def _evaluate(self) -> None:
         started = time.perf_counter()
@@ -166,6 +179,41 @@ class _StaticPPOMonitor(BaseCallback):
                           None if self.best is None else self.best["mean_total_waiting_time_min"]):
             self.best = entry
             self.save_best(entry)
+        if self.progress is not None:
+            self._update_progress(force=True)
+            self.progress.write(
+                f"{self.progress.desc}: timestep={self.num_timesteps} "
+                f"validation={self._minutes(entry['mean_total_waiting_time_min'])} min "
+                f"best={self._minutes(None if self.best is None else self.best['mean_total_waiting_time_min'])} min "
+                f"FCFS={self._minutes(self.baseline_means.get('fcfs_mean_total_waiting_time_min'))} min "
+                f"Rollout={self._minutes(self.baseline_means.get('rollout_mean_total_waiting_time_min'))} min",
+                file=sys.stderr,
+            )
+
+    @staticmethod
+    def _minutes(value) -> str:
+        return "n/a" if value is None else f"{value:.1f}"
+
+    def _update_progress(self, *, force: bool = False) -> None:
+        bar = self.progress
+        now = time.perf_counter()
+        if force or now - self._progress_refreshed >= bar.mininterval:
+            learning_seconds = now - self._progress_started - self.validation_seconds
+            speed = self.num_timesteps / learning_seconds if learning_seconds > 0 else 0.0
+            latest = self.history[-1]["mean_total_waiting_time_min"] if self.history else None
+            best = self.best["mean_total_waiting_time_min"] if self.best else None
+            bar.set_postfix({
+                "learning steps/s": f"{speed:.0f}", "validation min": self._minutes(latest),
+                "best min": self._minutes(best),
+                "FCFS min": self._minutes(self.baseline_means.get("fcfs_mean_total_waiting_time_min")),
+                "Rollout min": self._minutes(self.baseline_means.get("rollout_mean_total_waiting_time_min")),
+            }, refresh=False)
+            self._progress_refreshed = now
+        # PPO may finish a rollout beyond the requested budget. Only the display
+        # is capped; actual timesteps and all existing records are unchanged.
+        bar.update(max(0, min(self.num_timesteps, bar.total) - bar.n))
+        if force:
+            bar.refresh()
 
     def _harvest_train_metrics(self) -> None:
         values = {k.split("/", 1)[1]: v for k, v in self.logger.name_to_value.items()
@@ -188,6 +236,8 @@ class _StaticPPOMonitor(BaseCallback):
             self.failure = ("nonfinite_loss", f"Non-finite PPO statistics: {', '.join(sorted(bad))}.")
 
     def _on_training_start(self) -> None:
+        if self.progress is not None:
+            self._progress_started = time.perf_counter()
         self._evaluate()
 
     def _on_rollout_start(self) -> None:
@@ -201,6 +251,8 @@ class _StaticPPOMonitor(BaseCallback):
             if done:
                 self.episode_rows.append({"timesteps": self.num_timesteps, "env_index": env_index,
                                           **{k: info.get(k) for k in EPISODE_FIELDS[2:]}})
+        if self.progress is not None:
+            self._update_progress()
         return self.failure is None
 
     def _on_training_end(self) -> None:
@@ -217,6 +269,8 @@ def train_static_ppo(
     total_timesteps: int | None = None,
     eval_freq: int | None = None,
     device: str | None = None,
+    progress: bool = False,
+    progress_description: str | None = None,
 ) -> dict[str, Any]:
     """Train one seed and return its manifest; failures are recorded, not hidden.
 
@@ -300,7 +354,7 @@ def train_static_ppo(
             spec.name: suites[spec.name].identities() for spec in config.diagnostics}
         manifest["seed_exclusive_suites"] = config.seed_exclusive_suites
         manifest["validation_baselines"] = cached_baseline_means(
-            validation_suite, run_dir.parent / "validation_baseline_cache.json")
+            validation_suite, run_dir.parent / "validation_baseline_cache.json", progress=progress)
 
         ppo = config.ppo
         vec_env = _training_vec_env(config, train_mixture)
@@ -334,13 +388,17 @@ def train_static_ppo(
                 "validation_mean_total_waiting_time_min": entry["mean_total_waiting_time_min"],
             })
 
-        monitor = _StaticPPOMonitor(
-            policy_factory=lambda: MaskablePPOStaticPolicy(model, build_model_metadata(model, base_metadata)),
-            validation_suite=validation_suite, eval_freq=frequency, save_best=save_best,
-        )
-        learn_started = time.perf_counter()
-        model.learn(total_timesteps=total, callback=monitor, log_interval=None, use_masking=True)
-        learn_seconds = time.perf_counter() - learn_started
+        with progress_bar(enabled=progress, total=total, unit="step",
+                          description=progress_description or
+                          f"{config.experiment_id} seed {training_seed} (1/1)") as bar:
+            monitor = _StaticPPOMonitor(
+                policy_factory=lambda: MaskablePPOStaticPolicy(model, build_model_metadata(model, base_metadata)),
+                validation_suite=validation_suite, eval_freq=frequency, save_best=save_best,
+                progress=bar, baseline_means=manifest["validation_baselines"],
+            )
+            learn_started = time.perf_counter()
+            model.learn(total_timesteps=total, callback=monitor, log_interval=None, use_masking=True)
+            learn_seconds = time.perf_counter() - learn_started
         save_checkpoint(model, run_dir / "final_model.zip", {
             **base_metadata, "checkpoint_kind": "final", "timesteps": model.num_timesteps,
             "model_id": f"{run_id}/final@{model.num_timesteps}",

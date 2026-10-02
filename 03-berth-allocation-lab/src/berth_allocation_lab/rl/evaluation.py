@@ -15,6 +15,7 @@ import math
 import statistics
 import time
 from collections import Counter
+from contextlib import ExitStack
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -27,6 +28,7 @@ from berth_allocation_lab.evaluation.runner import run_static_policy
 from berth_allocation_lab.policies import StaticFCFS, StaticGreedyRollout
 from berth_allocation_lab.policies.base import StaticPolicy
 from berth_allocation_lab.rl.config import StaticPPOExperimentConfig
+from berth_allocation_lab.rl.progress import progress_bar
 from berth_allocation_lab.rl.suites import (
     ScenarioSuite,
     audit_fresh_suites,
@@ -152,29 +154,52 @@ def evaluate_suite(
     exact_config: CandidateEnumerationConfig | None = None,
     record_dir: str | Path | None = None,
     reference_cache: ReferenceCache | None = None,
+    progress: bool = False,
 ) -> list[dict[str, Any]]:
     """Run FCFS, Rollout, certified-tiny Exact and each learned policy per scenario."""
 
     exact_config = exact_config or CandidateEnumerationConfig(max_vessels=min(exact_max_vessels, 8))
     cache = reference_cache if reference_cache is not None else ReferenceCache()
     rows: list[dict[str, Any]] = []
-    for scenario in suite.scenarios:
-        base = {"suite": suite.name, "component": component_of(scenario.scenario_id, scenario.split),
-                **scenario_identity(scenario)}
-        fcfs = cache.get(StaticFCFS(), scenario, record_dir)
-        rollout = cache.get(StaticGreedyRollout(), scenario, record_dir)
-        exact = (cache.get(StaticCandidateEnumeration(exact_config), scenario, record_dir)
-                 if scenario.vessel_count <= exact_max_vessels else None)
-        references = (_objective(fcfs), _objective(rollout), _certified(exact))
-        rows.append(_row(base, "fcfs", fcfs, references))
-        rows.append(_row(base, "rollout", rollout, references))
-        if exact is not None:
-            rows.append(_row(base, "exact", exact, references))
-        for entry in learned:
-            result = run_static_policy(scenario, entry.policy, record_dir)
-            rows.append({**_row(base, "ppo", result, references), "ppo_label": entry.label,
-                         "training_seed": entry.training_seed, "checkpoint_id": entry.checkpoint_id,
-                         "checkpoint_path": entry.checkpoint_path})
+    with ExitStack() as stack:
+        count = len(suite.scenarios)
+        labels = [("FCFS", count), ("Rollout", count),
+                  ("Exact", sum(s.vessel_count <= exact_max_vessels for s in suite.scenarios)),
+                  *((f"PPO {entry.label}", count) for entry in learned)]
+        bars = [stack.enter_context(progress_bar(
+            enabled=progress, total=total, description=f"{suite.name} {label}", position=index,
+        )) for index, (label, total) in enumerate(labels)]
+
+        def advance(index: int) -> None:
+            bar = bars[index]
+            if bar is not None:
+                if index < 3:
+                    bar.set_postfix(cache_hits=cache.hits, refresh=False)
+                bar.update(1)
+
+        # Preserve the original scenario-major execution and artifact row order.
+        for scenario in suite.scenarios:
+            base = {"suite": suite.name, "component": component_of(scenario.scenario_id, scenario.split),
+                    **scenario_identity(scenario)}
+            fcfs = cache.get(StaticFCFS(), scenario, record_dir)
+            advance(0)
+            rollout = cache.get(StaticGreedyRollout(), scenario, record_dir)
+            advance(1)
+            exact = (cache.get(StaticCandidateEnumeration(exact_config), scenario, record_dir)
+                     if scenario.vessel_count <= exact_max_vessels else None)
+            if exact is not None:
+                advance(2)
+            references = (_objective(fcfs), _objective(rollout), _certified(exact))
+            rows.append(_row(base, "fcfs", fcfs, references))
+            rows.append(_row(base, "rollout", rollout, references))
+            if exact is not None:
+                rows.append(_row(base, "exact", exact, references))
+            for index, entry in enumerate(learned, start=3):
+                result = run_static_policy(scenario, entry.policy, record_dir)
+                advance(index)
+                rows.append({**_row(base, "ppo", result, references), "ppo_label": entry.label,
+                             "training_seed": entry.training_seed, "checkpoint_id": entry.checkpoint_id,
+                             "checkpoint_path": entry.checkpoint_path})
     return rows
 
 
@@ -367,6 +392,7 @@ def evaluate_training_runs(
     record_runs: bool = False,
     device: str = "cpu",
     validation_decision: str | Path | None = None,
+    progress: bool = False,
 ) -> Path:
     """Evaluate completed training runs on frozen suites without retraining.
 
@@ -452,7 +478,8 @@ def evaluate_training_runs(
     cache = ReferenceCache()
     for suite in built:
         rows += evaluate_suite(suite, learned, exact_max_vessels=config.exact_max_vessels,
-                               record_dir=output / "runs" if record_runs else None, reference_cache=cache)
+                               record_dir=output / "runs" if record_runs else None, reference_cache=cache,
+                               progress=progress)
     git_commit, git_dirty = get_git_metadata()
     manifest = {
         "evaluation_protocol_version": EVALUATION_PROTOCOL_VERSION,

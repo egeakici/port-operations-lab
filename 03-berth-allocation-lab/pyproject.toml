@@ -30,6 +30,7 @@ rl = [
     "sb3-contrib>=2.8,<2.9",
     "stable-baselines3>=2.8,<2.9",
     "torch>=2.3,<3",
+    "tqdm>=4.67.1,<5",  # installed/tested: 4.67.1; plain stderr progress, no rich dependency
 ]
 
 [project.scripts]
