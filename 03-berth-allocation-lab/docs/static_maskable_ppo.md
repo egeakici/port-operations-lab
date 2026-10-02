@@ -391,6 +391,114 @@ python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny_extend
 python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --experiment-dir experiments/rl/extended_v1/static_ppo_medium_heavy_v1_extended --validation-decision experiments/rl/extended_v1/validation_decision.json --output experiments/rl/extended_v1/evaluation_medium_heavy --progress
 ```
 
+### Extended v1 Results (recorded after evaluation)
+
+This section was added **after** all six training runs, the one-time
+validation decision, and both final evaluations. The decision rule above was
+not revised. All numbers below are raw vessel-minutes unless marked as
+seconds. Source commit for every run: `13bcdc4aa9a81b35be7bc1343ff8d2fdbc8b2637`;
+all six training and both evaluation manifests recorded `git_dirty=false`.
+The decision artifact is `experiments/rl/extended_v1/validation_decision.json`
+(SHA-256 `9ba8324a9f8284b4e5a9a14be34ae23b06e43ef578c5e714b376cfda888a164b`).
+
+| Regime | Seed | Completed steps | Training runtime (s) | Validation runtime (s) | Best step | Best validation mean waiting | Final-step validation |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Tiny | 11 | 301,056 | 248.3 | 13.6 | 110,592 | 2,613.1 | 2,629.3 |
+| Tiny | 23 | 301,056 | 374.7 | 18.8 | 270,336 | 2,603.7 | 2,639.3 |
+| Tiny | 37 | 301,056 | 388.5 | 21.3 | 180,224 | 2,604.0 | 2,606.9 |
+| MEDIUM/HEAVY | 11 | 501,760 | 2,286.6 | 82.0 | 460,800 | 1,615.3 | 1,619.6 |
+| MEDIUM/HEAVY | 23 | 501,760 | 1,509.8 | 74.9 | 460,800 | 1,542.8 | 1,605.7 |
+| MEDIUM/HEAVY | 37 | 501,760 | 2,333.4 | 116.9 | 460,800 | 1,553.9 | 1,595.5 |
+
+Requested budgets were 300,000/500,000 steps and evaluation frequencies
+10,000/20,000; PPO finished the enclosing 2,048-step rollout. Runtime includes
+setup; MEDIUM/HEAVY seed 11 spent 379.3 s on initial baseline setup, whereas
+later seeds used the shared cache. Per-seed curves are
+`experiments/rl/extended_v1/curves_tiny.png` and
+`experiments/rl/extended_v1/curves_medium_heavy.png`. Their left panels show
+**raw, unscaled training reward** (negative episode waiting) on training
+scenarios, and their right panels show **mean total waiting** on the frozen
+validation suites, with FCFS and Rollout references. Tiny improved sharply
+before settling near 2,600; final-step validation was slightly worse than
+each selected checkpoint. MEDIUM/HEAVY improved sharply from its untrained
+policy and reached its best observed values late, but its three selected
+validation means still differed by 72.5 minutes. These observations describe
+the recorded trajectories, not convergence.
+
+The frozen validation means were FCFS 2,808.0 and Rollout 2,495.5 for tiny;
+FCFS 1,459.8 and Rollout 859.2 for MEDIUM/HEAVY. Applied exactly as specified
+above, the tiny gap-closure ratios for seeds 11/23/37 were 0.6238/0.6538/0.6528
+(3/3 pass). MEDIUM/HEAVY PPO/FCFS ratios were 1.1065/1.0569/1.0645
+(2/3 pass; seed 11 failed). The recorded conclusion was **both criteria met;
+candidate-scoring v2 optional**. Under the frozen gate, final testing was
+permitted regardless of the decision outcome. Each seed's selected
+`best_validation_model.zip` and its SHA-256 are recorded in the decision
+artifact; the final checkpoints were not used for test selection.
+
+The independent test used the same frozen scenarios for FCFS, Greedy Rollout,
+Exact where eligible, and all three PPO seeds. The table reports mean total
+waiting per scenario. PPO is the mean of the **three per-seed means** (not a
+selected best seed); `sd` is the sample standard deviation of those three
+means. Each tiny family has 50 test scenarios; MEDIUM and HEAVY each have 50.
+
+| Regime / family | FCFS | Rollout | Certified Exact | PPO seed 11 | PPO seed 23 | PPO seed 37 | PPO mean (sd) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Tiny n6 | 2,058.3 | 1,863.2 | 1,839.7 | 1,958.0 | 1,964.0 | 1,975.9 | 1,966.0 (9.1) |
+| Tiny n7 | 2,808.8 | 2,605.2 | 2,541.7 | 2,723.1 | 2,658.7 | 2,703.2 | 2,695.0 (33.0) |
+| Tiny n8 | 4,046.4 | 3,679.5 | 3,594.7 | 3,937.8 | 3,912.8 | 3,909.1 | 3,919.9 (15.6) |
+| MEDIUM (16) | 392.8 | 265.9 | n/a | 529.9 | 445.9 | 504.9 | 493.6 (43.1) |
+| HEAVY (24) | 2,219.8 | 1,552.0 | n/a | 2,636.1 | 2,563.4 | 2,495.1 | 2,564.9 (70.5) |
+
+Across the 150 tiny test scenarios, PPO's per-seed paired differences from
+FCFS were -98.2/-126.0/-108.5 minutes, but differences from Rollout were
++157.0/+129.2/+146.7 minutes. Certified Exact covered **150/150** tiny
+test instances. PPO's per-seed mean absolute gaps were 214.3/186.5/204.0
+minutes. The corresponding means of *per-instance* relative gaps were
+0.0951/0.0839/0.0905; they are not ratios of aggregated means.
+
+Across the 100 MEDIUM/HEAVY test scenarios, PPO's paired differences from
+FCFS were +276.7/+198.4/+193.7 minutes, and from Rollout
++674.0/+595.7/+591.1 minutes. The cross-seed PPO mean was 1,529.2 (sample
+sd 46.6), versus FCFS 1,306.3 and Rollout 909.0. There is no certified
+Exact reference for 16- or 24-vessel test instances under the frozen
+`max_vessels=8` limit; no exact gap is claimed for them. The positive
+validation decision therefore did **not** translate into competitive
+MEDIUM/HEAVY test performance. Tiny PPO improved on FCFS but not Rollout.
+
+Diagnostics are separate from independent in-distribution testing. LOW
+traffic (20 scenarios per regime) gave PPO seed means 622.3/686.3/732.0
+for tiny and 242.3/174.9/149.6 for MEDIUM/HEAVY, against FCFS 82.5 and
+Rollout 56.2. MEDIUM/HEAVY cross-family tiny diagnostics (10 per tiny
+component) gave PPO means 3,094.3/2,933.6/2,928.9, versus FCFS 2,868.7
+and Rollout 2,635.8. Those diagnostics are newly seeded, but the diagnostic
+*questions* were explored in the pilot; they are not another independent
+confirmation set. Exact certified 170/170 eligible tiny-regime scenarios
+including LOW, and 50/50 eligible MEDIUM/HEAVY diagnostics. No node-limited
+or uncertified Exact result was treated as optimal. Positive relative gaps
+against zero Exact optimum remain undefined, not epsilon-adjusted.
+
+Raw per-scenario, per-policy results (including mean/P95 waiting, mean/P95
+turnaround, validity, policy-run time, paired deltas and certified gaps) are
+in `evaluation_tiny/per_instance.jsonl` and
+`evaluation_medium_heavy/per_instance.jsonl`, under
+`experiments/rl/extended_v1/`. `aggregate.json` documents grouped means and
+cross-seed sample spread; `evaluation_manifest.json` records config/checkpoint
+hashes, dependencies, scenario fingerprints, audit summaries and runtime.
+Both evaluations reported zero invalid schedules, zero masked-action errors,
+zero interrupted/failed runs and no detected split or pilot-content leakage.
+Their total runtimes were 351.6 s (tiny) and 774.3 s (MEDIUM/HEAVY);
+per-method policy runtime and Exact runtime are separate in each manifest.
+The `algorithm_runtime_seconds` field is end-to-end policy execution for one
+scenario, not neural-network forward-pass latency alone.
+
+Limitations: synthetic uncalibrated traffic, three training seeds, one frozen
+validation/test campaign, fixed vessel order and candidate positions, and no
+hyperparameter or architecture search. The LOW diagnostics show especially
+poor transfer. These results do not establish PPO convergence or superiority
+to the stronger Rollout baseline. Future questions include candidate-scoring
+architectures, richer training distributions, and replication on fresh
+empirically calibrated scenarios; none was started in this campaign.
+
 ## Known Limitations
 
 - Fixed vessel order and the finite candidate model: PPO cannot beat the
@@ -398,8 +506,9 @@ python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_medium_heav
   result.
 - Synthetic, non-calibrated traffic; three training seeds and small suites
   cannot establish population-level performance.
-- Default hyperparameters and short budgets; no tuning study.
-- Single-process CPU training; no vectorized environments.
+- Default hyperparameters and finite budgets; no tuning study.
+- CPU training used eight environments in one `DummyVecEnv`, not parallel
+  environment processes.
 - Bitwise reproducibility of training holds for the same software stack and
   CPU; it is not guaranteed across library versions or hardware.
 - The tiny model's capacity (8) prevents MEDIUM/HEAVY cross-family evaluation.
