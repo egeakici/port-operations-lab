@@ -13,10 +13,12 @@ import csv
 import hashlib
 import json
 import math
+import os
 import statistics
 import time
 import uuid
 from dataclasses import asdict
+from functools import partial
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -25,8 +27,9 @@ import yaml
 from sb3_contrib import MaskablePPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecEnv
 
-from berth_allocation_lab.envs import MIXTURE_SELECTION_VERSION, StaticBAPEnv
+from berth_allocation_lab.envs import MIXTURE_SELECTION_VERSION, MixtureScenarioProvider, StaticBAPEnv
 from berth_allocation_lab.policies import StaticFCFS, StaticGreedyRollout
 from berth_allocation_lab.rl.config import SELECTION_METRIC, StaticPPOExperimentConfig
 from berth_allocation_lab.rl.evaluation import is_improvement, validation_waiting
@@ -40,10 +43,12 @@ from berth_allocation_lab.rl.policy import (
 from berth_allocation_lab.rl.suites import (
     ScenarioSuite,
     SplitLeakageError,
+    audit_fresh_suites,
     audit_split_isolation,
-    build_config_suite,
+    build_config_suites,
     build_mixture,
     historical_fixture_fingerprints,
+    previously_examined_fingerprints,
 )
 from berth_allocation_lab.rl.wrappers import TrainingRewardScale
 from berth_allocation_lab.tracking.git_metadata import get_git_metadata
@@ -60,7 +65,7 @@ TRAIN_LOG_FIELDS = (
     "clip_range", "explained_variance", "loss", "learning_rate", "n_updates",
 )
 EPISODE_FIELDS = (
-    "timesteps", "scenario_id", "scenario_seed", "scenario_family", "scenario_split",
+    "timesteps", "env_index", "scenario_id", "scenario_seed", "scenario_family", "scenario_split",
     "vessel_count", "scenario_fingerprint", "physical_fingerprint", "episode_return",
     "total_waiting_time_min",
 )
@@ -70,6 +75,62 @@ def run_directory(config: StaticPPOExperimentConfig, training_seed: int,
                   output_root: str | Path | None = None) -> Path:
     root = Path(output_root) if output_root is not None else config.resolve(config.output_dir)
     return root / config.experiment_id / f"seed_{training_seed}"
+
+
+def environment_seeds(training_seed: int, n_envs: int) -> list[int]:
+    """Seeds of the training sub-environments.
+
+    One environment keeps the pilot derivation (the training seed itself);
+    with several, sub-environment i uses ``training_seed * 1000 + i`` so that
+    streams of different training seeds never coincide.
+    """
+
+    return [training_seed] if n_envs == 1 else [training_seed * 1000 + i for i in range(n_envs)]
+
+
+def _make_training_env(mixture: MixtureScenarioProvider, max_vessels: int, time_scale_min: float,
+                       length_scale_m: float, policy_id: str, reward_scale: float) -> Monitor:
+    env = StaticBAPEnv(scenario_provider=mixture, max_vessels=max_vessels, time_scale_min=time_scale_min,
+                       length_scale_m=length_scale_m, policy_id=policy_id)
+    return Monitor(TrainingRewardScale(env, reward_scale))
+
+
+def _training_vec_env(config: StaticPPOExperimentConfig, mixture: MixtureScenarioProvider) -> VecEnv:
+    factory = partial(_make_training_env, mixture, config.max_vessels, config.time_scale_min,
+                      config.length_scale_m, config.policy_id, config.reward_scale)
+    factories = [factory] * config.ppo.n_envs
+    # SubprocVecEnv requires the caller's ``if __name__ == "__main__"`` guard on Windows.
+    return SubprocVecEnv(factories) if config.ppo.vec_env == "subproc" else DummyVecEnv(factories)
+
+
+def cached_baseline_means(suite: ScenarioSuite, cache_path: Path) -> dict[str, Any]:
+    """FCFS/Rollout validation means, computed once per scenario fingerprint.
+
+    The JSON cache lives in the experiment directory and is shared by every
+    training seed of the experiment; entries are deterministic objectives.
+    """
+
+    cache = json.loads(cache_path.read_text(encoding="utf-8")) if cache_path.is_file() else {}
+    hits = misses = 0
+    means = {}
+    for name, policy in (("fcfs", StaticFCFS()), ("rollout", StaticGreedyRollout())):
+        values = []
+        for scenario in suite.scenarios:
+            key = f"{policy.policy_id}:{scenario.content_fingerprint}"
+            if key in cache:
+                hits += 1
+            else:
+                misses += 1
+                single = ScenarioSuite(suite.name, suite.split, (scenario,))
+                cache[key] = validation_waiting(policy, single)["per_scenario"][0]["total_waiting_time_min"]
+            values.append(cache[key])
+        means[f"{name}_mean_total_waiting_time_min"] = (
+            statistics.fmean(values) if values and None not in values else None)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = cache_path.with_suffix(f".{os.getpid()}.tmp")
+    temporary.write_text(json.dumps(cache, indent=1, sort_keys=True), encoding="utf-8")
+    os.replace(temporary, cache_path)
+    return {**means, "cache_hits": hits, "cache_misses": misses}
 
 
 class _StaticPPOMonitor(BaseCallback):
@@ -136,10 +197,10 @@ class _StaticPPOMonitor(BaseCallback):
             self.next_eval = (self.num_timesteps // self.eval_freq + 1) * self.eval_freq
 
     def _on_step(self) -> bool:
-        for info, done in zip(self.locals["infos"], self.locals["dones"]):
+        for env_index, (info, done) in enumerate(zip(self.locals["infos"], self.locals["dones"])):
             if done:
-                self.episode_rows.append({"timesteps": self.num_timesteps,
-                                          **{k: info.get(k) for k in EPISODE_FIELDS[1:]}})
+                self.episode_rows.append({"timesteps": self.num_timesteps, "env_index": env_index,
+                                          **{k: info.get(k) for k in EPISODE_FIELDS[2:]}})
         return self.failure is None
 
     def _on_training_end(self) -> None:
@@ -218,13 +279,16 @@ def train_static_ppo(
     learn_seconds: float | None = None
     monitor: _StaticPPOMonitor | None = None
     model: MaskablePPO | None = None
+    vec_env: VecEnv | None = None
     try:
         train_mixture = build_mixture(config.components, "train", root, config.max_vessels)
-        validation_suite = build_config_suite(config, config.validation)
-        test_suite = build_config_suite(config, config.test)  # identities audited, never evaluated here
+        suites = build_config_suites(config)  # test/diagnostics: identities audited, never evaluated here
+        validation_suite, test_suite = suites["validation"], suites["test"]
         historical = historical_fixture_fingerprints(root)
-        audit_split_isolation({"validation": validation_suite.identities(),
-                               "test": test_suite.identities()}, historical)
+        audit_split_isolation({name: suite.identities() for name, suite in suites.items()}, historical)
+        if config.prior_configs:
+            manifest["freshness_audit"] = audit_fresh_suites(
+                suites.values(), previously_examined_fingerprints(config))
         manifest["training_scenario_set"] = {
             "split": "train", "partition_rule": "seed % 3 == 0",
             "mixture_selection_version": MIXTURE_SELECTION_VERSION,
@@ -232,26 +296,28 @@ def train_static_ppo(
         }
         manifest["validation_scenario_set"] = validation_suite.identities()
         manifest["test_scenario_set_identities"] = test_suite.identities()
-        manifest["validation_baselines"] = {
-            "fcfs_mean_total_waiting_time_min": validation_waiting(StaticFCFS(), validation_suite)[
-                "mean_total_waiting_time_min"],
-            "rollout_mean_total_waiting_time_min": validation_waiting(StaticGreedyRollout(), validation_suite)[
-                "mean_total_waiting_time_min"],
-        }
+        manifest["diagnostic_scenario_set_identities"] = {
+            spec.name: suites[spec.name].identities() for spec in config.diagnostics}
+        manifest["seed_exclusive_suites"] = config.seed_exclusive_suites
+        manifest["validation_baselines"] = cached_baseline_means(
+            validation_suite, run_dir.parent / "validation_baseline_cache.json")
 
-        env = StaticBAPEnv(scenario_provider=train_mixture, max_vessels=config.max_vessels,
-                           time_scale_min=config.time_scale_min, length_scale_m=config.length_scale_m,
-                           policy_id=config.policy_id)
         ppo = config.ppo
+        vec_env = _training_vec_env(config, train_mixture)
         model = MaskablePPO(
-            ppo.policy, Monitor(TrainingRewardScale(env, config.reward_scale)),
+            ppo.policy, vec_env,
             gamma=ppo.gamma, learning_rate=ppo.learning_rate, n_steps=ppo.n_steps,
             batch_size=ppo.batch_size, n_epochs=ppo.n_epochs, gae_lambda=ppo.gae_lambda,
             clip_range=ppo.clip_range, ent_coef=ppo.ent_coef, vf_coef=ppo.vf_coef,
             max_grad_norm=ppo.max_grad_norm, policy_kwargs=ppo.policy_kwargs(),
             seed=training_seed, device=device or ppo.device, verbose=0,
         )
+        if ppo.n_envs > 1:
+            vec_env.seed(training_seed * 1000)  # sub-environment i: training_seed * 1000 + i
         manifest["device"] = str(model.device)
+        manifest["n_envs"] = ppo.n_envs
+        manifest["vec_env"] = ppo.vec_env
+        manifest["environment_seeds"] = environment_seeds(training_seed, ppo.n_envs)
         base_metadata = {
             "experiment_id": config.experiment_id, "training_run_id": run_id,
             "training_seed": training_seed, "max_vessels": config.max_vessels,
@@ -293,8 +359,10 @@ def train_static_ppo(
                 None if monitor.best is None else monitor.best["mean_total_waiting_time_min"]),
         }
         manifest["split_audit"] = audit_split_isolation({
-            "train_episodes": monitor.episode_rows, "validation": validation_suite.identities(),
-            "test": test_suite.identities()}, historical)
+            "train_episodes": monitor.episode_rows,
+            **{name: suite.identities() for name, suite in suites.items()}}, historical)
+        manifest["training_episodes_per_env"] = {
+            str(i): sum(e["env_index"] == i for e in monitor.episode_rows) for i in range(ppo.n_envs)}
         manifest["training_episodes"] = len(monitor.episode_rows)
         manifest["distinct_training_scenarios"] = len({e["scenario_id"] for e in monitor.episode_rows})
         if monitor.failure is not None:
@@ -317,6 +385,8 @@ def train_static_ppo(
         manifest.update(status="failed", failure_type=type(error).__name__, failure_message=str(error))
         raise
     finally:
+        if vec_env is not None:
+            vec_env.close()
         wall = time.perf_counter() - started
         validation_seconds = monitor.validation_seconds if monitor is not None else 0.0
         # learning = model.learn() wall time minus in-training validation;

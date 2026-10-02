@@ -5,13 +5,19 @@ from dataclasses import replace
 
 import numpy as np
 import pytest
-from sb3_contrib import MaskablePPO
 
-from berth_allocation_lab.envs import OBSERVATION_VERSION, StaticBAPEnv
-from berth_allocation_lab.rl.policy import (
+pytest.importorskip("sb3_contrib", reason="requires the rl extra")
+from sb3_contrib import MaskablePPO  # noqa: E402
+from sb3_contrib.common.maskable.utils import get_action_masks  # noqa: E402
+from stable_baselines3.common.monitor import Monitor  # noqa: E402
+from stable_baselines3.common.vec_env import DummyVecEnv  # noqa: E402
+
+from berth_allocation_lab.envs import OBSERVATION_VERSION, StaticBAPEnv  # noqa: E402
+from berth_allocation_lab.rl.policy import (  # noqa: E402
     CheckpointCompatibilityError, MaskablePPOStaticPolicy, MaskedActionError, check_checkpoint_compatibility,
     load_checkpoint, masked_predict, metadata_path, save_checkpoint,
 )
+from berth_allocation_lab.rl.wrappers import TrainingRewardScale  # noqa: E402
 
 RUN_METADATA = {"experiment_id": "unit", "training_run_id": "unit_run", "training_seed": 3,
                 "max_vessels": 3, "time_scale_min": 1440.0, "length_scale_m": 1000.0,
@@ -101,3 +107,12 @@ def test_untrained_policy_respects_masks_on_every_decision(untrained, tmp_path, 
         assert all(r.selected_candidate_index < r.candidate_count for r in result.decision_records)
         assert all(r.policy_id == "static_maskable_ppo_v1" for r in result.decision_records)
         assert policy.schedule(scenario) == result  # deterministic inference
+
+
+def test_masks_are_forwarded_through_sb3_vector_wrappers(manual_static_scenario):
+    inner = StaticBAPEnv(scenario=manual_static_scenario, max_vessels=4)
+    vec = DummyVecEnv([lambda: Monitor(TrainingRewardScale(inner, 1 / 1440))])
+    vec.reset()
+    np.testing.assert_array_equal(get_action_masks(vec)[0], inner.action_masks())
+    vec.step(np.array([0]))
+    np.testing.assert_array_equal(get_action_masks(vec)[0], inner.action_masks())

@@ -1,0 +1,87 @@
+# Step 9 extended v1 campaign, Regime B (static MEDIUM/HEAVY).
+# PRE-REGISTERED: every value in this file (budget, PPO settings taken a priori
+# from Stable-Baselines3 PPO defaults, suites, seeds) was fixed before any
+# extended result was observed. Do not edit after the campaign starts.
+schema_version: 1
+experiment_id: static_ppo_medium_heavy_v1_extended
+experiment_version: 1
+description: Extended v1 run of static MEDIUM (16) and HEAVY (24) twins, equal weights.
+max_vessels: 24
+time_scale_min: 1440.0
+length_scale_m: 1000.0
+reward_scale: 0.0006944444444444445  # 1/1440, training signal only
+exact_max_vessels: 8
+output_dir: experiments/rl/extended_v1
+# Suites of one split share no generation seed; final testing needs the
+# recorded validation decision; suites must not repeat any pilot instance.
+seed_exclusive_suites: true
+require_validation_decision: true
+prior_configs:
+  - configs/rl/static_ppo_smoke.yaml
+  - configs/rl/static_ppo_tiny.yaml
+  - configs/rl/static_ppo_medium_heavy.yaml
+components:
+  # Identical to static_ppo_medium_heavy.yaml.
+  - name: medium
+    source_config: configs/scenarios/synthetic_medium.yaml
+    base_scenario_id: bap_medium
+    static_twin: true
+    weight: 0.5
+  - name: heavy
+    source_config: configs/scenarios/synthetic_heavy.yaml
+    base_scenario_id: bap_heavy
+    static_twin: true
+    weight: 0.5
+training:
+  training_seeds: [11, 23, 37]
+  total_timesteps: 500000
+  eval_freq: 20000
+ppo:
+  policy: MultiInputPolicy
+  gamma: 1.0
+  learning_rate: 0.0003
+  n_envs: 8
+  vec_env: dummy
+  n_steps: 256  # per environment: 2048 transitions per update
+  batch_size: 256
+  n_epochs: 10
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  net_arch: {pi: [128, 128], vf: [128, 128]}
+  device: cpu
+validation:
+  seeds_per_component: 20
+  first_seed: 1000000
+test:
+  seeds_per_component: 50
+  first_seed: 2000000
+diagnostics:
+  - name: low_traffic
+    seeds_per_component: 20
+    first_seed: 3000000
+    components:
+      - name: low
+        source_config: configs/scenarios/synthetic_low.yaml
+        base_scenario_id: bap_low
+  - name: cross_family_tiny
+    seeds_per_component: 10
+    first_seed: 3500000
+    components:
+      - name: tiny_n6
+        source_config: configs/scenarios/synthetic_tiny_congested.yaml
+        base_scenario_id: bap_tiny_n6
+        vessel_count: 6
+        excluded_seeds: [0, 1, 42]
+      - name: tiny_n7
+        source_config: configs/scenarios/synthetic_tiny_congested.yaml
+        base_scenario_id: bap_tiny_n7
+        vessel_count: 7
+        excluded_seeds: [0, 1, 42]
+      - name: tiny_n8
+        source_config: configs/scenarios/synthetic_tiny_congested.yaml
+        base_scenario_id: bap_tiny_n8
+        vessel_count: 8
+        excluded_seeds: [0, 1, 42]

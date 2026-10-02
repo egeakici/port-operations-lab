@@ -92,12 +92,16 @@ def build_suite(
     *,
     seeds_per_component: int | None = None,
     seeds: Iterable[int] | None = None,
+    first_seed: int = 0,
+    used_seeds: set[int] | None = None,
 ) -> ScenarioSuite:
     """Deterministic suite from explicit seeds or the first N seeds per component.
 
-    Without explicit seeds the split partition is scanned in increasing order;
-    each seed is used by exactly the component the mixture rule assigns to it,
-    skipping reserved seeds, until every component has N scenarios.
+    Without explicit seeds the split partition is scanned in increasing order
+    from ``first_seed``; each seed is used by exactly the component the mixture
+    rule assigns to it, skipping reserved seeds and seeds already in
+    ``used_seeds``, until every component has N scenarios. Chosen seeds are
+    added to ``used_seeds`` so that suites of one split can share no seed.
     """
 
     if (seeds is None) == (seeds_per_component is None):
@@ -109,28 +113,94 @@ def build_suite(
         for seed in chosen:
             if split_of_seed(seed) != mixture.split:
                 raise ValueError(f"Seed {seed} is not a {mixture.split} seed (seed % 3 rule).")
+            if used_seeds is not None and seed in used_seeds:
+                raise SplitLeakageError(f"Seed {seed} is already used by another {mixture.split} suite.")
+        if used_seeds is not None:
+            used_seeds.update(chosen)
         return ScenarioSuite(name, mixture.split, tuple(mixture(seed) for seed in chosen))
 
     counts = {id(c): 0 for c in mixture.components}
     scenarios = []
-    for scanned, seed in enumerate(iter_split_seeds(mixture.split)):
+    for scanned, seed in enumerate(iter_split_seeds(mixture.split, first_seed)):
         if all(n >= seeds_per_component for n in counts.values()):
             break
         if scanned > _MAX_SCAN:
             raise RuntimeError("Suite construction did not fill every component.")
+        if used_seeds is not None and seed in used_seeds:
+            continue
         component = mixture.component_for(seed)
         if counts[id(component)] < seeds_per_component and seed not in component.excluded_seeds:
             counts[id(component)] += 1
             scenarios.append(component(seed))
+            if used_seeds is not None:
+                used_seeds.add(seed)
     return ScenarioSuite(name, mixture.split, tuple(scenarios))
 
 
 def build_config_suite(config: StaticPPOExperimentConfig, spec: SuiteSpec,
-                       seeds: Iterable[int] | None = None) -> ScenarioSuite:
+                       seeds: Iterable[int] | None = None,
+                       used_seeds: set[int] | None = None) -> ScenarioSuite:
     mixture = build_mixture(spec.components, spec.split, config.project_root(), config.max_vessels)
     if seeds is not None:
-        return build_suite(spec.name, mixture, seeds=seeds)
-    return build_suite(spec.name, mixture, seeds_per_component=spec.seeds_per_component)
+        return build_suite(spec.name, mixture, seeds=seeds, used_seeds=used_seeds)
+    return build_suite(spec.name, mixture, seeds_per_component=spec.seeds_per_component,
+                       first_seed=spec.first_seed, used_seeds=used_seeds)
+
+
+def build_config_suites(config: StaticPPOExperimentConfig) -> dict[str, ScenarioSuite]:
+    """Validation, test and diagnostic suites in that order.
+
+    With ``seed_exclusive_suites`` all suites of one split draw from a shared
+    used-seed set, so no generation seed (whose vessel stream would be shared,
+    e.g. a 6-vessel instance equal to the first six vessels of an 8-vessel one)
+    appears in two suites; the result is verified explicitly.
+    """
+
+    used: dict[str, set[int]] = {}
+    suites = {}
+    for spec in (config.validation, config.test, *config.diagnostics):
+        shared = used.setdefault(spec.split, set()) if config.seed_exclusive_suites else None
+        suites[spec.name] = build_config_suite(config, spec, used_seeds=shared)
+    if config.seed_exclusive_suites:
+        assert_seed_exclusive(suites.values())
+    return suites
+
+
+def assert_seed_exclusive(suites: Iterable[ScenarioSuite]) -> None:
+    """No generation seed is used twice within or across suites of a split."""
+
+    owner: dict[tuple[str, int], str] = {}
+    for suite in suites:
+        for scenario in suite.scenarios:
+            key = (suite.split, scenario.seed)
+            if key in owner:
+                raise SplitLeakageError(
+                    f"Seed {scenario.seed} is used by {owner[key]} and {suite.name}/{scenario.scenario_id}.")
+            owner[key] = f"{suite.name}/{scenario.scenario_id}"
+
+
+def previously_examined_fingerprints(config: StaticPPOExperimentConfig) -> frozenset[str]:
+    """Physical fingerprints of every suite of the configs listed in prior_configs."""
+
+    examined = set()
+    for prior_path in config.prior_configs:
+        prior = StaticPPOExperimentConfig.load_yaml(config.resolve(prior_path))
+        for suite in build_config_suites(prior).values():
+            examined.update(physical_fingerprint(s) for s in suite.scenarios)
+    return frozenset(examined)
+
+
+def audit_fresh_suites(suites: Iterable[ScenarioSuite], examined: frozenset[str]) -> dict[str, int]:
+    """Raise if any suite repeats a physical instance examined by a prior config."""
+
+    checked = 0
+    for suite in suites:
+        for scenario in suite.scenarios:
+            checked += 1
+            if physical_fingerprint(scenario) in examined:
+                raise SplitLeakageError(
+                    f"{suite.name}/{scenario.scenario_id} was already examined by a prior experiment.")
+    return {"checked_instances": checked, "previously_examined_instances": len(examined)}
 
 
 def historical_fixture_fingerprints(project_root: Path) -> frozenset[str]:

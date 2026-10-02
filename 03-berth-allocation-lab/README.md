@@ -106,6 +106,16 @@ python -m pip install -e ../02-mini-port-simulation
 python -m pip install -e ".[dev]"
 ```
 
+The core install has no PyTorch dependency. Step 9 reinforcement learning
+(training, checkpoint inference, plots) needs the `rl` extra
+(stable-baselines3 / sb3-contrib 2.8, torch, matplotlib; gymnasium < 1.3):
+
+```bash
+python -m pip install -e ".[dev,rl]"
+```
+
+Without the extra, RL test modules are skipped and the rest of the suite runs.
+
 Run Project 03 tests:
 
 ```bash
@@ -173,6 +183,12 @@ for reproducible generated instances with an explicit dataset split.
 python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny.yaml     --total-timesteps 10000 --eval-freq 2000 --output-dir experiments/rl/pilot
 python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny.yaml     --experiment-dir experiments/rl/pilot/static_ppo_tiny_v1     --output experiments/rl/pilot_evaluations/static_ppo_tiny_v1
 ```
+
+The pre-registered extended v1 campaign (300k/500k timesteps, 8 environments,
+fresh 20/50-per-component validation/test suites, validation decision rule
+recorded before testing) is defined in
+[docs/static_maskable_ppo.md](docs/static_maskable_ppo.md#extended-v1-campaign)
+with its exact commands.
 
 Training uses `gamma = 1.0`, action masks at every decision and a fixed
 training-only reward scale; checkpoints are selected on validation instances

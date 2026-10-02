@@ -9,11 +9,13 @@ evaluation. Exact gaps are reported only against certified references.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import math
 import statistics
 import time
-from dataclasses import dataclass, replace
+from collections import Counter
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -27,9 +29,12 @@ from berth_allocation_lab.policies.base import StaticPolicy
 from berth_allocation_lab.rl.config import StaticPPOExperimentConfig
 from berth_allocation_lab.rl.suites import (
     ScenarioSuite,
+    audit_fresh_suites,
     audit_split_isolation,
     build_config_suite,
+    build_config_suites,
     historical_fixture_fingerprints,
+    previously_examined_fingerprints,
     scenario_identity,
 )
 from berth_allocation_lab.solvers import CandidateEnumerationConfig, StaticCandidateEnumeration
@@ -42,6 +47,28 @@ KPI_FIELDS = (
     "total_waiting_time_min", "mean_waiting_time_min", "p95_waiting_time_min",
     "mean_turnaround_time_min", "p95_turnaround_time_min", "berth_utilization",
 )
+
+
+@dataclass
+class ReferenceCache:
+    """FCFS/Rollout/Exact results keyed by (policy_id, scenario fingerprint).
+
+    Each reference is computed once per immutable instance and reused for
+    every training seed and any suite that contains the same instance.
+    """
+
+    results: dict[tuple[str, str], ScientificRunResult] = field(default_factory=dict)
+    hits: int = 0
+    misses: int = 0
+
+    def get(self, policy: StaticPolicy, scenario, record_dir) -> ScientificRunResult:
+        key = (policy.policy_id, scenario.content_fingerprint)
+        if key in self.results:
+            self.hits += 1
+        else:
+            self.misses += 1
+            self.results[key] = run_static_policy(scenario, policy, record_dir)
+        return self.results[key]
 
 
 @dataclass(frozen=True)
@@ -124,17 +151,19 @@ def evaluate_suite(
     exact_max_vessels: int = 8,
     exact_config: CandidateEnumerationConfig | None = None,
     record_dir: str | Path | None = None,
+    reference_cache: ReferenceCache | None = None,
 ) -> list[dict[str, Any]]:
     """Run FCFS, Rollout, certified-tiny Exact and each learned policy per scenario."""
 
     exact_config = exact_config or CandidateEnumerationConfig(max_vessels=min(exact_max_vessels, 8))
+    cache = reference_cache if reference_cache is not None else ReferenceCache()
     rows: list[dict[str, Any]] = []
     for scenario in suite.scenarios:
         base = {"suite": suite.name, "component": component_of(scenario.scenario_id, scenario.split),
                 **scenario_identity(scenario)}
-        fcfs = run_static_policy(scenario, StaticFCFS(), record_dir)
-        rollout = run_static_policy(scenario, StaticGreedyRollout(), record_dir)
-        exact = (run_static_policy(scenario, StaticCandidateEnumeration(exact_config), record_dir)
+        fcfs = cache.get(StaticFCFS(), scenario, record_dir)
+        rollout = cache.get(StaticGreedyRollout(), scenario, record_dir)
+        exact = (cache.get(StaticCandidateEnumeration(exact_config), scenario, record_dir)
                  if scenario.vessel_count <= exact_max_vessels else None)
         references = (_objective(fcfs), _objective(rollout), _certified(exact))
         rows.append(_row(base, "fcfs", fcfs, references))
@@ -337,14 +366,18 @@ def evaluate_training_runs(
     seeds: Sequence[int] | None = None,
     record_runs: bool = False,
     device: str = "cpu",
+    validation_decision: str | Path | None = None,
 ) -> Path:
     """Evaluate completed training runs on frozen suites without retraining.
 
     Only runs whose selection finished (status ``completed``) are accepted,
     the config must be byte-identical to the one used for training, and the
-    default test suite must match the identities recorded at training time.
+    default test/diagnostic suites must match the identities recorded at
+    training time. With ``require_validation_decision`` any test-split suite
+    needs the pre-recorded, hash-verified validation decision.
     """
 
+    from berth_allocation_lab.rl.decision import verify_validation_decision
     from berth_allocation_lab.rl.policy import MaskablePPOStaticPolicy, dependency_versions
 
     if checkpoint not in {"best", "final"}:
@@ -355,7 +388,8 @@ def evaluate_training_runs(
     started_at, started = datetime.now(timezone.utc).isoformat(), time.perf_counter()
     root = config.project_root()
     kind = "best_validation" if checkpoint == "best" else "final"
-    learned, budgets, training_records, recorded_test = [], {}, [], None
+    learned, budgets, training_records, recorded_test, recorded_diagnostics = [], {}, [], None, None
+    checkpoint_hashes = {}
     for run_dir in map(Path, run_dirs):
         manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
         if manifest.get("status") != "completed":
@@ -365,6 +399,8 @@ def evaluate_training_runs(
             raise ValueError(f"{run_dir} was trained with a different experiment config.")
         reference = manifest["checkpoints"][kind]
         label = f"seed_{manifest['training_seed']}"
+        checkpoint_hashes[reference["model_id"]] = hashlib.sha256(
+            (run_dir / reference["path"]).read_bytes()).hexdigest()
         learned.append(LearnedPolicyEntry(
             label=label, training_seed=manifest["training_seed"], checkpoint_id=reference["model_id"],
             checkpoint_path=_portable(run_dir / reference["path"], root),
@@ -373,6 +409,7 @@ def evaluate_training_runs(
         with (run_dir / "train_episodes.csv").open(encoding="utf-8", newline="") as file:
             training_records += list(csv.DictReader(file))
         recorded_test = recorded_test or manifest.get("test_scenario_set_identities")
+        recorded_diagnostics = recorded_diagnostics or manifest.get("diagnostic_scenario_set_identities")
     if not learned or len({e.label for e in learned}) != len(learned):
         raise ValueError("Provide at least one run directory and at most one run per training seed.")
 
@@ -381,27 +418,41 @@ def evaluate_training_runs(
     names = list(suites) if suites else ["test", *(spec.name for spec in config.diagnostics)]
     if seeds is not None and len(names) != 1:
         raise ValueError("Explicit seeds apply to exactly one suite.")
+    unknown = [name for name in names if name not in specs]
+    if unknown:
+        raise ValueError(f"Unknown suite {unknown[0]}; choose from {', '.join(specs)}.")
+    overridden = seeds is not None or seeds_per_component is not None
+    frozen = None if overridden else build_config_suites(config)
+    recorded = {"test": recorded_test, **(recorded_diagnostics or {})}
     built = []
     for name in names:
-        if name not in specs:
-            raise ValueError(f"Unknown suite {name}; choose from {', '.join(specs)}.")
-        spec = specs[name]
-        if seeds_per_component is not None:
-            spec = replace(spec, seeds_per_component=seeds_per_component)
-        suite = build_config_suite(config, spec, seeds)
-        if name == "test" and seeds is None and seeds_per_component is None and recorded_test is not None:
-            if [r["scenario_fingerprint"] for r in recorded_test] != [
+        if frozen is not None:
+            suite = frozen[name]
+            if recorded.get(name) is not None and [r["scenario_fingerprint"] for r in recorded[name]] != [
                     r["scenario_fingerprint"] for r in suite.identities()]:
-                raise ValueError("Rebuilt test suite differs from the identities recorded at training time.")
+                raise ValueError(f"Rebuilt {name} suite differs from the identities recorded at training time.")
+        else:
+            spec = specs[name]
+            if seeds_per_component is not None:
+                spec = replace(spec, seeds_per_component=seeds_per_component)
+            suite = build_config_suite(config, spec, seeds)
         built.append(suite)
     audit = audit_split_isolation({"train_episodes": training_records,
                                    **{suite.name: suite.identities() for suite in built}},
                                   historical_fixture_fingerprints(root))
+    freshness = (audit_fresh_suites(built, previously_examined_fingerprints(config))
+                 if config.prior_configs else None)
+    decision = None
+    if config.require_validation_decision and any(suite.split == "test" for suite in built):
+        if validation_decision is None:
+            raise ValueError("This experiment requires the recorded validation decision before testing.")
+        decision = verify_validation_decision(validation_decision, config, checkpoint_hashes)
 
     rows = []
+    cache = ReferenceCache()
     for suite in built:
         rows += evaluate_suite(suite, learned, exact_max_vessels=config.exact_max_vessels,
-                               record_dir=output / "runs" if record_runs else None)
+                               record_dir=output / "runs" if record_runs else None, reference_cache=cache)
     git_commit, git_dirty = get_git_metadata()
     manifest = {
         "evaluation_protocol_version": EVALUATION_PROTOCOL_VERSION,
@@ -415,7 +466,14 @@ def evaluate_training_runs(
         "training_budgets": budgets,
         "suites": {suite.name: {"split": suite.split, "identities": suite.identities()} for suite in built},
         "split_audit": audit,
+        "freshness_audit": freshness,
+        "validation_decision": decision,
+        "checkpoint_sha256": checkpoint_hashes,
         "exact_max_vessels": config.exact_max_vessels,
+        "exact_reference_summary": exact_reference_summary(rows),
+        "reference_cache": {"hits": cache.hits, "misses": cache.misses},
+        "integrity": integrity_summary(rows),
+        "runtime_seconds_by_method": runtime_totals(rows),
         "deterministic_inference": True,
         "action_masking_enabled": True,
         "objective_units": "vessel-minutes (raw, unscaled)",
@@ -426,6 +484,36 @@ def evaluate_training_runs(
         "evaluation_runtime_seconds": time.perf_counter() - started,
     }
     return write_evaluation(output, rows, aggregate_rows(rows), manifest)
+
+
+def exact_reference_summary(rows: Sequence[dict[str, Any]]) -> dict[str, int]:
+    """Certified, limit-stopped, failed and ineligible exact references."""
+
+    exact = [r for r in rows if r["method"] == "exact"]
+    scenarios = {r["scenario_fingerprint"] for r in rows}
+    limit = {"node_limit", "time_limit"}
+    certified = sum(r["optimality_status"] == "optimal" and r["run_status"] == "completed" for r in exact)
+    stopped = sum(r.get("termination_reason") in limit and r["optimality_status"] != "optimal" for r in exact)
+    return {"eligible": len(exact), "certified": certified, "limit_stopped": stopped,
+            "failed": len(exact) - certified - stopped, "not_eligible": len(scenarios) - len(exact)}
+
+
+def integrity_summary(rows: Sequence[dict[str, Any]]) -> dict[str, int]:
+    failures = Counter(r["failure_type"] for r in rows if not r["is_valid"])
+    return {"rows": len(rows), "invalid_rows": sum(not r["is_valid"] for r in rows),
+            "invalid_ppo_rows": sum(not r["is_valid"] for r in rows if r["method"] == "ppo"),
+            "masked_action_errors": failures.get("MaskedActionError", 0),
+            "failure_types": dict(failures)}
+
+
+def runtime_totals(rows: Sequence[dict[str, Any]]) -> dict[str, float]:
+    """Summed per-instance runtime by method (PPO = inference, Exact separate)."""
+
+    totals: dict[str, float] = {}
+    for row in rows:
+        method = row["method"] if row["method"] != "ppo" else f"ppo[{row['ppo_label']}]"
+        totals[method] = totals.get(method, 0.0) + (row["algorithm_runtime_seconds"] or 0.0)
+    return totals
 
 
 def _portable(path: Path, root: Path) -> str:

@@ -1,6 +1,7 @@
 """Step 9 components that do not need Stable-Baselines3 or any training."""
 
 import copy
+import hashlib
 import json
 from dataclasses import replace
 from pathlib import Path
@@ -15,16 +16,22 @@ from berth_allocation_lab.envs import (
 )
 from berth_allocation_lab.rl import (
     RLConfigError, SplitLeakageError, StaticPPOExperimentConfig, audit_split_isolation,
-    build_config_suite, build_mixture, build_suite, physical_fingerprint,
+    build_config_suite, build_config_suites, build_mixture, build_suite, physical_fingerprint,
+)
+from berth_allocation_lab.rl.decision import (
+    ValidationDecisionError, record_validation_decision, seed_outcome, verify_validation_decision,
 )
 from berth_allocation_lab.rl.evaluation import (
-    aggregate_rows, evaluate_suite, is_improvement, select_checkpoint, validation_waiting,
+    ReferenceCache, aggregate_rows, evaluate_suite, exact_reference_summary, is_improvement,
+    select_checkpoint, validation_waiting,
 )
 from berth_allocation_lab.rl.suites import (
-    HISTORICAL_TINY_FIXTURES, ScenarioSuite, historical_fixture_fingerprints, scenario_identity,
+    HISTORICAL_TINY_FIXTURES, ScenarioSuite, audit_fresh_suites, historical_fixture_fingerprints,
+    previously_examined_fingerprints, scenario_identity,
 )
 from berth_allocation_lab.rl.wrappers import TrainingRewardScale
 from berth_allocation_lab.scenarios import SyntheticScenarioConfig
+from berth_allocation_lab.solvers import CandidateEnumerationConfig
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIGS = ROOT / "configs"
@@ -75,7 +82,11 @@ def test_gamma_defaults_to_one_when_omitted():
     (lambda d: d["ppo"].update(gamma=0.99), "alternative_training_objective"),
     (lambda d: d["ppo"].update(gamma=1.5), r"\(0, 1\]"),
     (lambda d: d["ppo"].update(batch_size=1024), "batch_size"),
-    (lambda d: d["ppo"].update(n_envs=4), "single environment"),
+    (lambda d: d["ppo"].update(n_envs=0), "n_envs"),
+    (lambda d: d["ppo"].update(vec_env="ray"), "vec_env"),
+    (lambda d: d["ppo"].update(n_envs=2, n_steps=32, batch_size=128), "batch_size"),
+    (lambda d: d["test"].update(first_seed=-1), "first_seed"),
+    (lambda d: d.update(seed_exclusive_suites="yes"), "seed_exclusive_suites"),
     (lambda d: d["ppo"].update(learning_rate=0), "learning_rate"),
     (lambda d: d["ppo"].update(lr=1), "Unknown ppo"),
     (lambda d: d.update(reward_scale=-1.0), "reward_scale"),
@@ -285,19 +296,6 @@ def test_reward_wrapper_scales_training_signal_only(manual_static_scenario):
             TrainingRewardScale(StaticBAPEnv(scenario=manual_static_scenario, max_vessels=3), bad)
 
 
-def test_masks_are_forwarded_through_sb3_vector_wrappers(manual_static_scenario):
-    from sb3_contrib.common.maskable.utils import get_action_masks
-    from stable_baselines3.common.monitor import Monitor
-    from stable_baselines3.common.vec_env import DummyVecEnv
-
-    inner = StaticBAPEnv(scenario=manual_static_scenario, max_vessels=4)
-    vec = DummyVecEnv([lambda: Monitor(TrainingRewardScale(inner, 1 / 1440))])
-    vec.reset()
-    np.testing.assert_array_equal(get_action_masks(vec)[0], inner.action_masks())
-    vec.step(np.array([0]))
-    np.testing.assert_array_equal(get_action_masks(vec)[0], inner.action_masks())
-
-
 # Selection, gaps and failure records
 
 def test_checkpoint_selection_rule():
@@ -380,3 +378,138 @@ def test_aggregate_reports_per_seed_and_cross_seed_spread():
     assert cross["mean_of_seed_means"] == 27.5 and cross["std_of_seed_means"] == pytest.approx(17.6776695)
     seed_1 = next(g for g in aggregate["groups"] if g["method"] == "ppo[seed_1]" and g["component"] == "c")
     assert (seed_1["n"], seed_1["median_total_waiting_time_min"], seed_1["mean_delta_vs_fcfs_min"]) == (2, 15.0, 5.0)
+
+
+# Extended v1: seed independence, freshness, references and decision rule
+
+EXTENDED = ("static_ppo_tiny_extended", "static_ppo_medium_heavy_extended")
+
+
+def test_shared_vessel_streams_make_seed_exclusivity_necessary():
+    # Same seed: the 6-vessel tiny instance is the 8-vessel instance's prefix.
+    n6, n8 = tiny_provider(6, "test")(5), tiny_provider(8, "test")(5)
+    assert n8.vessels[:6] == n6.vessels
+
+
+@pytest.mark.parametrize("name", EXTENDED)
+def test_extended_suites_never_reuse_a_seed_within_a_split(name):
+    config = StaticPPOExperimentConfig.load_yaml(CONFIGS / "rl" / f"{name}.yaml")
+    suites = build_config_suites(config)
+    components = len(config.components)
+    assert len(suites["validation"].scenarios) == 20 * components
+    assert len(suites["test"].scenarios) == 50 * components
+    seen = {}
+    for suite in suites.values():
+        for scenario in suite.scenarios:
+            key = (suite.split, scenario.seed)
+            assert key not in seen, f"seed {scenario.seed} in {seen.get(key)} and {suite.name}"
+            seen[key] = suite.name
+            assert split_of_seed(scenario.seed) == suite.split
+    assert build_config_suites(config)["test"].identities() == suites["test"].identities()
+
+
+@pytest.mark.parametrize("name", EXTENDED)
+def test_extended_suites_are_fresh_relative_to_the_pilot(name):
+    config = StaticPPOExperimentConfig.load_yaml(CONFIGS / "rl" / f"{name}.yaml")
+    examined = previously_examined_fingerprints(config)
+    assert len(examined) == 90  # distinct physical instances of the three pilot configs
+    assert audit_fresh_suites(build_config_suites(config).values(), examined)["checked_instances"] > 0
+    stale = replace(config, test=replace(config.test, first_seed=0))
+    with pytest.raises(SplitLeakageError, match="already examined"):
+        audit_fresh_suites(build_config_suites(stale).values(), examined)
+
+
+def test_pilot_configs_keep_their_original_suites(tiny_config):
+    assert not tiny_config.seed_exclusive_suites
+    assert build_config_suites(tiny_config)["test"].identities() == build_config_suite(
+        tiny_config, tiny_config.test).identities()
+
+
+def test_explicit_seeds_cannot_reuse_a_split_seed():
+    mixture = MixtureScenarioProvider([tiny_provider(n, "test") for n in (6, 7, 8)], [1, 1, 1])
+    used = set()
+    build_suite("a", mixture, seeds=[2, 5], used_seeds=used)
+    with pytest.raises(SplitLeakageError, match="already used"):
+        build_suite("b", mixture, seeds=[5, 8], used_seeds=used)
+
+
+def test_reference_cache_computes_each_instance_once(manual_static_scenario):
+    scenario = replace(manual_static_scenario, split="test", seed=2, scenario_id="manual_test_seed2")
+    cache = ReferenceCache()
+    rows = evaluate_suite(ScenarioSuite("test", "test", (scenario,)), [], reference_cache=cache)
+    again = evaluate_suite(ScenarioSuite("diag", "test", (scenario,)), [], reference_cache=cache)
+    assert (cache.misses, cache.hits) == (3, 3)
+    assert [r["total_waiting_time_min"] for r in rows] == [r["total_waiting_time_min"] for r in again]
+    assert exact_reference_summary(rows) == {
+        "eligible": 1, "certified": 1, "limit_stopped": 0, "failed": 0, "not_eligible": 0}
+    limited = evaluate_suite(ScenarioSuite("test", "test", (scenario,)), [],
+                             exact_config=CandidateEnumerationConfig(max_search_nodes=2))
+    assert exact_reference_summary(limited)["limit_stopped"] == 1
+
+
+def _fake_run(root, seed, ppo, fcfs, rollout, config, status="completed"):
+    run = root / f"seed_{seed}"
+    run.mkdir(parents=True)
+    (run / "best_validation_model.zip").write_bytes(f"weights-{seed}".encode())
+    (run / "manifest.json").write_text(json.dumps({
+        "status": status, "training_seed": seed, "experiment_id": config.experiment_id,
+        "config_sha256": config.source_sha256, "git_commit_hash": "abc", "git_dirty": False,
+        "total_timesteps_completed": 1000,
+        "selection": {"selected_timesteps": 500, "selected_mean_total_waiting_time_min": ppo},
+        "validation_baselines": {"fcfs_mean_total_waiting_time_min": fcfs,
+                                 "rollout_mean_total_waiting_time_min": rollout},
+        "checkpoints": {"best_validation": {"path": "best_validation_model.zip",
+                                            "model_id": f"run{seed}/best_validation@500"}},
+    }), encoding="utf-8")
+    return run
+
+
+def test_decision_rule_thresholds_and_edge_cases():
+    # Tiny: (FCFS - PPO) / (FCFS - Rollout) >= 0.25; undefined ratio never passes.
+    assert seed_outcome("tiny", 75.0, 100.0, 0.0) == {"gap_closure": 0.25, "passes": True}
+    assert seed_outcome("tiny", 76.0, 100.0, 0.0)["passes"] is False
+    assert seed_outcome("tiny", 50.0, 100.0, 100.0) == {"gap_closure": None, "passes": False}
+    assert seed_outcome("tiny", None, 100.0, 0.0)["passes"] is False
+    # MEDIUM/HEAVY: PPO <= 1.10 * FCFS.
+    assert seed_outcome("medium_heavy", 110.0, 100.0, 50.0)["passes"] is True
+    assert seed_outcome("medium_heavy", 110.5, 100.0, 50.0)["passes"] is False
+
+
+def test_decision_is_recorded_once_and_verified(tmp_path):
+    tiny = StaticPPOExperimentConfig.load_yaml(CONFIGS / "rl" / "static_ppo_tiny_extended.yaml")
+    heavy = StaticPPOExperimentConfig.load_yaml(CONFIGS / "rl" / "static_ppo_medium_heavy_extended.yaml")
+    # Tiny: seeds 11 and 23 close >= 25 % of the gap; MEDIUM/HEAVY: only seed 11 within 10 % of FCFS.
+    tiny_runs = [_fake_run(tmp_path / "tiny", s, p, 3000.0, 2600.0, tiny)
+                 for s, p in ((11, 2850.0), (23, 2899.0), (37, 2950.0))]
+    heavy_runs = [_fake_run(tmp_path / "mh", s, p, 1000.0, 800.0, heavy)
+                  for s, p in ((11, 1090.0), (23, 1500.0), (37, 9000.0))]
+    output = tmp_path / "decision" / "validation_decision.json"
+    decision = record_validation_decision(tiny, tiny_runs, heavy, heavy_runs, output)
+    assert decision["regimes"]["tiny"]["criterion_met"] is True
+    assert decision["regimes"]["tiny"]["passing_seeds"] == 2
+    assert decision["regimes"]["medium_heavy"]["criterion_met"] is False
+    assert "candidate-scoring v2" in decision["conclusion"]
+    assert decision["final_testing_permitted"] is True and decision["uses_test_results"] is False
+    assert output.with_name(output.name + ".sha256").read_text().split()[0] == decision["sha256"]
+    with pytest.raises(FileExistsError):
+        record_validation_decision(tiny, tiny_runs, heavy, heavy_runs, output)
+
+    hashes = {"run11/best_validation@500": hashlib.sha256(b"weights-11").hexdigest()}
+    assert verify_validation_decision(output, tiny, hashes)["criterion_met"] is True
+    with pytest.raises(ValidationDecisionError, match="not the recorded selection"):
+        verify_validation_decision(output, tiny, {"run11/best_validation@500": "0" * 64})
+    output.write_text(output.read_text().replace('"criterion_met": false', '"criterion_met": true'))
+    with pytest.raises(ValidationDecisionError, match="SHA-256"):
+        verify_validation_decision(output, tiny, hashes)
+
+
+def test_incomplete_campaign_does_not_permit_testing(tmp_path):
+    tiny = StaticPPOExperimentConfig.load_yaml(CONFIGS / "rl" / "static_ppo_tiny_extended.yaml")
+    heavy = StaticPPOExperimentConfig.load_yaml(CONFIGS / "rl" / "static_ppo_medium_heavy_extended.yaml")
+    tiny_runs = [_fake_run(tmp_path / "tiny", s, 2800.0, 3000.0, 2600.0, tiny) for s in (11, 23)]
+    heavy_runs = [_fake_run(tmp_path / "mh", s, 900.0, 1000.0, 800.0, heavy, status=st)
+                  for s, st in ((11, "completed"), (23, "completed"), (37, "interrupted"))]
+    decision = record_validation_decision(tiny, tiny_runs, heavy, heavy_runs, tmp_path / "d.json")
+    assert decision["final_testing_permitted"] is False and decision["conclusion"] is None
+    assert any("differ from configured" in p for p in decision["regimes"]["tiny"]["problems"])
+    assert any("interrupted" in p for p in decision["regimes"]["medium_heavy"]["problems"])

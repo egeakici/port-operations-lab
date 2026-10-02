@@ -78,6 +78,7 @@ class PPOHyperparameters:
     net_arch_pi: tuple[int, ...] = (128, 128)
     net_arch_vf: tuple[int, ...] = (128, 128)
     n_envs: int = 1
+    vec_env: str = "dummy"
     device: str = "auto"
 
     def policy_kwargs(self) -> dict[str, Any]:
@@ -99,6 +100,7 @@ class SuiteSpec:
     split: str
     seeds_per_component: int
     components: tuple[ScenarioComponentConfig, ...] = ()
+    first_seed: int = 0
 
 
 @dataclass(frozen=True)
@@ -118,6 +120,9 @@ class StaticPPOExperimentConfig:
     reward_scale: float = DEFAULT_REWARD_SCALE
     exact_max_vessels: int = 8
     output_dir: str = "experiments/rl/static_ppo"
+    seed_exclusive_suites: bool = False
+    prior_configs: tuple[str, ...] = ()
+    require_validation_decision: bool = False
     policy_id: str = POLICY_ID
     selection_metric: str = SELECTION_METRIC
     schema_version: int = RL_CONFIG_SCHEMA_VERSION
@@ -138,7 +143,7 @@ class StaticPPOExperimentConfig:
             "schema_version", "experiment_id", "experiment_version", "description", "max_vessels",
             "time_scale_min", "length_scale_m", "reward_scale", "exact_max_vessels", "output_dir",
             "policy_id", "selection_metric", "components", "training", "ppo", "validation", "test",
-            "diagnostics",
+            "diagnostics", "seed_exclusive_suites", "prior_configs", "require_validation_decision",
         }, "experiment")
         components = tuple(_component(c) for c in _list(data, "components"))
         training = _mapping(data, "training")
@@ -160,6 +165,9 @@ class StaticPPOExperimentConfig:
             reward_scale=data.get("reward_scale", DEFAULT_REWARD_SCALE),
             exact_max_vessels=data.get("exact_max_vessels", 8),
             output_dir=data.get("output_dir", "experiments/rl/static_ppo"),
+            seed_exclusive_suites=data.get("seed_exclusive_suites", False),
+            prior_configs=tuple(data.get("prior_configs", ()) or ()),
+            require_validation_decision=data.get("require_validation_decision", False),
             policy_id=data.get("policy_id", POLICY_ID),
             selection_metric=data.get("selection_metric", SELECTION_METRIC),
             components=components,
@@ -205,6 +213,12 @@ class StaticPPOExperimentConfig:
         self._validate_ppo()
         for suite in (self.validation, self.test, *self.diagnostics):
             _positive_int(suite.seeds_per_component, f"{suite.name}.seeds_per_component")
+            _non_negative_int(suite.first_seed, f"{suite.name}.first_seed")
+        for name in ("seed_exclusive_suites", "require_validation_decision"):
+            if not isinstance(getattr(self, name), bool):
+                raise RLConfigError(f"{name} must be a boolean.")
+        for prior in self.prior_configs:
+            _text(prior, "prior_configs entry")
         if len({s.name for s in (self.validation, self.test, *self.diagnostics)}) != 2 + len(self.diagnostics):
             raise RLConfigError("Evaluation suite names must be distinct.")
         for suite in self.diagnostics:
@@ -232,8 +246,9 @@ class StaticPPOExperimentConfig:
             raise RLConfigError("ppo.gae_lambda must lie in (0, 1].")
         for name in ("n_steps", "batch_size", "n_epochs"):
             _positive_int(getattr(ppo, name), f"ppo.{name}")
-        if ppo.n_envs != 1:
-            raise RLConfigError("Step 9 v1 trains with a single environment (ppo.n_envs: 1).")
+        _positive_int(ppo.n_envs, "ppo.n_envs")
+        if ppo.vec_env not in {"dummy", "subproc"}:
+            raise RLConfigError("ppo.vec_env must be dummy or subproc.")
         if not 1 < ppo.batch_size <= ppo.n_steps * ppo.n_envs:
             raise RLConfigError("ppo.batch_size must satisfy 1 < batch_size <= n_steps * n_envs.")
         if not ppo.net_arch_pi or not ppo.net_arch_vf:
@@ -275,20 +290,21 @@ def _component(data: Any) -> ScenarioComponentConfig:
 
 def _suite(data: dict[str, Any], name: str, split: str,
            components: tuple[ScenarioComponentConfig, ...]) -> SuiteSpec:
-    _reject_unknown(data, {"seeds_per_component"}, name)
+    _reject_unknown(data, {"seeds_per_component", "first_seed"}, name)
     return SuiteSpec(name=name, split=split, seeds_per_component=data.get("seeds_per_component"),
-                     components=components)
+                     components=components, first_seed=data.get("first_seed", 0))
 
 
 def _diagnostic(data: Any) -> SuiteSpec:
     if not isinstance(data, dict):
         raise RLConfigError("Each diagnostic suite must be a mapping.")
-    _reject_unknown(data, {"name", "seeds_per_component", "components"}, "diagnostic")
+    _reject_unknown(data, {"name", "seeds_per_component", "components", "first_seed"}, "diagnostic")
     _text(data.get("name"), "diagnostic name")
     if data["name"] in {"validation", "test"}:
         raise RLConfigError("Diagnostic suite names must differ from validation/test.")
     return SuiteSpec(name=data["name"], split="test", seeds_per_component=data.get("seeds_per_component"),
-                     components=tuple(_component(c) for c in _list(data, "components")))
+                     components=tuple(_component(c) for c in _list(data, "components")),
+                     first_seed=data.get("first_seed", 0))
 
 
 def _validate_components(components: tuple[ScenarioComponentConfig, ...], where: str) -> None:

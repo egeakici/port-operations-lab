@@ -3,12 +3,15 @@
 import csv
 import json
 import runpy
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
 import pytest
-import torch
-from sb3_contrib import MaskablePPO
+
+pytest.importorskip("sb3_contrib", reason="requires the rl extra")
+import torch  # noqa: E402
+from sb3_contrib import MaskablePPO  # noqa: E402
 
 from berth_allocation_lab.core import NUMERICAL_TOLERANCE as EPS, find_schedule_violations
 from berth_allocation_lab.envs import StaticBAPEnv
@@ -182,7 +185,9 @@ def test_run_without_valid_validation_checkpoint_is_failed(config, tmp_path, mon
     from berth_allocation_lab.rl import training
 
     def invalid(policy, suite):
-        return {"mean_total_waiting_time_min": None, "valid_count": 0, "scenario_count": 1, "per_scenario": []}
+        return {"mean_total_waiting_time_min": None, "valid_count": 0, "scenario_count": len(suite.scenarios),
+                "per_scenario": [{"scenario_id": s.scenario_id, "total_waiting_time_min": None,
+                                  "error": "RuntimeError: forced"} for s in suite.scenarios]}
 
     monkeypatch.setattr(training, "validation_waiting", invalid)
     manifest = train_static_ppo(config, 5, output_root=tmp_path, total_timesteps=256, eval_freq=256)
@@ -239,3 +244,71 @@ def test_multi_seed_training_and_evaluation_scripts(config, tmp_path):
     with pytest.raises(FileExistsError):
         evaluate(["--config", str(SMOKE), "--experiment-dir", str(tmp_path / "runs" / config.experiment_id),
                   "--output", str(output)])
+
+
+# Extended v1 setup: vectorized environments and the test gate
+
+def _vectorized(config, n_envs, vec_env="dummy"):
+    return replace(config, ppo=replace(config.ppo, n_envs=n_envs, vec_env=vec_env, n_steps=64, batch_size=64))
+
+
+def test_vectorized_training_reads_masks_from_every_sub_environment(config, tmp_path):
+    from sb3_contrib.common.maskable.utils import get_action_masks
+    from berth_allocation_lab.rl.training import _training_vec_env
+
+    vec_config = _vectorized(config, 4)
+    vec = _training_vec_env(vec_config, build_config_suite_mixture(vec_config))
+    vec.seed(11 * 1000)
+    vec.reset()
+    masks = get_action_masks(vec)
+    inner = [env.unwrapped for env in vec.envs]
+    assert masks.shape == (4, 16)
+    for row, env in zip(masks, inner):
+        np.testing.assert_array_equal(row, env.action_masks())
+    assert len({env.scenario.scenario_id for env in inner}) == 4  # distinct sub-environment streams
+    vec.close()
+
+    # Masked actions raise inside StaticBAPEnv, so a completed run submitted none.
+    manifest = train_static_ppo(vec_config, 11, output_root=tmp_path, total_timesteps=512, eval_freq=256)
+    assert manifest["status"] == "completed" and manifest["n_envs"] == 4
+    assert manifest["environment_seeds"] == [11000, 11001, 11002, 11003]
+    assert manifest["total_timesteps_completed"] == 512
+    episodes = list(csv.DictReader((run_directory(vec_config, 11, tmp_path) / "train_episodes.csv").open(
+        encoding="utf-8")))
+    assert {int(e["env_index"]) for e in episodes} == {0, 1, 2, 3}
+    assert all(int(e["scenario_seed"]) % 3 == 0 and e["scenario_split"] == "train" for e in episodes)
+    assert sum(manifest["training_episodes_per_env"].values()) == len(episodes)
+    assert manifest["split_audit"]["groups"]["train_episodes"] == len(episodes)
+
+
+def build_config_suite_mixture(vec_config):
+    from berth_allocation_lab.rl import build_mixture
+
+    return build_mixture(vec_config.components, "train", vec_config.project_root(), vec_config.max_vessels)
+
+
+def test_single_environment_seeding_is_unchanged(trained):
+    _, manifest = trained
+    assert manifest["environment_seeds"] == [11] and manifest["n_envs"] == 1
+
+
+def test_test_suites_require_the_recorded_decision(trained, config, tmp_path):
+    run_dir, _ = trained
+    gated = replace(config, require_validation_decision=True)
+    with pytest.raises(ValueError, match="requires the recorded validation decision"):
+        evaluate_training_runs(gated, [run_dir], output_dir=tmp_path / "gated")
+    # Validation-split evaluation is not gated.
+    output = evaluate_training_runs(gated, [run_dir], output_dir=tmp_path / "validation", suites=["validation"])
+    manifest = json.loads((output / "evaluation_manifest.json").read_text())
+    assert manifest["validation_decision"] is None
+    assert manifest["integrity"]["masked_action_errors"] == 0 and manifest["integrity"]["invalid_rows"] == 0
+    assert manifest["exact_reference_summary"]["certified"] == manifest["exact_reference_summary"]["eligible"]
+    assert manifest["reference_cache"]["misses"] == 3 * len(manifest["suites"]["validation"]["identities"])
+
+
+@pytest.mark.slow
+def test_subprocess_vector_environment_option(config, tmp_path):
+    manifest = train_static_ppo(_vectorized(config, 2, "subproc"), 23, output_root=tmp_path,
+                                total_timesteps=256, eval_freq=256)
+    assert manifest["status"] == "completed" and manifest["vec_env"] == "subproc"
+    assert manifest["environment_seeds"] == [23000, 23001]

@@ -297,6 +297,82 @@ Held-out test, mean total waiting (vessel-minutes):
   Rollout 0.02 s (tiny) and 2.6 s (24-vessel HEAVY); Exact about 1 s on tiny
   test instances.
 
+## Extended v1 Campaign
+
+Pre-registered on 2026-10-02, before any extended run. The pilot results
+above stay as reported. The policy is unchanged (`static_maskable_ppo_v1`,
+MultiInputPolicy, pi/vf [128, 128]); only budget, data collection and suite
+sizes change.
+
+| | Tiny | MEDIUM/HEAVY |
+| --- | --- | --- |
+| Config | `configs/rl/static_ppo_tiny_extended.yaml` | `configs/rl/static_ppo_medium_heavy_extended.yaml` |
+| Experiment ID | `static_ppo_tiny_v1_extended` | `static_ppo_medium_heavy_v1_extended` |
+| Components | as the tiny pilot | as the MEDIUM/HEAVY pilot |
+| Budget / eval_freq | 300,000 / 10,000 timesteps | 500,000 / 20,000 timesteps |
+| Validation | 20 per component (60) | 20 per component (40) |
+| Test | 50 per component (150) | 50 per component (100) |
+| Diagnostics | LOW 20 | LOW 20, cross-family tiny 10 per component (30) |
+
+Shared settings, chosen a priori from Stable-Baselines3 PPO defaults and not
+tuned on any result: gamma 1.0, learning rate 3e-4, 8 environments
+(`DummyVecEnv`), 256 steps per environment (2048 per update), batch 256,
+10 epochs, GAE lambda 0.95, clip 0.2, entropy 0.01, value coefficient 0.5,
+gradient-norm limit 0.5, reward scale 1/1440, CPU, training seeds 11, 23, 37.
+Sub-environment `i` uses seed `training_seed * 1000 + i` (recorded as
+`environment_seeds`; single-environment runs keep the pilot derivation).
+
+**Fresh suites.** The pilot validation, test and diagnostic instances were
+examined. Extended suites therefore start at fresh seed blocks (validation
+`1,000,000`, test `2,000,000`, diagnostics `3,000,000` / `3,500,000`, always
+within the `seed % 3` partition), suites of one split share no generation
+seed (`seed_exclusive_suites`), and training and evaluation fail if any
+extended instance's physical fingerprint occurs in a suite of the pilot
+configs (`prior_configs`). Baseline and exact references are computed once per
+instance (validation baselines via a per-experiment cache shared by seeds,
+evaluation references via a fingerprint cache).
+
+**Decision rule (validation only).** For each seed, PPO is the mean
+validation waiting of its best-validation checkpoint; FCFS and Greedy Rollout
+are means on the same frozen validation suite (raw vessel-minutes).
+
+- Tiny: v1 shows useful learning if, for at least 2 of 3 seeds,
+  `(FCFS - PPO) / (FCFS - Rollout) >= 0.25`. If `FCFS - Rollout` is not
+  positive the ratio is undefined and that seed does not pass.
+- MEDIUM/HEAVY: v1 is competitive if, for at least 2 of 3 seeds,
+  `PPO <= 1.10 * FCFS`.
+- If either criterion fails, the documented conclusion is that the flat
+  MultiInputPolicy architecture is the bottleneck, motivating a
+  candidate-scoring v2. If both pass, v2 is optional.
+
+The held-out test evaluation runs only after this decision is recorded, and
+test results never change it. The decision is written once by
+`scripts/record_validation_decision.py` to the Git-ignored
+`experiments/rl/extended_v1/validation_decision.json` (exclusive creation,
+rule version `static_ppo_v1_extended_validation_rule_v1`, with a `.sha256`
+sidecar). It records the source commit, config hashes, selected checkpoint
+IDs and file hashes and every rule input. Final testing is permitted once all
+six runs have completed and the decision is recorded, whatever its outcome.
+The evaluation script refuses test-split suites of these experiments unless
+the decision file verifies (digest, permission, selected checkpoints).
+
+Commands (Windows PowerShell, from `03-berth-allocation-lab`; each training
+command refuses to start if its run directory exists):
+
+```powershell
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 11
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 23
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --training-seed 37
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 11
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 23
+python scripts/train_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --training-seed 37
+python scripts/plot_static_ppo_learning.py --experiment-dir experiments/rl/extended_v1/static_ppo_tiny_v1_extended --output experiments/rl/extended_v1/curves_tiny.png
+python scripts/plot_static_ppo_learning.py --experiment-dir experiments/rl/extended_v1/static_ppo_medium_heavy_v1_extended --output experiments/rl/extended_v1/curves_medium_heavy.png
+python scripts/record_validation_decision.py --tiny-config configs/rl/static_ppo_tiny_extended.yaml --medium-heavy-config configs/rl/static_ppo_medium_heavy_extended.yaml --output experiments/rl/extended_v1/validation_decision.json
+python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_tiny_extended.yaml --experiment-dir experiments/rl/extended_v1/static_ppo_tiny_v1_extended --validation-decision experiments/rl/extended_v1/validation_decision.json --output experiments/rl/extended_v1/evaluation_tiny
+python scripts/evaluate_static_ppo.py --config configs/rl/static_ppo_medium_heavy_extended.yaml --experiment-dir experiments/rl/extended_v1/static_ppo_medium_heavy_v1_extended --validation-decision experiments/rl/extended_v1/validation_decision.json --output experiments/rl/extended_v1/evaluation_medium_heavy
+```
+
 ## Known Limitations
 
 - Fixed vessel order and the finite candidate model: PPO cannot beat the
