@@ -92,6 +92,17 @@ def test_size_limit_record_and_error_record(manual_static_scenario, tmp_path, mo
     assert result.manifest.status == "failed"
     assert result.solver_diagnostics.termination_reason == "size_limit"
     assert len(read_json(tmp_path / "size", "scenario.json")["vessels"]) == 3
+    # Recorded size outcome, not a raised ValueError; no objective or KPIs.
+    manifest, summary, diagnostics = [read_json(tmp_path / "size", name) for name in
+                                    ("manifest.json", "run_summary.json", "solver_diagnostics.json")]
+    assert manifest["failure_type"] == diagnostics["failure_type"] == "size_limit_exceeded"
+    assert manifest["optimality_status"] == summary["optimality_status"] == "failed"
+    assert summary["validation_status"] == "size_limit_exceeded" and summary["status"] == "failed"
+    assert "ValueError" not in manifest["failure_message"]
+    for key in ("objective_value", "total_waiting_time_min", "best_feasible_objective",
+                "certified_optimal_objective", "berth_utilization"):
+        assert summary[key] is None, key
+    assert read_json(tmp_path / "size", "violations.json") == []
     from berth_allocation_lab.solvers import candidate_enumeration as module
 
     def fail(*args):

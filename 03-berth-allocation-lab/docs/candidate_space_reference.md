@@ -108,15 +108,17 @@ reference_scope = candidate_space
 | Node/time cutoff with valid incumbent | feasible | completed_with_limit | null | null |
 | Time cutoff, no incumbent | timeout | failed | `search_limit_reached` | null |
 | Node cutoff, no incumbent | failed | failed | `search_limit_reached` | null |
-| Oversized input (`size_limit`) | failed | failed | `ValueError` | null |
+| Oversized input (`size_limit`) | failed | failed | `size_limit_exceeded` | null |
 | Genuine error | failed | failed | exception class | null |
 
 Termination reasons are `exhausted`, `zero_cost_certificate`, `node_limit`,
-`time_limit`, `size_limit`. A node/time stop before any valid incumbent is a
-recorded search outcome, not an exception: the runner records it without
-raising, keeps `termination_reason`, sets summary `validation_status` to
-`search_limit_reached`, and reports no feasible or certified objective and no
-headline KPIs. An exception has null termination reason and explicit
+`time_limit`, `size_limit`. An instance above `max_vessels` (no search, no
+truncation) and a node/time stop before any valid incumbent are recorded
+limit outcomes, not exceptions: the runner records them without raising,
+keeps `termination_reason`, sets summary `validation_status` to
+`size_limit_exceeded` or `search_limit_reached`, and reports no feasible or
+certified objective and no headline KPIs. An exception has null termination
+reason and explicit
 `failure_type`/`failure_message` (the exception class and message), rather
 than a fabricated cutoff, so a limit is never confused with a programming
 error. Invalid configuration/dynamic input raises at the public boundary.

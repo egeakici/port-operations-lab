@@ -15,6 +15,10 @@ if TYPE_CHECKING:
 # A node/time limit stopped the search before any valid incumbent existed.
 SEARCH_LIMIT_FAILURE = "search_limit_reached"
 SEARCH_LIMIT_REASONS = frozenset({"node_limit", "time_limit"})
+# The instance exceeds max_vessels; no search is attempted and nothing is truncated.
+SIZE_LIMIT_FAILURE = "size_limit_exceeded"
+# Configured-limit outcomes that runners record without treating them as errors.
+RECORDED_LIMIT_FAILURES = frozenset({SEARCH_LIMIT_FAILURE, SIZE_LIMIT_FAILURE})
 
 
 @dataclass(frozen=True)

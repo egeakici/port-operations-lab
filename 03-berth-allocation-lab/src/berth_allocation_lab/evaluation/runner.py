@@ -32,7 +32,7 @@ from berth_allocation_lab.policies import (
     StaticPolicy,
     StaticScheduleResult,
 )
-from berth_allocation_lab.solvers.reference_types import SEARCH_LIMIT_FAILURE
+from berth_allocation_lab.solvers.reference_types import RECORDED_LIMIT_FAILURES
 from berth_allocation_lab.tracking.git_metadata import get_git_metadata
 from berth_allocation_lab.tracking.records import (
     RunManifest,
@@ -108,7 +108,7 @@ def run_static_policy(
         if diagnostics is not None:
             if diagnostics.scenario_fingerprint != scenario.content_fingerprint:
                 raise ValueError("Solver diagnostics belong to a different scenario.")
-            if diagnostics.failure_type == SEARCH_LIMIT_FAILURE:
+            if diagnostics.failure_type in RECORDED_LIMIT_FAILURES:
                 limit_stop = True
             elif diagnostics.optimality_status == "failed":
                 raise ValueError(diagnostics.failure_message or
@@ -120,16 +120,16 @@ def run_static_policy(
             scenario.min_clearance_m,
         )
         if limit_stop:
-            # Recorded search outcome without a schedule, not an exception.
+            # Recorded size/search-limit outcome without a schedule, not an exception.
             manifest = replace(
                 manifest,
                 status="failed",
-                failure_type=SEARCH_LIMIT_FAILURE,
+                failure_type=diagnostics.failure_type,
                 failure_message=diagnostics.failure_message,
             )
             summary = _failed_summary(
                 scenario, policy.policy_id, identifier, runtime,
-                "failed", SEARCH_LIMIT_FAILURE, 0, schedule,
+                "failed", diagnostics.failure_type, 0, schedule,
             )
             vessels = _vessel_results(
                 scenario, identifier, policy.policy_id, schedule, valid=False
@@ -212,12 +212,12 @@ def run_static_policy(
 
     if diagnostics is not None:
         if limit_stop:
-            # Keep the solver's timeout/failed status and limit classification.
+            # Keep the solver's status and size/search-limit classification.
             pass
         elif not summary.is_valid:
             # Prefer the solver's own error over the runner's wrapper, but never
             # let a limit label mask a genuine runner-side error.
-            solver_error = diagnostics.failure_type not in (None, SEARCH_LIMIT_FAILURE)
+            solver_error = diagnostics.failure_type not in {None, *RECORDED_LIMIT_FAILURES}
             manifest = replace(
                 manifest, status="failed",
                 failure_type=diagnostics.failure_type if solver_error else manifest.failure_type,

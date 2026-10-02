@@ -26,6 +26,7 @@ from berth_allocation_lab.policies.base import (
 from berth_allocation_lab.solvers.reference_types import (
     SEARCH_LIMIT_FAILURE,
     SEARCH_LIMIT_REASONS,
+    SIZE_LIMIT_FAILURE,
     CandidateEnumerationConfig,
     CandidateEnumerationDiagnostics,
     CandidateEnumerationResult,
@@ -116,6 +117,9 @@ class StaticCandidateEnumeration:
         try:
             if len(vessels) > config.max_vessels:
                 reason = "size_limit"
+                failure_type = SIZE_LIMIT_FAILURE
+                failure_message = (f"{len(vessels)} vessels exceed max_vessels="
+                                   f"{config.max_vessels}; no search and no truncation.")
             else:
                 if time_expired():
                     reason = "time_limit"

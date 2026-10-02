@@ -153,6 +153,9 @@ def test_size_limit_and_static_guard(manual_static_scenario):
     result = Solver(Config(max_vessels=2)).solve(manual_static_scenario)
     assert result.diagnostics.termination_reason == "size_limit"
     assert result.diagnostics.optimality_status == "failed"
+    assert result.diagnostics.failure_type == "size_limit_exceeded"
+    assert "3 vessels exceed max_vessels=2" in result.diagnostics.failure_message
+    assert result.diagnostics.best_feasible_objective is None
     assert result.diagnostics.nodes_explored == 0
     assert result.best_placements == ()
     with pytest.raises(ValueError, match="static"):
