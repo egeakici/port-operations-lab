@@ -3,8 +3,8 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 11 Part A / Dynamic Maskable PPO implemented; tiny pilot
-complete, medium/heavy pilot pending its measured compute budget.
+Current status: Step 11 Dynamic Maskable PPO training and held-out evaluation
+complete. CPU/CUDA inference parity remains unverified in this environment.
 
 Completed:
 
@@ -23,12 +23,11 @@ Completed:
   Greedy Rollout and certified tiny Exact
 - Step 10: event-driven DynamicBAP Gymnasium environment, horizon-bounded
   observations, online joint actions and FCFS validation
-- Step 11 Part A: shared joint-action MaskablePPO, causal Online Rollout,
-  validation-only checkpoint selection and test gate. Tiny three-seed pilot is
-  complete; medium/heavy pilot and extended runs are pending.
+- Step 11: shared joint-action MaskablePPO, causal Online Rollout, six extended
+  CUDA training runs, frozen validation decision and held-out evaluation.
 
-Completed: Steps 1-10. Current: Step 11 Part A. Next: extended campaign and
-Part B held-out evaluation; Step 12 follows only after Step 11.
+Completed: Steps 1-11. Next: Step 12. See the Step 11 results note for the
+remaining CPU/CUDA inference parity check and scientific limitations.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -42,14 +41,14 @@ yard, truck, and equipment scheduling policies are treated as fixed or
 exogenous behavior in Project 03 v1.
 
 Current methods include static FCFS, static Greedy Rollout, tiny candidate-space
-enumeration, static PPO and an online dynamic FCFS validation baseline. The
+enumeration, static PPO, online dynamic FCFS and Rollout, and dynamic PPO. The
 reference is exact only within fixed-order, finite candidate
 decisions with earliest service starts, not unrestricted continuous BAP.
 `StaticBAPEnv` exposes the same fixed-order candidate decisions to RL agents.
 Step 9 trains MaskablePPO policies on it; see the Step 9 note for the measured
 pilot results, which are short-budget pilots, not established performance.
 Planned methods include continuous optimization, rolling-horizon references,
-Maskable PPO, and later DQN-family experiments.
+and later DQN-family experiments.
 
 Read the frozen Step 1 specification:
 
