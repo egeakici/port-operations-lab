@@ -49,10 +49,21 @@ assignment starts at `current_time_min`; backdating and future reservations
 are prohibited. The half-open service interval and clearance rules come from
 the shared core.
 
-WAIT is available only when an immediate assignment and a strictly later
-event both exist. It advances to that event; if there is no useful choice,
-the environment advances automatically without charging an agent WAIT.
-Horizon entries can be automatic events even when they create no assignment.
+WAIT is available only when a vessel is WAITING, an immediate assignment is
+feasible, and a **visible** event lies strictly in the future: completion of
+an IN_SERVICE vessel or arrival of an ANNOUNCED vessel. A hidden arrival or
+horizon entry does not make WAIT available. This rule keeps the WAIT bit of
+both `action_masks()` and the observation's `action_mask` non-anticipatory;
+it fixes the Step 10 hidden-event mask leak without changing
+`dynamic_bap_env_v1` (no dynamic checkpoints or results depended on it).
+
+Once legally selected, WAIT advances through the actual event queue. A hidden
+vessel may enter the horizon or arrive before the next previously visible
+event; the clock stops at that earlier event if it creates a decision. The
+new information is then visible because time has passed. When no choice is
+available, automatic advancement still uses internal events without exposing
+them beforehand or charging an agent WAIT. Horizon entries can be automatic
+events even when they create no assignment.
 Consecutive same-time assignments are legal. A consistency error is raised
 for unresolved waiting vessels with no future event.
 

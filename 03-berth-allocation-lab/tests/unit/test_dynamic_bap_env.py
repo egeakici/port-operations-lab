@@ -81,20 +81,107 @@ def test_c_simultaneous_arrivals_and_g_drain():
 
 def test_d_wait_and_h_announcement_cost():
     env = DynamicBAPEnv(scenario=scenario(("A", 0, 100, 10), ("B", 100, 100, 10),
-                                          horizon=60), max_vessels=2)
+                                          ("C", 50, 100, 10), horizon=60), max_vessels=3)
     obs, _ = env.reset()
-    assert obs["visible_mask"].sum() == 1
+    assert obs["visible_mask"].sum() == 2  # C is announced; B is hidden.
     assert env.action_masks()[0]
     obs, reward, done, _, _ = env.step(0)
     assert env.current_time_min == 40 and reward == pytest.approx(-40)
-    assert obs["status_features"][1, 0] == 1
+    assert obs["status_features"][2, 0] == 1
     assert not any(choice[1] == "B" for choice in env.legal_choices)
     assert env.event_records[-1]["event_type"] == "HORIZON_ENTRY"
     env.step(online_fcfs_action(env))
     assert env.placements[0].berth_start_time_min == 40  # no backdating to arrival at 0
+    assert env.current_time_min == 50
+    env.step(online_fcfs_action(env))
     assert env.current_time_min == 100
     env.step(online_fcfs_action(env))
     assert_complete(env, 40, 110)
+
+
+@pytest.mark.parametrize("horizon", [0, 240])
+def test_hidden_only_future_does_not_change_wait_mask(horizon):
+    base = scenario(("A", 0, 100, 10), horizon=horizon)
+    with_hidden = scenario(("A", 0, 100, 10), ("V", 500, 100, 10), horizon=horizon)
+    left = DynamicBAPEnv(scenario=base, max_vessels=2)
+    right = DynamicBAPEnv(scenario=with_hidden, max_vessels=2)
+    for env in (left, right):
+        env.reset()
+    for key, value in left._observation().items():
+        np.testing.assert_array_equal(value, right._observation()[key])
+    np.testing.assert_array_equal(left.action_masks(), right.action_masks())
+    assert not left.action_masks()[0]
+    for env in (left, right):
+        with pytest.raises(ValueError, match="masked"):
+            env.step(0)
+        assert env.current_time_min == 0
+        assert not env.decision_records
+    left.step(online_fcfs_action(left))
+    right.step(online_fcfs_action(right))
+    assert left.terminated
+    assert all(r["vessel_id"] != "V" for r in right.event_records
+               if r["event_time_min"] < 500 - horizon)
+
+
+def test_wait_is_legal_for_announced_arrival_without_active_service():
+    env = DynamicBAPEnv(scenario=scenario(("A", 0, 100, 10), ("B", 100, 100, 10),
+                                          horizon=240), max_vessels=2)
+    observation, _ = env.reset()
+    assert observation["status_features"][1, 0] == 1
+    assert env.action_masks()[0]
+    _, reward, _, _, _ = env.step(0)
+    assert env.current_time_min == 100
+    assert reward == pytest.approx(-100)
+
+
+def test_wait_is_legal_for_active_service_completion():
+    env = DynamicBAPEnv(scenario=scenario(("A", 0, 40, 20), ("B", 0, 40, 10)),
+                        max_vessels=2)
+    env.reset()
+    env.step(online_fcfs_action(env))
+    assert env.current_time_min == 0
+    assert env.action_masks()[0]
+    _, reward, _, _, _ = env.step(0)
+    assert env.current_time_min == 20
+    assert reward == pytest.approx(-20)
+    env.step(online_fcfs_action(env))
+    assert_complete(env, 20, 30)
+
+
+def test_wait_stops_at_earlier_hidden_horizon_entry():
+    base = scenario(("A", 0, 100, 10), ("C", 50, 100, 10), horizon=60)
+    extended = scenario(("A", 0, 100, 10), ("C", 50, 100, 10),
+                        ("V", 100, 100, 10), horizon=60)
+    left = DynamicBAPEnv(scenario=base, max_vessels=3)
+    right = DynamicBAPEnv(scenario=extended, max_vessels=3)
+    for env in (left, right):
+        env.reset()
+    for key, value in left._observation().items():
+        np.testing.assert_array_equal(value, right._observation()[key])
+    np.testing.assert_array_equal(left.action_masks(), right.action_masks())
+    assert left.action_masks()[0]
+    left.step(0)
+    observation, reward, _, _, _ = right.step(0)
+    assert left.current_time_min == 50
+    assert right.current_time_min == 40
+    assert reward == pytest.approx(-40)
+    assert right.event_records[-1]["event_type"] == "HORIZON_ENTRY"
+    assert right.event_records[-1]["vessel_id"] == "V"
+    assert observation["status_features"][2, 0] == 1
+
+
+def test_wait_stops_at_earlier_hidden_arrival_with_zero_horizon():
+    env = DynamicBAPEnv(scenario=scenario(("A", 0, 40, 100), ("B", 0, 40, 10),
+                                          ("V", 20, 10, 10)), max_vessels=3)
+    env.reset()
+    env.step(online_fcfs_action(env))
+    assert env.action_masks()[0]  # A's visible completion is at minute 100.
+    observation, reward, _, _, _ = env.step(0)
+    assert env.current_time_min == 20
+    assert reward == pytest.approx(-20)
+    assert any(r["event_type"] == "VESSEL_ARRIVAL" and r["vessel_id"] == "V"
+               for r in env.event_records)
+    assert observation["visible_mask"].sum() == 3
 
 
 def test_e_variable_lengths_and_candidate_cache():

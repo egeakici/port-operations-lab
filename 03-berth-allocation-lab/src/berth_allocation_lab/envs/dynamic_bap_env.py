@@ -179,10 +179,20 @@ class DynamicBAPEnv(gym.Env):
             raise RuntimeError("Call reset() before action_masks().")
         mask = np.zeros(self.action_space.n, dtype=bool)
         if not self._terminated and not self._truncated:
-            mask[0] = bool(self._choices and self._events)
+            mask[0] = bool(self._choices and self._has_visible_future_event())
             for action in self._choices:
                 mask[action] = True
         return mask
+
+    def _has_visible_future_event(self) -> bool:
+        """Use revealed vessel state only; the internal event queue includes hidden arrivals."""
+        return any(
+            (self._status[vessel_id] == "ANNOUNCED"
+             and self._vessel_by_id[vessel_id].arrival_time_min > self.current_time_min)
+            or (self._status[vessel_id] == "IN_SERVICE"
+                and self._placement_by_id[vessel_id].service_end_time_min > self.current_time_min)
+            for vessel_id in self._slot_ids
+        )
 
     def render(self) -> str | None:
         if self.render_mode is None:
