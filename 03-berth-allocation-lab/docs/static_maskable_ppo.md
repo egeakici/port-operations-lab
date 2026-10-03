@@ -543,6 +543,134 @@ decision should both versions be evaluated on the shared test suites.
 --v2-evaluation <dir> --output <new-json>` checks physical fingerprints before
 reporting paired scenario differences and family/seed summaries.
 
+### v2 Results (written after both final evaluations)
+
+This subsection was written **after** all six v2 training runs and both v2
+test/diagnostic evaluations. The pre-registered `v2_rule_1` above was not
+changed. All v2 training/evaluation manifests recorded clean source commit
+`9f980279005a28d6db239b29e34b26a5a3b687e8` (`git_dirty=false`). The
+validation-only decision was created **before** final testing at
+`experiments/rl/extended_v1/validation_decision_v2.json`; its SHA-256 is
+`e885f3066b4a2b8bc695b1085951f673824a43fcdabbbbd02e83fbe23dbc7805`.
+The JSON contains every matched seed, selected best-validation checkpoint
+identifier and hash, config hash, comparison input and result.
+
+| Regime | Seed | Completed steps | Training runtime (s) | Validation runtime (s) | Selected step | Best validation waiting |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Tiny | 11 | 301,056 | 501.9 | 25.0 | 61,440 | 2,714.9 |
+| Tiny | 23 | 301,056 | 580.4 | 30.5 | 141,312 | 2,710.7 |
+| Tiny | 37 | 301,056 | 515.2 | 25.5 | 131,072 | 2,714.9 |
+| MEDIUM/HEAVY | 11 | 501,760 | 1,671.0 | 50.3 | 40,960 | 1,401.6 |
+| MEDIUM/HEAVY | 23 | 501,760 | 1,647.9 | 55.1 | 161,792 | 1,401.8 |
+| MEDIUM/HEAVY | 37 | 501,760 | 1,885.4 | 56.1 | 501,760 | 1,426.4 |
+
+Per-seed training-reward and validation-waiting curves are
+`experiments/rl/extended_v1/curves_tiny_v2.png` and
+`curves_medium_heavy_v2.png`. Combined v1/v2 validation curves with all six
+seeds and FCFS/Rollout lines are `curves_tiny_v1_vs_v2.png` and
+`curves_medium_heavy_v1_vs_v2.png` in the same directory. Tiny v2 validation
+quickly reached a narrow range and then mostly plateaued; MEDIUM/HEAVY v2
+seed 37 selected its final checkpoint while seeds 11/23 selected earlier ones.
+These are descriptive trajectories, not convergence proofs.
+
+**Frozen validation decision, copied from the decision artifact.** Tiny v1
+three-seed mean was 2,606.91 versus v2 2,713.50 minutes, with **0/3** matched
+seeds improved by v2; v1/v2 fractions of the FCFS-to-Rollout gap closed were
+0.6434/0.3024. MEDIUM/HEAVY v1 mean was 1,570.64 versus v2 1,409.93,
+with **3/3** matched seeds improved by v2; gap-closed fractions were
+-0.1846/0.0830. Therefore the exact `v2_rule_1` result is **mixed**: v1
+for tiny, v2 for MEDIUM/HEAVY. The architecture choice for Step 11 is
+**deferred to a documented discussion**; final test results do not revise
+this decision.
+
+The final test compared the same immutable instances across versions. The
+following means are raw vessel-minutes per scenario. `v2-v1`, `v2-FCFS`, and
+`v2-Rollout` are paired on each scenario before averaging; negative is better.
+The Exact gap is the mean of certified per-instance absolute gaps, and the
+relative gap is the mean of per-instance ratios (undefined for a positive
+gap over a zero optimum). `Time` is mean end-to-end policy execution seconds
+per scenario, **not** isolated neural forward-pass latency.
+
+| Family | Seed | v1 waiting | v2 waiting | v2-v1 | v2-FCFS | v2-Rollout | Exact gap | Relative gap | Time (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Tiny n6 | 11 | 1,958.0 | 2,065.5 | +107.5 | +7.2 | +202.3 | 225.8 | 0.158 | 0.012 |
+| Tiny n6 | 23 | 1,964.0 | 2,065.5 | +101.5 | +7.2 | +202.3 | 225.8 | 0.158 | 0.012 |
+| Tiny n6 | 37 | 1,975.9 | 2,075.6 | +99.7 | +17.3 | +212.4 | 235.9 | 0.175 | 0.012 |
+| Tiny n7 | 11 | 2,723.1 | 2,766.5 | +43.4 | -42.3 | +161.4 | 224.8 | 0.108 | 0.015 |
+| Tiny n7 | 23 | 2,658.7 | 2,766.5 | +107.9 | -42.3 | +161.4 | 224.8 | 0.108 | 0.016 |
+| Tiny n7 | 37 | 2,703.2 | 2,776.6 | +73.4 | -32.2 | +171.4 | 234.9 | 0.113 | 0.015 |
+| Tiny n8 | 11 | 3,937.8 | 4,028.8 | +91.1 | -17.6 | +349.3 | 434.2 | 0.160 | 0.018 |
+| Tiny n8 | 23 | 3,912.8 | 4,047.1 | +134.3 | +0.7 | +367.6 | 452.4 | 0.170 | 0.017 |
+| Tiny n8 | 37 | 3,909.1 | 4,030.0 | +120.9 | -16.4 | +350.5 | 435.4 | 0.161 | 0.017 |
+| MEDIUM | 11 | 529.9 | 381.2 | -148.7 | -11.6 | +115.3 | n/a | n/a | 0.031 |
+| MEDIUM | 23 | 445.9 | 381.8 | -64.1 | -11.0 | +115.9 | n/a | n/a | 0.031 |
+| MEDIUM | 37 | 504.9 | 443.3 | -61.6 | +50.5 | +177.4 | n/a | n/a | 0.031 |
+| HEAVY | 11 | 2,636.1 | 2,195.8 | -440.4 | -24.0 | +643.7 | n/a | n/a | 0.061 |
+| HEAVY | 23 | 2,563.4 | 2,188.5 | -374.9 | -31.3 | +636.4 | n/a | n/a | 0.061 |
+| HEAVY | 37 | 2,495.1 | 2,342.0 | -153.1 | +122.2 | +790.0 | n/a | n/a | 0.063 |
+
+Across training seeds, v2 means (sample standard deviations of the three
+per-seed means) were n6 2,068.9 (5.8), n7 2,769.9 (5.8), n8 4,035.3
+(10.2), MEDIUM 402.1 (35.7), and HEAVY 2,242.1 (86.6). No best training
+seed was selected for these summaries. Tiny test Exact coverage was
+**150/150 certified**; MEDIUM/HEAVY test has no Exact-eligible instances
+under `max_vessels=8`. The v2 aggregate test waiting was 2,958.0 in tiny
+(v1 2,860.3; FCFS 2,971.2; Rollout 2,716.0) and 1,322.1 in
+MEDIUM/HEAVY (v1 1,529.2; FCFS 1,306.3; Rollout 909.0). Thus v2's
+MEDIUM/HEAVY gain over v1 does not establish superiority to FCFS or Rollout.
+
+Diagnostics are **not** an independent second test. LOW traffic v2
+per-seed means were 140.9/101.8/144.6 (tiny model) and 84.0/66.3/82.7
+(MEDIUM/HEAVY model), versus FCFS 82.5 and Rollout 56.2. MEDIUM/HEAVY's
+cross-family tiny diagnostic gave 2,868.8/2,868.8/2,879.5, versus FCFS
+2,868.7 and Rollout 2,635.8. The LOW and cross-family diagnostic questions
+were already explored in the pilot; the current physical instances were
+newly seeded. Eligible diagnostic Exact results were certified 20/20 in tiny
+LOW and 50/50 in MEDIUM/HEAVY's LOW plus cross-family tiny.
+
+**Descriptive policy diagnostics, validation only.** Reconstructing the
+timestep-0 networks with seeds 11, 23 and 37 yielded distinct parameter
+tensors (bitwise unequal pairwise); the corresponding hashes were
+`81a7c55b...`, `1985073f...`, `1bbdd99f...`. Seeds 11 and 23 had identical
+timestep-0 waiting on every frozen validation scenario (60/60 tiny; 40/40
+MEDIUM/HEAVY), but their selected action indices matched in **0/420** and
+**0/800** decisions, respectively. Every vessel's berth start time was
+identical (420/420; 800/800), while its berth position differed in every
+case. The equal KPI is therefore not an initialization-seed defect or an
+identical deterministic policy. The three *selected* tiny v2 seeds produced
+identical schedules on 59/60 validation scenarios; they were independently
+initialized but converged to largely the same behavior. Across the 90
+post-initial tiny validation evaluations, four exact waiting values accounted
+for 70 observations, consistent with a small set of recurring schedules.
+
+For the selected checkpoints, FCFS action agreement means the PPO index
+equals the FCFS earliest-start/position index **in PPO's current state**;
+independent FCFS and PPO trajectories may diverge. Exact schedule agreement
+compares all final placements to a separate FCFS run on the same scenario.
+
+| Regime | Version/seed | FCFS action agreement | FCFS-identical schedules |
+| --- | --- | ---: | ---: |
+| Tiny | v1 11 / 23 / 37 | 136 / 220 / 247 of 420 | 0 / 0 / 0 of 60 |
+| Tiny | v2 11 / 23 / 37 | 393 / 394 / 393 of 420 | 36 / 37 / 36 of 60 |
+| MEDIUM/HEAVY | v1 11 / 23 / 37 | 165 / 146 / 252 of 800 | 0 / 0 / 0 of 40 |
+| MEDIUM/HEAVY | v2 11 / 23 / 37 | 778 / 779 / 0 of 800 | 24 / 24 / 0 of 40 |
+
+`evaluation_tiny_v2/` and `evaluation_medium_heavy_v2/` under
+`experiments/rl/extended_v1/` contain every `per_instance.jsonl` row,
+aggregates, reports and manifests. `comparison_tiny_v1_v2.json` and
+`comparison_medium_heavy_v1_v2.json` retain every paired scenario/seed row.
+Both v2 evaluations recorded zero invalid schedules, zero action-mask errors,
+no interrupted/failed runs, and passing split/historical/pilot-content
+leakage audits. Evaluation wall times were 218.7 s and 355.4 s; Exact
+reference runtimes were 109.6 s and 19.4 s separately. References were
+fingerprint-cached **within** each v2 evaluation across PPO seeds; the
+existing evaluator did not import v1's persisted results, so it recomputed
+each reference once in the v2 invocation (510 and 350 cache misses). No
+uncertified Exact result was used as an optimum. These synthetic suites and
+three training seeds do not establish convergence or generalization to real
+terminal operations; no architecture or hyperparameter was changed after
+observing the results.
+
 ## Known Limitations
 
 - Fixed vessel order and the finite candidate model: PPO cannot beat the
