@@ -3,7 +3,7 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 9 / Static Maskable PPO.
+Current status: Step 10 / DynamicBAP Environment.
 
 Completed:
 
@@ -20,9 +20,11 @@ Completed:
 - Step 9: Static Maskable PPO training, split-disjoint scenario mixtures,
   validation-only checkpoint selection and paired evaluation against FCFS,
   Greedy Rollout and certified tiny Exact
+- Step 10: event-driven DynamicBAP Gymnasium environment, horizon-bounded
+  observations, online joint actions and FCFS validation
 
-Completed: Steps 1-9. Current: Step 9 - Static Maskable PPO.
-Next: Step 10 - DynamicBAP Environment.
+Completed: Steps 1-10. Current: Step 10 - DynamicBAP Environment.
+Next: Step 11 - Dynamic Maskable PPO (not yet implemented or trained).
 
 The project scope is continuous berth allocation with two branches:
 
@@ -35,8 +37,9 @@ The v1 primary objective is to minimize total vessel waiting time. Quay-crane,
 yard, truck, and equipment scheduling policies are treated as fixed or
 exogenous behavior in Project 03 v1.
 
-Current methods are static FCFS, static Greedy Rollout, and tiny candidate-space
-enumeration. The reference is exact only within fixed-order, finite candidate
+Current methods include static FCFS, static Greedy Rollout, tiny candidate-space
+enumeration, static PPO and an online dynamic FCFS validation baseline. The
+reference is exact only within fixed-order, finite candidate
 decisions with earliest service starts, not unrestricted continuous BAP.
 `StaticBAPEnv` exposes the same fixed-order candidate decisions to RL agents.
 Step 9 trains MaskablePPO policies on it; see the Step 9 note for the measured
@@ -76,6 +79,30 @@ Read the Step 8 environment definition:
 Read the Step 9 training/evaluation definition and pilot results:
 
 - [docs/static_maskable_ppo.md](docs/static_maskable_ppo.md)
+
+Read the Step 10 online environment definition:
+
+- [docs/dynamic_bap_environment.md](docs/dynamic_bap_environment.md)
+
+Minimal online episode (run from the Project 03 directory):
+
+```python
+from berth_allocation_lab.envs import DynamicBAPEnv
+from berth_allocation_lab.policies.dynamic_fcfs import online_fcfs_action
+from berth_allocation_lab.scenarios import SyntheticScenarioConfig, SyntheticScenarioGenerator
+
+config = SyntheticScenarioConfig.load_yaml("configs/scenarios/synthetic_medium.yaml")
+dynamic_scenario = SyntheticScenarioGenerator().generate(config)
+env = DynamicBAPEnv(scenario=dynamic_scenario,
+                    max_vessels=config.traffic.vessel_count,
+                    future_horizon_min=240.0)
+observation, info = env.reset(seed=11)
+while not (env.terminated or env.truncated):
+    mask = env.action_masks()
+    action = online_fcfs_action(env)
+    assert mask[action]
+    observation, reward, terminated, truncated, info = env.step(action)
+```
 
 ## Package Structure
 

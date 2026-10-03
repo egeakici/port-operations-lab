@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+import math
 from pathlib import Path
 from typing import Any
 
@@ -39,6 +40,7 @@ class SyntheticScenarioConfig:
     generator_version: str = SYNTHETIC_GENERATOR_VERSION
     scenario_schema_version: int = SCENARIO_SCHEMA_VERSION
     future_horizon_min: float | None = None
+    max_drain_extension_min: float | None = None
 
     def __post_init__(self) -> None:
         _validate_non_empty_string(self.scenario_id, "Scenario ID")
@@ -72,6 +74,12 @@ class SyntheticScenarioConfig:
                 self.future_horizon_min,
                 "Future horizon",
             )
+            if not math.isfinite(self.future_horizon_min):
+                raise ValueError("Future horizon must be finite.")
+        if self.max_drain_extension_min is not None:
+            _validate_non_negative_number(self.max_drain_extension_min, "Maximum drain extension")
+            if not math.isfinite(self.max_drain_extension_min) or self.max_drain_extension_min == 0:
+                raise ValueError("Maximum drain extension must be finite and positive.")
         if (
             self.formulation == "static"
             and self.future_horizon_min is not None
@@ -109,6 +117,10 @@ class SyntheticScenarioConfig:
                 None
                 if data.get("future_horizon_min") is None
                 else float(data["future_horizon_min"])
+            ),
+            max_drain_extension_min=(
+                None if data.get("max_drain_extension_min") is None
+                else float(data["max_drain_extension_min"])
             ),
             terminal=TerminalConfig.from_dict(data.get("terminal", {})),
             traffic=TrafficConfig.from_dict(data.get("traffic", {})),
@@ -191,6 +203,12 @@ class SyntheticScenarioGenerator:
             nominal_duration_min=arrival_generation_end_min,
             arrival_generation_end_min=arrival_generation_end_min,
             future_horizon_min=config.future_horizon_min,
+            termination_mode="drain" if config.formulation == "dynamic" else None,
+            max_drain_extension_min=(
+                (10080.0 if config.max_drain_extension_min is None
+                 else config.max_drain_extension_min)
+                if config.formulation == "dynamic" else None
+            ),
             vessels=tuple(vessels),
         )
 

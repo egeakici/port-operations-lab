@@ -1,4 +1,9 @@
-"""StaticBAP Gymnasium environment; DynamicBAP remains a later step."""
+"""Static and online dynamic BAP Gymnasium environments."""
+
+from berth_allocation_lab.envs.dynamic_bap_env import (
+    DynamicBAPEnv, DynamicBAPEnvConsistencyError,
+)
+from berth_allocation_lab.envs.dynamic_scenario_provider import DynamicSyntheticScenarioProvider
 
 from berth_allocation_lab.envs.static_bap_env import (
     ENVIRONMENT_VERSION,
@@ -28,6 +33,9 @@ from berth_allocation_lab.envs.static_scenario_provider import (
 
 __all__ = [
     "CANDIDATE_FEATURES",
+    "DynamicBAPEnv",
+    "DynamicBAPEnvConsistencyError",
+    "DynamicSyntheticScenarioProvider",
     "ENVIRONMENT_VERSION",
     "MIXTURE_SELECTION_VERSION",
     "MixtureScenarioProvider",

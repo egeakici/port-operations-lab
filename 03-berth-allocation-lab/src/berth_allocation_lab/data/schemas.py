@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -75,6 +76,8 @@ class BAPScenarioInstance:
     arrival_generation_end_min: float
     vessels: tuple[BAPVesselInput, ...]
     future_horizon_min: float | None = None
+    termination_mode: str | None = None
+    max_drain_extension_min: float | None = None
 
     def __post_init__(self) -> None:
         _validate_non_empty_string(self.scenario_id, "Scenario ID")
@@ -112,6 +115,20 @@ class BAPScenarioInstance:
                 self.future_horizon_min,
                 "Future horizon",
             )
+            if not math.isfinite(self.future_horizon_min):
+                raise ValueError("Future horizon must be finite.")
+        if self.formulation == "dynamic":
+            if self.termination_mode is None:
+                object.__setattr__(self, "termination_mode", "drain")
+            if self.max_drain_extension_min is None:
+                object.__setattr__(self, "max_drain_extension_min", 10080.0)
+            if self.termination_mode != "drain":
+                raise ValueError("Dynamic scenarios require termination_mode='drain'.")
+            if self.max_drain_extension_min is None:
+                raise ValueError("Dynamic scenarios require max_drain_extension_min.")
+            _validate_positive_number(self.max_drain_extension_min, "Maximum drain extension")
+            if not math.isfinite(self.max_drain_extension_min):
+                raise ValueError("Maximum drain extension must be finite.")
 
         ordered = tuple(
             sorted(self.vessels, key=lambda vessel: vessel.arrival_time_min)
@@ -159,6 +176,9 @@ class BAPScenarioInstance:
         }
         if include_fingerprint:
             data["content_fingerprint"] = self.content_fingerprint
+        if self.formulation == "dynamic":
+            data["termination_mode"] = self.termination_mode
+            data["max_drain_extension_min"] = self.max_drain_extension_min
         return data
 
     @classmethod
@@ -186,6 +206,11 @@ class BAPScenarioInstance:
                 None
                 if data.get("future_horizon_min") is None
                 else float(data["future_horizon_min"])
+            ),
+            termination_mode=data.get("termination_mode"),
+            max_drain_extension_min=(
+                None if data.get("max_drain_extension_min") is None
+                else float(data["max_drain_extension_min"])
             ),
             vessels=tuple(
                 BAPVesselInput.from_dict(vessel_data)
