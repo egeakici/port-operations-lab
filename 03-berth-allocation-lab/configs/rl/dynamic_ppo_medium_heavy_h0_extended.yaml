@@ -1,0 +1,4 @@
+extends: configs/rl/dynamic_ppo_medium_heavy_extended.yaml
+experiment_id: dynamic_ppo_medium_heavy_h0_v1_extended
+horizon_min: 0
+output_dir: experiments/rl/dynamic_h0_extended

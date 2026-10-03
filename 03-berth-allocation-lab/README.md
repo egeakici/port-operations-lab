@@ -3,7 +3,8 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 10 / DynamicBAP Environment.
+Current status: Step 11 Part A / Dynamic Maskable PPO implemented; tiny pilot
+complete, medium/heavy pilot pending its measured compute budget.
 
 Completed:
 
@@ -22,9 +23,12 @@ Completed:
   Greedy Rollout and certified tiny Exact
 - Step 10: event-driven DynamicBAP Gymnasium environment, horizon-bounded
   observations, online joint actions and FCFS validation
+- Step 11 Part A: shared joint-action MaskablePPO, causal Online Rollout,
+  validation-only checkpoint selection and test gate. Tiny three-seed pilot is
+  complete; medium/heavy pilot and extended runs are pending.
 
-Completed: Steps 1-10. Current: Step 10 - DynamicBAP Environment.
-Next: Step 11 - Dynamic Maskable PPO (not yet implemented or trained).
+Completed: Steps 1-10. Current: Step 11 Part A. Next: extended campaign and
+Part B held-out evaluation; Step 12 follows only after Step 11.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -83,6 +87,10 @@ Read the Step 9 training/evaluation definition and pilot results:
 Read the Step 10 online environment definition:
 
 - [docs/dynamic_bap_environment.md](docs/dynamic_bap_environment.md)
+
+Read the Step 11 dynamic PPO protocol, frozen decision rule and commands:
+
+- [docs/dynamic_maskable_ppo.md](docs/dynamic_maskable_ppo.md)
 
 Minimal online episode (run from the Project 03 directory):
 

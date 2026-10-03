@@ -1,0 +1,14 @@
+extends: configs/rl/dynamic_ppo_tiny.yaml
+experiment_id: dynamic_ppo_smoke_v1
+output_dir: experiments/rl/dynamic_smoke
+training:
+  total_timesteps: 1024
+  eval_freq: 1024
+validation:
+  seeds_per_component: 1
+test:
+  seeds_per_component: 1
+diagnostics:
+  - name: density_diagnostic
+    first_seed: 7000000
+    seeds_per_component: 1

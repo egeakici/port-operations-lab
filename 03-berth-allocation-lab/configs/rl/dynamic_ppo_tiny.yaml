@@ -1,0 +1,9 @@
+extends: configs/rl/dynamic_ppo_tiny_extended.yaml
+experiment_id: dynamic_ppo_tiny_v1_pilot
+output_dir: experiments/rl/dynamic_pilot
+require_validation_decision: false
+training:
+  total_timesteps: 10240
+  eval_freq: 5120
+ppo:
+  n_envs: 4

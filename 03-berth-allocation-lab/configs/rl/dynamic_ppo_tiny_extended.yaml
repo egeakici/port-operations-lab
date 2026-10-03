@@ -1,0 +1,72 @@
+# Frozen before Step 11 results: PPO settings copied a priori from Step 9 extended.
+# H=240 primary campaign; Part A prepares this file but does not run it.
+schema_version: 1
+experiment_id: dynamic_ppo_tiny_v1_extended
+regime: tiny
+horizon_min: 240
+max_vessels: 8
+policy_id: dynamic_maskable_ppo_v1
+policy_architecture: dynamic_joint_action_scoring_v1
+observation_version: dynamic_obs_v1
+environment_version: dynamic_bap_env_v1
+time_scale_min: 1440.0
+length_scale_m: 1000.0
+reward_scale: 0.0006944444444444445
+output_dir: experiments/rl/dynamic_extended
+require_validation_decision: true
+prior_configs:
+  - configs/rl/static_ppo_smoke.yaml
+  - configs/rl/static_ppo_tiny.yaml
+  - configs/rl/static_ppo_medium_heavy.yaml
+  - configs/rl/static_ppo_tiny_extended.yaml
+  - configs/rl/static_ppo_medium_heavy_extended.yaml
+  - configs/rl/static_ppo_tiny_v2.yaml
+  - configs/rl/static_ppo_medium_heavy_v2.yaml
+components:
+  - name: tiny_n6
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: dynamic_tiny_n6
+    vessel_count: 6
+    weight: 1.0
+    excluded_seeds: [0, 1, 42]
+  - name: tiny_n7
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: dynamic_tiny_n7
+    vessel_count: 7
+    weight: 1.0
+    excluded_seeds: [0, 1, 42]
+  - name: tiny_n8
+    source_config: configs/scenarios/synthetic_tiny_congested.yaml
+    base_scenario_id: dynamic_tiny_n8
+    vessel_count: 8
+    weight: 1.0
+    excluded_seeds: [0, 1, 42]
+training:
+  training_seeds: [11, 23, 37]
+  total_timesteps: 300000
+  eval_freq: 10000
+ppo:
+  policy: MultiInputPolicy
+  gamma: 1.0
+  learning_rate: 0.0003
+  n_envs: 8
+  vec_env: dummy
+  n_steps: 256
+  batch_size: 256
+  n_epochs: 10
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  device: cpu
+validation:
+  first_seed: 5000000
+  seeds_per_component: 20
+test:
+  first_seed: 6000000
+  seeds_per_component: 50
+diagnostics:
+  - name: density_diagnostic
+    first_seed: 7000000
+    seeds_per_component: 10

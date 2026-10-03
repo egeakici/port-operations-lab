@@ -19,6 +19,7 @@ from berth_allocation_lab.data import BAPScenarioInstance, BAPVesselInput
 from berth_allocation_lab.envs.dynamic_observation import (
     OBSERVATION_VERSION, build_dynamic_observation_space, encode_dynamic_observation,
 )
+from berth_allocation_lab.envs.dynamic_visible_state import DynamicVisibleState
 from berth_allocation_lab.envs.static_bap_env import PROVIDER_SEED_UPPER_BOUND
 
 ENVIRONMENT_VERSION = "dynamic_bap_env_v1"
@@ -237,6 +238,22 @@ class DynamicBAPEnv(gym.Env):
         return tuple((action, vessel_id, candidate_index, position,
                       self._vessel_by_id[vessel_id].arrival_time_min)
                      for action, (vessel_id, candidate_index, position) in self._choices.items())
+
+    def visible_state(self) -> DynamicVisibleState:
+        """Return only revealed vessels and current legal choices, never future queue data."""
+        if self._needs_reset:
+            raise RuntimeError("Call reset() before visible_state().")
+        return DynamicVisibleState(
+            current_time_min=self.current_time_min,
+            berth_length_m=self._scenario.berth_length_m,
+            min_clearance_m=self._scenario.min_clearance_m,
+            future_horizon_min=self.future_horizon_min,
+            vessels_by_slot=tuple(self._vessel_by_id[vessel_id] for vessel_id in self._slot_ids),
+            statuses_by_slot=tuple(self._status[vessel_id] for vessel_id in self._slot_ids),
+            active_placements=self._active_placements(),
+            legal_choices=self.legal_choices,
+            wait_legal=bool(self.action_masks()[0]),
+        )
 
     def _validate_scenario(self, scenario: object) -> None:
         if not isinstance(scenario, BAPScenarioInstance):
