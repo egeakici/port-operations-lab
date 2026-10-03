@@ -22,7 +22,7 @@ FROZEN_PPO = {
     "gamma": 1.0, "learning_rate": 3e-4, "n_steps": 256, "batch_size": 256,
     "n_epochs": 10, "gae_lambda": 0.95, "clip_range": 0.2,
     "ent_coef": 0.01, "vf_coef": 0.5, "max_grad_norm": 0.5,
-    "device": "cpu", "vec_env": "dummy",
+    "vec_env": "dummy",
 }
 
 
@@ -152,6 +152,8 @@ class DynamicPPOConfig:
         for name, expected in FROZEN_PPO.items():
             if getattr(self.ppo, name) != expected:
                 raise DynamicConfigError(f"ppo.{name} must remain {expected!r}.")
+        if self.ppo.device not in {"cpu", "cuda"}:
+            raise DynamicConfigError("ppo.device must be cpu or cuda.")
         if self.ppo.n_envs not in {1, 4, 8}:
             raise DynamicConfigError("n_envs must be 1, 4 or 8.")
         if self.ppo.policy != "MultiInputPolicy":

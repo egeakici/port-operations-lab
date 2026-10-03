@@ -169,8 +169,11 @@ def train_dynamic_ppo(config: DynamicPPOConfig, training_seed: int, *,
                       output_root: str | Path | None = None,
                       total_timesteps: int | None = None, eval_freq: int | None = None,
                       progress: bool = False) -> dict[str, Any]:
+    config.validate()
     if training_seed not in config.training.training_seeds:
         raise ValueError("Training seed is not in the frozen seed set.")
+    if config.ppo.device == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA requested, but PyTorch does not detect an available CUDA device.")
     total = total_timesteps or config.training.total_timesteps
     frequency = eval_freq or config.training.eval_freq
     if total <= 0 or frequency <= 0:
@@ -193,6 +196,7 @@ def train_dynamic_ppo(config: DynamicPPOConfig, training_seed: int, *,
         "action_capacity": 1 + 2 * config.max_vessels**2,
         "candidate_capacity": 2 * config.max_vessels,
         "reward_scale": config.reward_scale, "hyperparameters": asdict(config.ppo),
+        "device_requested": config.ppo.device,
         "total_timesteps_requested": total, "eval_freq": frequency,
         "git_commit_hash": commit, "git_dirty": dirty,
         "config_sha256": config.source_sha256,
@@ -239,6 +243,9 @@ def train_dynamic_ppo(config: DynamicPPOConfig, training_seed: int, *,
             ent_coef=ppo.ent_coef, vf_coef=ppo.vf_coef,
             max_grad_norm=ppo.max_grad_norm, seed=training_seed,
             device=ppo.device, verbose=0)
+        manifest["device_actual"] = str(model.device)
+        if model.device.type != ppo.device:
+            raise RuntimeError(f"Requested {ppo.device}, but model is on {model.device}.")
         vec_env.seed(training_seed if config.ppo.n_envs == 1 else training_seed * 1000)
         checkpoint_metadata = {
             "training_seed": training_seed, "max_vessels": config.max_vessels,
@@ -247,6 +254,7 @@ def train_dynamic_ppo(config: DynamicPPOConfig, training_seed: int, *,
             "horizon_min": config.horizon_min, "config_sha256": config.source_sha256,
             "git_commit_hash": commit, "git_dirty": dirty,
             "hyperparameters": asdict(config.ppo),
+            "device_requested": ppo.device, "device_actual": str(model.device),
         }
         with progress_bar(enabled=progress, total=total, unit="step",
                           description=f"{config.experiment_id} seed {training_seed}") as bar:

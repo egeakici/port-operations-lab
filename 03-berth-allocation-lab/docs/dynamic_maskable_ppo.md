@@ -30,8 +30,12 @@ decisions are explicit diagnostics here.
 
 MaskablePPO uses gamma 1.0, learning rate 3e-4, 256 steps per environment,
 batch 256, 10 epochs, GAE lambda 0.95, clip 0.2, entropy coefficient 0.01,
-value coefficient 0.5, maximum gradient norm 0.5 and CPU. These were fixed
-from Step 9 before Step 11 results. Only training rewards are multiplied by
+value coefficient 0.5 and maximum gradient norm 0.5. These were fixed
+from Step 9 before Step 11 results. The existing configs default to CPU;
+CUDA is an optional execution device and does not change these settings.
+The run manifest and checkpoint record the requested and actual device.
+If `cuda` is requested but PyTorch cannot see a CUDA device, training fails
+before creating a run directory. Only training rewards are multiplied by
 1/1440. The raw event-driven reward remains `-queue_length * delta_time`,
 and a valid complete episode has raw return equal to negative total waiting
 minutes. `DummyVecEnv` has independent seeds per sub-environment: 1 for debug,
@@ -134,6 +138,20 @@ python scripts/train_dynamic_ppo.py --config configs/rl/dynamic_ppo_medium_heavy
 The extended configs request 300,000 tiny / 500,000 medium-heavy transitions
 per seed. Pilot results and campaign runtime estimates appear below only after
 bounded runs actually finish. No final held-out test result belongs in Part A.
+
+On a machine with a CUDA-enabled PyTorch installation, select the separate
+CUDA configs instead of editing the CPU campaign files. They inherit the
+same hyperparameters and scenario suites but use distinct experiment IDs,
+config hashes and output directories:
+
+```powershell
+python scripts/train_dynamic_ppo.py --config configs/rl/dynamic_ppo_tiny_extended_cuda.yaml --training-seed 11 --progress
+python scripts/train_dynamic_ppo.py --config configs/rl/dynamic_ppo_medium_heavy_extended_cuda.yaml --training-seed 11 --progress
+```
+
+Use the same config with seeds 23 and 37 for the rest of each campaign.
+CPU and CUDA training can yield different trajectories despite matching
+seeds, so compare their recorded runs rather than treating them as identical.
 
 The separate H=0 controls are prepared, not run; use the same three training
 seeds after scheduling their compute budget:

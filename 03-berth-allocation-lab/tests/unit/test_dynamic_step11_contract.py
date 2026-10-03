@@ -10,6 +10,7 @@ from berth_allocation_lab.rl.dynamic_decision import (
 )
 from berth_allocation_lab.rl.dynamic_evaluation import percentage_improvement, weighted_validation_mean
 from berth_allocation_lab.rl.dynamic_suites import audit_dynamic_suites, dynamic_suites
+from berth_allocation_lab.rl.dynamic_training import train_dynamic_ppo
 from berth_allocation_lab.rl.dynamic_wrappers import DynamicTrainingRewardScale
 from berth_allocation_lab.envs import DynamicBAPEnv
 from berth_allocation_lab.policies.dynamic_fcfs import online_fcfs_action
@@ -22,15 +23,41 @@ def config():
 
 def test_frozen_config_and_action_capacity(config):
     assert config.ppo.gamma == 1.0
+    assert config.ppo.device == "cpu"
     assert config.reward_scale == pytest.approx(1 / 1440)
     assert config.horizon_min == 240
     with pytest.raises(DynamicConfigError, match="observation"):
         replace(config, observation_version="static_obs_v1").validate()
     with pytest.raises(DynamicConfigError, match="gamma"):
         replace(config, ppo=replace(config.ppo, gamma=0.99)).validate()
+    with pytest.raises(DynamicConfigError, match="ppo.device"):
+        replace(config, ppo=replace(config.ppo, device="auto")).validate()
     assert replace(config, horizon_min=0).validate() is None
     with pytest.raises(DynamicConfigError, match="H=0 or H=240"):
         replace(config, horizon_min=60).validate()
+
+
+def test_cuda_configs_only_change_device_and_run_identity():
+    for regime in ("tiny", "medium_heavy"):
+        base = DynamicPPOConfig.load_yaml(f"configs/rl/dynamic_ppo_{regime}_extended.yaml")
+        cuda = DynamicPPOConfig.load_yaml(f"configs/rl/dynamic_ppo_{regime}_extended_cuda.yaml")
+        assert base.ppo.device == "cpu" and cuda.ppo.device == "cuda"
+        assert replace(cuda.ppo, device="cpu") == base.ppo
+        assert cuda.components == base.components
+        assert cuda.validation == base.validation and cuda.test == base.test
+        assert cuda.training == base.training
+        assert cuda.experiment_id != base.experiment_id
+        assert cuda.output_dir != base.output_dir
+        assert cuda.source_sha256 != base.source_sha256
+
+
+def test_cuda_unavailable_fails_before_creating_run(monkeypatch, tmp_path):
+    cuda = DynamicPPOConfig.load_yaml("configs/rl/dynamic_ppo_tiny_extended_cuda.yaml")
+    monkeypatch.setattr("torch.cuda.is_available", lambda: False)
+    root = tmp_path / "runs"
+    with pytest.raises(RuntimeError, match="CUDA requested"):
+        train_dynamic_ppo(cuda, 11, output_root=root)
+    assert not root.exists()
 
 
 def test_dynamic_rule_both_outcomes_and_undefined_gap():

@@ -1,0 +1,5 @@
+extends: configs/rl/dynamic_ppo_tiny_extended.yaml
+experiment_id: dynamic_ppo_tiny_v1_extended_cuda
+output_dir: experiments/rl/dynamic_extended_cuda
+ppo:
+  device: cuda
