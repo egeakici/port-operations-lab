@@ -1,0 +1,30 @@
+schema_version: 1
+benchmark_id: dynamic_h240_locked_v1
+formulation: dynamic
+output_root: experiments/benchmark/step12
+replay_mode: "off"
+bootstrap:
+  resamples: 10000
+  confidence_level: 0.95
+  seed: 12012
+decisions:
+  dynamic_rule_1: experiments/rl/dynamic_extended_cuda/validation_decision.json
+families:
+  tiny:
+    dynamic_tiny_n6: 1
+    dynamic_tiny_n7: 1
+    dynamic_tiny_n8: 1
+  medium_heavy:
+    dynamic_medium: 0.5
+    dynamic_heavy: 0.5
+sources:
+  - regime: tiny
+    version: v1
+    experiment_id: dynamic_ppo_tiny_v1_extended_cuda
+    config_path: configs/rl/dynamic_ppo_tiny_extended_cuda.yaml
+    evaluation_path: experiments/rl/dynamic_extended_cuda/evaluations/test_h240
+  - regime: medium_heavy
+    version: v1
+    experiment_id: dynamic_ppo_medium_heavy_v1_extended_cuda
+    config_path: configs/rl/dynamic_ppo_medium_heavy_extended_cuda.yaml
+    evaluation_path: experiments/rl/dynamic_extended_cuda/evaluations/test_h240

@@ -3,8 +3,9 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 11 Dynamic Maskable PPO training and held-out evaluation
-complete. CPU/CUDA inference parity remains unverified in this environment.
+Current status: Step 12A scientific benchmark core complete. Frozen Step 9/11
+held-out results are analyzed separately for Static and Dynamic BAP. Step 12B
+diagnostics remain pending; CPU/CUDA inference parity remains unverified.
 
 Completed:
 
@@ -25,9 +26,11 @@ Completed:
   observations, online joint actions and FCFS validation
 - Step 11: shared joint-action MaskablePPO, causal Online Rollout, six extended
   CUDA training runs, frozen validation decision and held-out evaluation.
+- Step 12A: frozen-record provenance, paired family-weighted benchmarks,
+  three-seed summaries and deterministic stratified bootstrap.
 
-Completed: Steps 1-11. Next: Step 12. See the Step 11 results note for the
-remaining CPU/CUDA inference parity check and scientific limitations.
+Completed: Steps 1-11 and Step 12A. Next: Step 12B. See the Step 11 results
+note for the remaining CPU/CUDA inference parity check and limitations.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -90,6 +93,10 @@ Read the Step 10 online environment definition:
 Read the Step 11 dynamic PPO protocol, frozen decision rule and commands:
 
 - [docs/dynamic_maskable_ppo.md](docs/dynamic_maskable_ppo.md)
+
+Read the Step 12A benchmark protocol and reproduction commands:
+
+- [docs/scientific_benchmark_step12a.md](docs/scientific_benchmark_step12a.md)
 
 Minimal online episode (run from the Project 03 directory):
 

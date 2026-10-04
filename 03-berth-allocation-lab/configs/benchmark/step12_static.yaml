@@ -1,0 +1,41 @@
+schema_version: 1
+benchmark_id: static_locked_v1
+formulation: static
+output_root: experiments/benchmark/step12
+replay_mode: "off"
+bootstrap:
+  resamples: 10000
+  confidence_level: 0.95
+  seed: 12012
+decisions:
+  v1: experiments/rl/extended_v1/validation_decision.json
+  v2: experiments/rl/extended_v1/validation_decision_v2.json
+families:
+  tiny:
+    bap_tiny_n6: 1
+    bap_tiny_n7: 1
+    bap_tiny_n8: 1
+  medium_heavy:
+    bap_medium: 0.5
+    bap_heavy: 0.5
+sources:
+  - regime: tiny
+    version: v1
+    experiment_id: static_ppo_tiny_v1_extended
+    config_path: configs/rl/static_ppo_tiny_extended.yaml
+    evaluation_path: experiments/rl/extended_v1/evaluation_tiny
+  - regime: tiny
+    version: v2
+    experiment_id: static_ppo_tiny_v2
+    config_path: configs/rl/static_ppo_tiny_v2.yaml
+    evaluation_path: experiments/rl/extended_v1/evaluation_tiny_v2
+  - regime: medium_heavy
+    version: v1
+    experiment_id: static_ppo_medium_heavy_v1_extended
+    config_path: configs/rl/static_ppo_medium_heavy_extended.yaml
+    evaluation_path: experiments/rl/extended_v1/evaluation_medium_heavy
+  - regime: medium_heavy
+    version: v2
+    experiment_id: static_ppo_medium_heavy_v2
+    config_path: configs/rl/static_ppo_medium_heavy_v2.yaml
+    evaluation_path: experiments/rl/extended_v1/evaluation_medium_heavy_v2
