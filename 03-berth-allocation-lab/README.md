@@ -3,9 +3,9 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 12A scientific benchmark core complete. Frozen Step 9/11
-held-out results are analyzed separately for Static and Dynamic BAP. Step 12B
-diagnostics remain pending; CPU/CUDA inference parity remains unverified.
+Current status: Step 12 scientific benchmark and diagnostic work complete.
+Frozen Step 9/11 held-out results are analyzed separately for Static and
+Dynamic BAP. CPU/CUDA inference parity remains unverified; Step 13 remains.
 
 Completed:
 
@@ -28,9 +28,11 @@ Completed:
   CUDA training runs, frozen validation decision and held-out evaluation.
 - Step 12A: frozen-record provenance, paired family-weighted benchmarks,
   three-seed summaries and deterministic stratified bootstrap.
+- Step 12B: locked decision/WAIT/tail diagnostics, source-grounded case traces
+  and bounded CPU decision-latency measurements.
 
-Completed: Steps 1-11 and Step 12A. Next: Step 12B. See the Step 11 results
-note for the remaining CPU/CUDA inference parity check and limitations.
+Completed: Steps 1-12. Next: Step 13. See the scientific benchmark findings
+for the remaining CPU/CUDA parity and source-data limitations.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -97,6 +99,10 @@ Read the Step 11 dynamic PPO protocol, frozen decision rule and commands:
 Read the Step 12A benchmark protocol and reproduction commands:
 
 - [docs/scientific_benchmark_step12a.md](docs/scientific_benchmark_step12a.md)
+
+Read the Step 12B scientific findings and diagnostic protocol:
+
+- [docs/scientific_benchmark_results.md](docs/scientific_benchmark_results.md)
 
 Minimal online episode (run from the Project 03 directory):
 
