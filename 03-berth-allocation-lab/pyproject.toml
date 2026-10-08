@@ -20,6 +20,10 @@ dependencies = [
 dev = [
     "pytest>=8,<9",
 ]
+viz = [
+    "streamlit>=1.36,<2",
+    "plotly>=5.22,<6",
+]
 # Step 9 reinforcement learning. Bounds follow the installed, tested metadata:
 # stable-baselines3 2.8.0 requires gymnasium>=0.29.1,<1.3.0 and torch>=2.3,<3.0;
 # sb3-contrib 2.8.0 requires stable_baselines3>=2.8.0,<3.0. SB3 2.9 (torch>=2.8)

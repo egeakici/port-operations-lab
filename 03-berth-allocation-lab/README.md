@@ -7,6 +7,21 @@ Current status: **PROJECT 03 COMPLETE** for its frozen synthetic Berth
 Allocation research scope. Steps 1-13 are complete. Static and Dynamic BAP
 remain scientifically distinct; CPU/CUDA inference parity remains unverified.
 
+## BAP Interactive Replay
+
+An optional, read-only Streamlit visualization replays genuine Dynamic BAP
+held-out events and placements using Project 02's UI conventions. It does not
+change the frozen scientific release or add a research step. See
+[the replay guide](docs/bap_interactive_replay.md) for provenance, controls,
+limitations and missing-data behavior.
+
+From this Project 03 directory in PowerShell:
+
+```powershell
+python -m pip install -e ".[viz]"
+python -m streamlit run frontend/bap_replay_app.py
+```
+
 Completed:
 
 - Step 1: problem specification
