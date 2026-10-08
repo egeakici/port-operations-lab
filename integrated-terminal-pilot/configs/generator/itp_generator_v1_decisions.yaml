@@ -1,0 +1,754 @@
+# Step 2 parameter decision register for itp_generator_v1.
+# status: FROZEN | PROPOSED_PENDING_REVIEW | BLOCKED | DEFERRED
+#   FROZEN                  - fixed by a FROZEN Step 1 decision (or the Step 2 brief for process rules)
+#   PROPOSED_PENDING_REVIEW - Step 1 PROPOSED value, repository-derived value, or Step 2 provisional value;
+#                             usable for DEVELOPMENT scenarios only; must be approved before validation.
+# source_kind: STEP1_FROZEN | STEP1_PROPOSED | STEP1_INFERRED | REPOSITORY_DERIVED | STEP2_PROVISIONAL | STEP2_BRIEF
+# Every leaf of itp_generator_v1.yaml (except config_schema_version) must be covered exactly once,
+# and selected_value must equal the configured value at every listed path.
+register_version: 1
+records:
+  - decision_id: S2-001
+    parameter_name: generator_version
+    parameter_paths: [generator_version]
+    selected_value: itp_generator_v1
+    unit: none
+    allowed_range: "itp_generator_v1"
+    source_kind: STEP1_FROZEN
+    source_document: docs/unified_data_contract.md
+    source_section: "2.1 Identity block; implementation_roadmap.md Step 2 scope"
+    rationale: Generator identity named by Step 1.
+    status: FROZEN
+    linked_step1_decision: D01
+    impact_on_generator: Recorded in every scenario identity block and manifest.
+    impact_on_future_simulator: None (provenance only).
+  - decision_id: S2-002
+    parameter_name: scenario_schema_version
+    parameter_paths: [scenario_schema_version]
+    selected_value: itp_scenario_v1
+    unit: none
+    allowed_range: "itp_scenario_v1"
+    source_kind: STEP1_FROZEN
+    source_document: docs/unified_data_contract.md
+    source_section: "2 Scenario document"
+    rationale: Scenario schema family frozen in Step 1.
+    status: FROZEN
+    linked_step1_decision: D13
+    impact_on_generator: Written as schema_version; loader rejects mismatches.
+    impact_on_future_simulator: Kernel loads only this schema.
+  - decision_id: S2-003
+    parameter_name: stream_namespace
+    parameter_paths: [stream_namespace]
+    selected_value: itp_v1
+    unit: none
+    allowed_range: "itp_v1"
+    source_kind: STEP1_FROZEN
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "6.3 Namespaced, entity-keyed exogenous streams (FROZEN)"
+    rationale: Key prefix of the frozen stream formula; keeps Project I disjoint from Project 03 generation.
+    status: FROZEN
+    linked_step1_decision: D23
+    impact_on_generator: Prefix of every stream key.
+    impact_on_future_simulator: None (no runtime randomness in v1, D19).
+  - decision_id: S2-004
+    parameter_name: seed bands for development, validation and test
+    parameter_paths: [seed_bands.development, seed_bands.validation, seed_bands.test]
+    selected_value: null
+    selected_values:
+      seed_bands.development: {first: 10000000, last: 10999999}
+      seed_bands.validation: {first: 11000000, last: 11999999}
+      seed_bands.test: {first: 12000000, last: 12999999}
+    unit: integer seed
+    allowed_range: "disjoint 1,000,000-wide bands"
+    source_kind: STEP1_FROZEN
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "6.1 Seed bands (FROZEN after collision audit); 6.2 collision audit"
+    rationale: Collision audit passed in Step 1; bands fixed.
+    status: FROZEN
+    linked_step1_decision: D23
+    impact_on_generator: Seeds outside the band of the requested split are rejected.
+    impact_on_future_simulator: None.
+  - decision_id: S2-005
+    parameter_name: diagnostic seed band
+    parameter_paths: [seed_bands.diagnostic]
+    selected_value: {first: 13000000, last: 13999999}
+    unit: integer seed
+    allowed_range: "disjoint from the three primary bands"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "6.1 (diagnostic band marked PROPOSED addition)"
+    rationale: Reserved for Step 8 ablations and sensitivity; nothing is generated in it in Step 2.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D23
+    impact_on_generator: Band reserved and checked; generation refused in Step 2.
+    impact_on_future_simulator: None.
+  - decision_id: S2-006
+    parameter_name: splits that Step 2 may generate
+    parameter_paths: [generation_policy.allowed_splits]
+    selected_value: [development]
+    unit: none
+    allowed_range: "subset of development, validation, test, diagnostic"
+    source_kind: STEP2_BRIEF
+    source_document: Step 2 brief
+    source_section: "21 Scenario identities and splits (generate development scenarios only)"
+    rationale: Validation, test and diagnostic generation are reserved for later steps; test generation additionally requires the Step 7 protocol lock.
+    status: FROZEN
+    linked_step1_decision: D23
+    impact_on_generator: Any other split is refused before any draw.
+    impact_on_future_simulator: None.
+  - decision_id: S2-007
+    parameter_name: planned development batch size per family
+    parameter_paths: [development_batch]
+    selected_value: {itp_medium: 30, itp_heavy: 30, itp_low: 5, itp_yard_bottleneck: 5}
+    unit: scenarios
+    allowed_range: ">= 30 per primary family (Step 4 degenerate test); >= 1 for development families"
+    source_kind: STEP1_INFERRED
+    source_document: docs/implementation_roadmap.md
+    source_section: "Step 4 degenerate equivalence test (>= 30 development scenarios per family)"
+    rationale: Minimum required by the Step 4 equivalence protocol; development families kept small.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D23
+    impact_on_generator: Default counts of the development batch command (overridable per run).
+    impact_on_future_simulator: Supplies Step 4 test scenarios.
+  - decision_id: S2-010
+    parameter_name: itp_medium traffic
+    parameter_paths: [families.itp_medium.traffic]
+    selected_value: {vessel_count: 16, mean_interarrival_minutes: 190.0, min_vessel_length_m: 200.0, max_vessel_length_m: 360.0, min_workload_moves: 250, max_workload_moves: 900}
+    unit: "vessels; minutes; meters; moves"
+    allowed_range: "inside frozen PPO medium/heavy support (<= 24 vessels, length 200-360 m, workload 250-900)"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "6.5 Scenario families (PROPOSED; confirmed at Step 2); values equal 03-berth-allocation-lab/configs/scenarios/synthetic_medium.yaml"
+    rationale: Mirrors the Project 03 medium family so frozen PPO stays in exogenous support.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D04
+    impact_on_generator: Vessel count, inter-arrival, length and workload distributions.
+    impact_on_future_simulator: Determines traffic load.
+  - decision_id: S2-011
+    parameter_name: itp_heavy traffic
+    parameter_paths: [families.itp_heavy.traffic]
+    selected_value: {vessel_count: 24, mean_interarrival_minutes: 120.0, min_vessel_length_m: 200.0, max_vessel_length_m: 360.0, min_workload_moves: 250, max_workload_moves: 900}
+    unit: "vessels; minutes; meters; moves"
+    allowed_range: "inside frozen PPO medium/heavy support"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "6.5; values equal 03-berth-allocation-lab/configs/scenarios/synthetic_heavy.yaml"
+    rationale: Mirrors the Project 03 heavy family (24 vessels = checkpoint max_vessels).
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D04
+    impact_on_generator: As S2-010.
+    impact_on_future_simulator: As S2-010.
+  - decision_id: S2-012
+    parameter_name: itp_low traffic (development/diagnostic family, not defined by Step 1)
+    parameter_paths: [families.itp_low.traffic]
+    selected_value: {vessel_count: 8, mean_interarrival_minutes: 300.0, min_vessel_length_m: 200.0, max_vessel_length_m: 360.0, min_workload_moves: 250, max_workload_moves: 900}
+    unit: "vessels; minutes; meters; moves"
+    allowed_range: "any; PPO input support assessed per scenario"
+    source_kind: REPOSITORY_DERIVED
+    source_document: 03-berth-allocation-lab/configs/scenarios/synthetic_low.yaml
+    source_section: traffic
+    rationale: The Step 2 brief asks for a LOW profile "as defined in the Step 1 protocol", but Step 1 defines only itp_medium and itp_heavy. The Project 03 low preset is the closest repository definition. Development/diagnostic only; not a primary family.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D23
+    impact_on_generator: Traffic of the low family.
+    impact_on_future_simulator: Low-load development scenarios.
+  - decision_id: S2-013
+    parameter_name: itp_yard_bottleneck traffic (development/diagnostic family, not defined by Step 1)
+    parameter_paths: [families.itp_yard_bottleneck.traffic]
+    selected_value: {vessel_count: 18, mean_interarrival_minutes: 160.0, min_vessel_length_m: 200.0, max_vessel_length_m: 360.0, min_workload_moves: 300, max_workload_moves: 900}
+    unit: "vessels; minutes; meters; moves"
+    allowed_range: "any; PPO input support assessed per scenario"
+    source_kind: REPOSITORY_DERIVED
+    source_document: 02-mini-port-simulation/scenarios/yard_bottleneck.json
+    source_section: traffic
+    rationale: Closest repository definition of a yard bottleneck. Its eta_delay_stddev_minutes (20) and productivity factors (0.9-1.05) are NOT carried over because D18 and D19 forbid ETA noise and productivity noise.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D23
+    impact_on_generator: Traffic of the bottleneck family.
+    impact_on_future_simulator: Yard-constrained development scenarios.
+  - decision_id: S2-014
+    parameter_name: role of primary families
+    parameter_paths: [families.itp_medium.role, families.itp_heavy.role]
+    selected_value: primary
+    unit: none
+    allowed_range: "primary | development_diagnostic"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "6.5"
+    rationale: Primary experimental families of Step 1.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D23
+    impact_on_generator: Reported in index and manifest.
+    impact_on_future_simulator: Determines which families enter Step 7.
+  - decision_id: S2-015
+    parameter_name: role of added families
+    parameter_paths: [families.itp_low.role, families.itp_yard_bottleneck.role]
+    selected_value: development_diagnostic
+    unit: none
+    allowed_range: "primary | development_diagnostic"
+    source_kind: STEP2_PROVISIONAL
+    source_document: Step 2 brief
+    source_section: "8 Vessel scenario generation (LOW and YARD BOTTLENECK profiles)"
+    rationale: Not part of the Step 1 primary factorial; may not enter primary claims without a protocol amendment.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D23
+    impact_on_generator: Reported in index and manifest.
+    impact_on_future_simulator: Excluded from primary contrasts.
+  - decision_id: S2-016
+    parameter_name: PPO regime label by quay geometry
+    parameter_paths: [families.itp_medium.ppo_regime, families.itp_heavy.ppo_regime, families.itp_low.ppo_regime, families.itp_yard_bottleneck.ppo_regime]
+    selected_value: medium_heavy
+    unit: none
+    allowed_range: "medium_heavy (1200 m / 20 m, M = 24) | tiny (600 m / 20 m, M = 8)"
+    source_kind: STEP1_FROZEN
+    source_document: docs/bap_compatibility_contract.md
+    source_section: "4 Scenario restrictions for frozen PPO; G12"
+    rationale: All four families use the 1200 m / 20 m quay; per-scenario support is still checked.
+    status: FROZEN
+    linked_step1_decision: D25
+    impact_on_generator: Selects the support envelope and max_vessels for the DynamicBAPEnv reset check.
+    impact_on_future_simulator: Selects checkpoints in Step 5.
+  - decision_id: S2-017
+    parameter_name: quay length
+    parameter_paths: [families.itp_medium.terminal.berth_length_m, families.itp_heavy.terminal.berth_length_m, families.itp_low.terminal.berth_length_m, families.itp_yard_bottleneck.terminal.berth_length_m]
+    selected_value: 1200.0
+    unit: m
+    allowed_range: "1200.0"
+    source_kind: STEP1_FROZEN
+    source_document: docs/integration_specification.md
+    source_section: "2 Decision register D04"
+    rationale: Primary regime geometry.
+    status: FROZEN
+    linked_step1_decision: D04
+    impact_on_generator: Quay record; block layout extent; vessel length bound.
+    impact_on_future_simulator: Berth geometry.
+  - decision_id: S2-018
+    parameter_name: minimum clearance
+    parameter_paths: [families.itp_medium.terminal.min_clearance_m, families.itp_heavy.terminal.min_clearance_m, families.itp_low.terminal.min_clearance_m, families.itp_yard_bottleneck.terminal.min_clearance_m]
+    selected_value: 20.0
+    unit: m
+    allowed_range: "20.0"
+    source_kind: STEP1_FROZEN
+    source_document: docs/integration_specification.md
+    source_section: "2 Decision register D04"
+    rationale: Primary regime geometry.
+    status: FROZEN
+    linked_step1_decision: D04
+    impact_on_generator: Quay record; degenerate crane-count bound.
+    impact_on_future_simulator: Berth legality.
+  - decision_id: S2-019
+    parameter_name: quay crane fleet size (UNRESOLVED ALTERNATIVE)
+    parameter_paths: [families.itp_medium.terminal.quay_crane_count, families.itp_heavy.terminal.quay_crane_count, families.itp_low.terminal.quay_crane_count, families.itp_yard_bottleneck.terminal.quay_crane_count]
+    selected_value: 4
+    unit: cranes
+    allowed_range: "4, 6 or 8 (protocol 11 sensitivity levels)"
+    source_kind: REPOSITORY_DERIVED
+    source_document: "03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml; 02-mini-port-simulation/scenarios/yard_bottleneck.json"
+    source_section: "terminal.quay_crane_count"
+    rationale: "Step 1 states no base fleet size. The source families all use 4. Step 1 protocol 11 lists sensitivity levels 4, 6, 8 'around base', which suggests 6. Both alternatives are legitimate, so this value is NOT final: 4 is used only because it is the repository value of the source families, and the choice must be confirmed before validation."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D08
+    impact_on_generator: Number of crane records.
+    impact_on_future_simulator: Crane capacity; strongly affects realized service.
+  - decision_id: S2-020
+    parameter_name: crane nominal productivity
+    parameter_paths: [families.itp_medium.terminal.quay_crane_moves_per_hour, families.itp_heavy.terminal.quay_crane_moves_per_hour, families.itp_low.terminal.quay_crane_moves_per_hour, families.itp_yard_bottleneck.terminal.quay_crane_moves_per_hour]
+    selected_value: 30.0
+    unit: moves/h
+    allowed_range: "25-35 (protocol 11 sensitivity levels)"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/unified_data_contract.md
+    source_section: "5 Quay crane record (PROPOSED 30.0, Project 02 default)"
+    rationale: Step 1 proposed value; equals Project 02/03 configs.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D09
+    impact_on_generator: Crane records.
+    impact_on_future_simulator: Coupling A.
+  - decision_id: S2-021
+    parameter_name: maximum cranes per vessel
+    parameter_paths: [families.itp_medium.terminal.max_cranes_per_vessel, families.itp_heavy.terminal.max_cranes_per_vessel, families.itp_low.terminal.max_cranes_per_vessel, families.itp_yard_bottleneck.terminal.max_cranes_per_vessel]
+    selected_value: 2
+    unit: cranes
+    allowed_range: "1 .. quay_crane_count"
+    source_kind: REPOSITORY_DERIVED
+    source_document: 02-mini-port-simulation/src/mini_port_sim/arrivals/vessel_generator.py
+    source_section: "VesselArrivalGenerator (max_cranes=2); repository_capability_audit.md R1 uses the same value"
+    rationale: Step 1 gives no max_cranes rule; Project 02 assigns 2 to every vessel. Uniform rule, not size-dependent, to avoid inventing a length-to-crane mapping.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D08
+    impact_on_generator: Vessel.max_cranes.
+    impact_on_future_simulator: Crane allocation limit.
+  - decision_id: S2-022
+    parameter_name: yard block count and TEU capacity (low/medium/heavy)
+    parameter_paths: [families.itp_medium.yard.block_count, families.itp_heavy.yard.block_count, families.itp_low.yard.block_count]
+    selected_value: 4
+    unit: blocks
+    allowed_range: ">= 1"
+    source_kind: REPOSITORY_DERIVED
+    source_document: "03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml"
+    source_section: "terminal.yard_block_count"
+    rationale: Repository value of the source families (never exercised physically in Project 03).
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    impact_on_generator: Number of yard blocks; layout.
+    impact_on_future_simulator: Yard capacity and distances.
+  - decision_id: S2-023
+    parameter_name: yard block TEU capacity (low/medium/heavy)
+    parameter_paths: [families.itp_medium.yard.capacity_teu, families.itp_heavy.yard.capacity_teu, families.itp_low.yard.capacity_teu]
+    selected_value: 2200.0
+    unit: TEU
+    allowed_range: "<= geometric slots x operating_fill_limit"
+    source_kind: REPOSITORY_DERIVED
+    source_document: "03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml"
+    source_section: "terminal.yard_block_capacity_teu"
+    rationale: Repository value; never exercised physically in Project 03. The quality report states the resulting TEU balance honestly.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    impact_on_generator: Block capacity; initial-inventory target.
+    impact_on_future_simulator: Storage gate.
+  - decision_id: S2-024
+    parameter_name: yard bottleneck block count
+    parameter_paths: [families.itp_yard_bottleneck.yard.block_count]
+    selected_value: 2
+    unit: blocks
+    allowed_range: ">= 1"
+    source_kind: REPOSITORY_DERIVED
+    source_document: 02-mini-port-simulation/scenarios/yard_bottleneck.json
+    source_section: terminal.yard_block_count
+    rationale: Repository bottleneck definition.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    impact_on_generator: Number of blocks.
+    impact_on_future_simulator: Yard capacity.
+  - decision_id: S2-025
+    parameter_name: yard bottleneck block TEU capacity
+    parameter_paths: [families.itp_yard_bottleneck.yard.capacity_teu]
+    selected_value: 800.0
+    unit: TEU
+    allowed_range: "<= geometric slots x operating_fill_limit"
+    source_kind: REPOSITORY_DERIVED
+    source_document: 02-mini-port-simulation/scenarios/yard_bottleneck.json
+    source_section: terminal.yard_block_capacity_teu
+    rationale: "Repository bottleneck definition. BLOCKED BY EVIDENCE (Step 2 smoke run, development seeds 10000000-10000009): 0 of 10 scenarios are feasible because the pre-episode export/transshipment inventory implied by the provisional landside timing (S2-060) exceeds 2 x 800 TEU at t = 0. The generator rejects such scenarios (YARD_CAPACITY_EXCEEDED) and does not shrink cargo or timing to fit. Resolution needs a decision on bottleneck storage capacity and/or export lead time; until then the family is not generated."
+    status: BLOCKED
+    linked_step1_decision: D11
+    impact_on_generator: Family itp_yard_bottleneck is refused (no scenarios generated).
+    impact_on_future_simulator: No yard-bottleneck development scenarios until resolved.
+  - decision_id: S2-026
+    parameter_name: block grid for 2200 TEU blocks
+    parameter_paths: [families.itp_medium.yard.bay_count, families.itp_heavy.yard.bay_count, families.itp_low.yard.bay_count]
+    selected_value: 40
+    unit: bays
+    allowed_range: "even, >= 2"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "6.1 YardBlockRecord (bay_count even); no value in Step 1"
+    rationale: "With rows 14 and tiers 5, 40 x 14 x 5 = 2800 slots; x (5-1)/5 = 2240 TEU >= 2200 TEU. Four blocks of 40 x 6.5 m = 260 m plus three 40 m gaps = 1160 m fit the 1200 m quay."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D12
+    impact_on_generator: Block geometry and footprint.
+    impact_on_future_simulator: Transfer-point distances; G1 grid.
+  - decision_id: S2-027
+    parameter_name: rows for 2200 TEU blocks
+    parameter_paths: [families.itp_medium.yard.row_count, families.itp_heavy.yard.row_count, families.itp_low.yard.row_count]
+    selected_value: 14
+    unit: rows
+    allowed_range: ">= 1"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "6.1; no value in Step 1"
+    rationale: See S2-026.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D12
+    impact_on_generator: Block geometry.
+    impact_on_future_simulator: G1 grid.
+  - decision_id: S2-028
+    parameter_name: maximum tiers (all families)
+    parameter_paths: [families.itp_medium.yard.max_tiers, families.itp_heavy.yard.max_tiers, families.itp_low.yard.max_tiers, families.itp_yard_bottleneck.yard.max_tiers]
+    selected_value: 5
+    unit: tiers
+    allowed_range: ">= 2"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "6.1; operating_fill_limit (max_tiers-1)/max_tiers; no value in Step 1"
+    rationale: Gives operating_fill_limit 0.8 under the Step 1 proposed rule.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D12
+    impact_on_generator: Geometry; fill limit.
+    impact_on_future_simulator: G1 grid.
+  - decision_id: S2-029
+    parameter_name: block grid for 800 TEU blocks (bays)
+    parameter_paths: [families.itp_yard_bottleneck.yard.bay_count]
+    selected_value: 20
+    unit: bays
+    allowed_range: "even, >= 2"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "6.1; no value in Step 1"
+    rationale: "20 x 10 x 5 = 1000 slots; x 0.8 = 800 TEU."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D12
+    impact_on_generator: Geometry.
+    impact_on_future_simulator: G1 grid; distances.
+  - decision_id: S2-030
+    parameter_name: block grid for 800 TEU blocks (rows)
+    parameter_paths: [families.itp_yard_bottleneck.yard.row_count]
+    selected_value: 10
+    unit: rows
+    allowed_range: ">= 1"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "6.1; no value in Step 1"
+    rationale: See S2-029.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D12
+    impact_on_generator: Geometry.
+    impact_on_future_simulator: G1 grid.
+  - decision_id: S2-031
+    parameter_name: block handling capacity (NO STEP 1 VALUE)
+    parameter_paths: [families.itp_medium.yard.handling_capacity_moves_per_hour, families.itp_heavy.yard.handling_capacity_moves_per_hour, families.itp_low.yard.handling_capacity_moves_per_hour, families.itp_yard_bottleneck.yard.handling_capacity_moves_per_hour]
+    selected_value: 60.0
+    unit: moves/h per block
+    allowed_range: "> 0; protocol 11 sensitivity x0.5, x1, x2 of base"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/integration_specification.md
+    source_section: "5.3 Coupling C (mu_b PROPOSED, no value); container_yard_foundation.md 6.1"
+    rationale: "No defensible Step 1 or repository value exists. 60 moves/h is a placeholder that lets the field be generated and validated; it gates no Step 2 output. The Step 4 yard-handling coupling must not be used for any validation comparison until this value is decided."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    blocks: [step4_physics_freeze, validation_comparisons]
+    impact_on_generator: Recorded on yard block records only.
+    impact_on_future_simulator: Coupling C capacity.
+  - decision_id: S2-032
+    parameter_name: initial yard occupancy fraction
+    parameter_paths: [families.itp_medium.yard.initial_occupancy_fraction, families.itp_heavy.yard.initial_occupancy_fraction, families.itp_low.yard.initial_occupancy_fraction, families.itp_yard_bottleneck.yard.initial_occupancy_fraction]
+    selected_value: 0.5
+    unit: fraction of capacity_teu
+    allowed_range: "0.3, 0.5, 0.7 (protocol 11 levels)"
+    source_kind: STEP1_INFERRED
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "11 Sensitivity (initial yard occupancy fraction 0.3, 0.5, 0.7 around base)"
+    rationale: Step 1 lists sensitivity levels around an unstated base; 0.5 is the middle level. Initial import filler stops at this target; required pre-staged exports/transshipment may exceed it up to capacity, and the realized value is reported.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    impact_on_generator: Number of initial import filler containers.
+    impact_on_future_simulator: Starting congestion.
+  - decision_id: S2-040
+    parameter_name: yard layout spacing (apron depth, block gap, gate setback)
+    parameter_paths: [yard_layout.apron_depth_m, yard_layout.block_gap_m, yard_layout.gate_setback_m]
+    selected_value: null
+    selected_values:
+      yard_layout.apron_depth_m: 100.0
+      yard_layout.block_gap_m: 40.0
+      yard_layout.gate_setback_m: 100.0
+    unit: m
+    allowed_range: "> 0; layout must fit the quay length"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/integration_specification.md
+    source_section: "5.2 Coupling B (block transfer point; no layout values in Step 1)"
+    rationale: "Simple synthetic layout: one row of blocks centred along the quay, apron 100 m deep, 40 m roads between blocks, gate 100 m behind the yard. Distances span about 100-1150 m, so transport binds for far blocks under the D10 values."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D10
+    impact_on_generator: Block origins, transfer points, gate position.
+    impact_on_future_simulator: Coupling B distances.
+  - decision_id: S2-041
+    parameter_name: ground slot footprint
+    parameter_paths: [yard_layout.ground_slot_length_m, yard_layout.ground_slot_width_m]
+    selected_value: null
+    selected_values:
+      yard_layout.ground_slot_length_m: 6.5
+      yard_layout.ground_slot_width_m: 2.8
+    unit: m
+    allowed_range: "> 0"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/container_yard_foundation.md
+    source_section: "6.1 (PROPOSED 6.5 / 2.8)"
+    rationale: Step 1 proposed synthetic footprint.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D12
+    impact_on_generator: Block footprint and transfer point.
+    impact_on_future_simulator: Distances; visuals.
+  - decision_id: S2-042
+    parameter_name: bay axis
+    parameter_paths: [yard_layout.bay_axis]
+    selected_value: X
+    unit: none
+    allowed_range: "X"
+    source_kind: STEP1_FROZEN
+    source_document: docs/container_yard_foundation.md
+    source_section: "6.1 (bay_axis X FROZEN v1)"
+    rationale: Frozen.
+    status: FROZEN
+    linked_step1_decision: D12
+    impact_on_generator: Block records.
+    impact_on_future_simulator: G1 indexing.
+  - decision_id: S2-043
+    parameter_name: block capabilities and allowed sizes
+    parameter_paths: [yard_layout.capabilities, yard_layout.allowed_sizes]
+    selected_value: null
+    selected_values:
+      yard_layout.capabilities: [general]
+      yard_layout.allowed_sizes: [20_ft, 40_ft]
+    unit: none
+    allowed_range: "YardCapability values; ContainerSize values"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "6.1; 1 (Project 01 vocabulary)"
+    rationale: Only general laden cargo is generated (S2-053), so general capability suffices; both Project 01 sizes allowed everywhere.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D12
+    impact_on_generator: Block records; capability check of initial inventory.
+    impact_on_future_simulator: Yard eligibility.
+  - decision_id: S2-050
+    parameter_name: discharge share of vessel workload
+    parameter_paths: [cargo.discharge_share_min, cargo.discharge_share_max]
+    selected_value: null
+    selected_values:
+      cargo.discharge_share_min: 0.4
+      cargo.discharge_share_max: 0.6
+    unit: fraction of workload_moves
+    allowed_range: "0 < min <= max < 1"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "5 (workload = discharge + load); no value in Step 1"
+    rationale: "Symmetric, uninformative split around one half. Workload itself keeps the Project 03 distribution, so the berth projection is unchanged by this choice."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D14
+    impact_on_generator: Discharge/load move counts per vessel.
+    impact_on_future_simulator: Cargo balance.
+  - decision_id: S2-051
+    parameter_name: transshipment composition and connection
+    parameter_paths: [cargo.transshipment_share_of_load, cargo.max_transshipment_share_of_discharge, cargo.min_transshipment_connection_min]
+    selected_value: null
+    selected_values:
+      cargo.transshipment_share_of_load: 0.3
+      cargo.max_transshipment_share_of_discharge: 0.5
+      cargo.min_transshipment_connection_min: 720.0
+    unit: "fraction; fraction; minutes"
+    allowed_range: "[0,1]; [0,1]; >= 0"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "2.1 Flow rules; no values in Step 1"
+    rationale: "Placeholder mix so every flow occurs. A transshipment container links an inbound vessel to a later outbound vessel arriving >= 720 min after it; unmet transshipment demand of early vessels is served by pre-episode transshipment inventory (origin PRE_EPISODE)."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D13
+    impact_on_generator: Flow mix and vessel links.
+    impact_on_future_simulator: Inter-vessel cargo dependencies; rollover risk.
+  - decision_id: S2-052
+    parameter_name: 40 ft share of containers
+    parameter_paths: [cargo.forty_ft_share]
+    selected_value: 0.6
+    unit: fraction of containers
+    allowed_range: "[0, 1]"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "5 Units and accounting; no value in Step 1"
+    rationale: "Gives a TEU factor of about 1.6 TEU per container. Placeholder, not calibrated."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D14
+    impact_on_generator: Container sizes, TEU totals.
+    impact_on_future_simulator: Yard TEU pressure.
+  - decision_id: S2-053
+    parameter_name: special cargo shares (empty, reefer, hazardous)
+    parameter_paths: [cargo.empty_share, cargo.reefer_share, cargo.hazardous_share]
+    selected_value: 0.0
+    unit: fraction of containers
+    allowed_range: "[0, 1]"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "2 ContainerRecord (load_state, is_reefer, is_hazardous)"
+    rationale: Non-zero shares would require a block-capability layout (EMPTY, REEFER_POWER, HAZARDOUS blocks) that Step 1 does not define. The schema, generator and validator support the fields; the shares stay 0.0 until a layout is approved.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D13
+    impact_on_generator: All generated containers are laden, non-reefer, non-hazardous.
+    impact_on_future_simulator: No capability segregation in v1 development data.
+  - decision_id: S2-054
+    parameter_name: container gross weight bounds
+    parameter_paths: [cargo.laden_weight_kg, cargo.empty_weight_kg]
+    selected_value: null
+    selected_values:
+      cargo.laden_weight_kg: {20_ft: {min: 8000, max: 28000}, 40_ft: {min: 10000, max: 30000}}
+      cargo.empty_weight_kg: {20_ft: 2300, 40_ft: 3800}
+    unit: kg
+    allowed_range: "positive integers; min <= max"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "2 (gross_weight_kg synthetic, per-size generator bounds; not used by v1 physics)"
+    rationale: Uniform synthetic bounds; recorded but unused by v1 physics. Not a claim about any standard or terminal.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D13
+    impact_on_generator: gross_weight_kg draws.
+    impact_on_future_simulator: None in v1 (Project 05 stacking rules later).
+  - decision_id: S2-060
+    parameter_name: landside timing
+    parameter_paths: [landside.export_gate_lead_max_min, landside.import_dwell_min_min, landside.import_dwell_max_min, landside.initial_import_pickup_max_min]
+    selected_value: null
+    selected_values:
+      landside.export_gate_lead_max_min: 2880.0
+      landside.import_dwell_min_min: 720.0
+      landside.import_dwell_max_min: 4320.0
+      landside.initial_import_pickup_max_min: 2880.0
+    unit: min
+    allowed_range: ">= 0; dwell min <= max"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "2 (scheduled_gate_in_time_min, scheduled_pickup_time_min); no values in Step 1"
+    rationale: "Uniform placeholders. Export gate-in = destination arrival - export_cutoff_min - U[0, lead_max]; a negative result means the export entered before the episode and is initial inventory. Import pickup request = origin arrival + U[dwell_min, dwell_max]. Initial import pickup request ~ U[0, initial_import_pickup_max_min]."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D26
+    impact_on_generator: Exogenous landside request times; amount of pre-staged export inventory.
+    impact_on_future_simulator: Landside demand and yard dwell.
+  - decision_id: S2-070
+    parameter_name: nominal service configuration
+    parameter_paths: [physics_profiles.standard_v1.service]
+    selected_value: {berthing_preparation_minutes: 30.0, service_minutes_per_move: 0.5, departure_preparation_minutes: 20.0}
+    unit: min; min/move
+    allowed_range: "exactly ServiceConfig(30, 0.5, 20)"
+    source_kind: STEP1_FROZEN
+    source_document: docs/integration_specification.md
+    source_section: "D20, D21; bap_compatibility_contract.md G15"
+    rationale: Same values as every Project 03 training scenario.
+    status: FROZEN
+    linked_step1_decision: D20
+    impact_on_generator: nominal_service_time_min via planned_berth_occupancy_minutes.
+    impact_on_future_simulator: Preparation phases.
+  - decision_id: S2-071
+    parameter_name: multi-crane efficiency
+    parameter_paths: [physics_profiles.standard_v1.crane.efficiency]
+    selected_value: {one: 1.0, two: 0.92, three: 0.82, four_plus: 0.72}
+    unit: factor
+    allowed_range: "(0, 1]; one = 1.0"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/unified_data_contract.md
+    source_section: "6 Physics configuration (PROPOSED values = Project 02 ServiceConfig)"
+    rationale: Project 02 defaults, validated through ServiceConfig.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D09
+    impact_on_generator: Physics block only.
+    impact_on_future_simulator: Coupling A.
+  - decision_id: S2-072
+    parameter_name: productivity factor
+    parameter_paths: [physics_profiles.standard_v1.crane.productivity_factor]
+    selected_value: 1.0
+    unit: factor
+    allowed_range: "1.0"
+    source_kind: STEP1_FROZEN
+    source_document: docs/integration_specification.md
+    source_section: "D19"
+    rationale: Deterministic physics.
+    status: FROZEN
+    linked_step1_decision: D19
+    impact_on_generator: Physics block.
+    impact_on_future_simulator: Coupling A.
+  - decision_id: S2-073
+    parameter_name: transport coupling coefficients
+    parameter_paths: [physics_profiles.standard_v1.transport]
+    selected_value: {enabled: true, speed_m_per_min: 250.0, handover_min: 2.0, units_per_crane: 4}
+    unit: "bool; m/min; min; units"
+    allowed_range: "protocol 11 levels: units 3/4/6, speed 150/250/400"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/unified_data_contract.md
+    source_section: "6 Physics configuration"
+    rationale: Step 1 proposed values.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D10
+    impact_on_generator: Physics block.
+    impact_on_future_simulator: Coupling B.
+  - decision_id: S2-074
+    parameter_name: yard coupling coefficients
+    parameter_paths: [physics_profiles.standard_v1.yard]
+    selected_value: {constraints_enabled: true, congestion_rho0: 0.7, congestion_g_min: 0.5, landside_reserved_fraction: 0.2, gate_flow_demand: block_handling_capacity}
+    unit: "bool; fraction; factor; fraction; mode"
+    allowed_range: "g_min in (0,1]; rho0 in [0,1)"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/integration_specification.md
+    source_section: "5.3, 5.4 (rho0 0.70, g_min 0.50, landside share 0.2, gate demand = mu_b)"
+    rationale: Step 1 proposed values.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    impact_on_generator: Physics block.
+    impact_on_future_simulator: Coupling C.
+  - decision_id: S2-075
+    parameter_name: work batching and rollover wait
+    parameter_paths: [physics_profiles.standard_v1.work]
+    selected_value: {batch_size_containers: 10, max_load_wait_min: 240.0}
+    unit: "containers; min"
+    allowed_range: ">= 1; > 0"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/integration_specification.md
+    source_section: "D15, D17 (confirm at Step 4)"
+    rationale: Step 1 proposed values; confirmation belongs to Step 4.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D15
+    impact_on_generator: Physics block.
+    impact_on_future_simulator: Batch granularity; rollover.
+  - decision_id: S2-076
+    parameter_name: visibility horizon
+    parameter_paths: [physics_profiles.standard_v1.visibility]
+    selected_value: {future_horizon_min: 240.0}
+    unit: min
+    allowed_range: "240.0"
+    source_kind: STEP1_FROZEN
+    source_document: docs/integration_specification.md
+    source_section: "D18"
+    rationale: Frozen PPO information contract.
+    status: FROZEN
+    linked_step1_decision: D18
+    impact_on_generator: Physics block; berth projection future_horizon_min.
+    impact_on_future_simulator: Announcements.
+  - decision_id: S2-077
+    parameter_name: drain extension
+    parameter_paths: [physics_profiles.standard_v1.episode]
+    selected_value: {max_drain_extension_min: 10080.0}
+    unit: min
+    allowed_range: "> 0, finite"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/unified_data_contract.md
+    source_section: "6 (PROPOSED, Project 03 dynamic default)"
+    rationale: Project 03 default.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D27
+    impact_on_generator: Physics block; berth projection max_drain_extension_min.
+    impact_on_future_simulator: T_end for censoring.
+  - decision_id: S2-078
+    parameter_name: same-timestamp cycle limit
+    parameter_paths: [physics_profiles.standard_v1.kernel]
+    selected_value: {same_timestamp_cycle_limit: 10000}
+    unit: cycles
+    allowed_range: ">= 1"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/integration_specification.md
+    source_section: "8.3 Protections"
+    rationale: Step 1 proposed value.
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D22
+    impact_on_generator: Physics block.
+    impact_on_future_simulator: Livelock guard.
+  - decision_id: S2-079
+    parameter_name: export cutoff
+    parameter_paths: [physics_profiles.standard_v1.landside]
+    selected_value: {export_cutoff_min: 360.0}
+    unit: min
+    allowed_range: ">= 0"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/container_yard_foundation.md
+    source_section: "2 (export_cutoff_min named as a Step 2 parameter; no value)"
+    rationale: "Placeholder: exports must request gate-in at least 6 h before the destination vessel arrives. Stored in the scenario physics block (additive key physics.landside, Step 2 amendment A4) so DQ11 can be checked from the scenario alone."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D26
+    impact_on_generator: Export gate-in times; DQ11.
+    impact_on_future_simulator: None beyond the exogenous times.
+  - decision_id: S2-080
+    parameter_name: degenerate equivalence profile
+    parameter_paths: [physics_profiles.degenerate_equivalence_v1]
+    selected_value: {base_profile: standard_v1, quay_crane_moves_per_hour: 120.0, max_cranes_per_vessel: 1, quay_crane_count_rule: max_coexisting_vessels, transport_enabled: false, yard_constraints_enabled: false}
+    unit: mixed
+    allowed_range: "as data contract 6"
+    source_kind: STEP1_FROZEN
+    source_document: docs/unified_data_contract.md
+    source_section: "6 degenerate profile; implementation_roadmap.md Step 4"
+    rationale: "Exactly the Step 1 profile. 'At least as many cranes as the maximum number of concurrently berthed vessels' is implemented policy-independently as the largest number of the scenario's vessels that can physically share the quay (sum of the k shortest lengths + (k-1) x clearance <= quay length), which bounds every policy."
+    status: FROZEN
+    linked_step1_decision: D20
+    impact_on_generator: Crane count/rate, vessel max_cranes, physics flags; exogenous traffic unchanged.
+    impact_on_future_simulator: Step 4 equivalence test.

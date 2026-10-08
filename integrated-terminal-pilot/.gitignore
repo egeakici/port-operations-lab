@@ -1,0 +1,7 @@
+# Generated runtime artifacts for Project I. Scenario batches are reproducible
+# from the configuration, seed and git commit recorded in their manifests.
+experiments/*
+
+# Keep lightweight documentation/placeholders trackable when added intentionally.
+!**/README.md
+!**/.gitkeep

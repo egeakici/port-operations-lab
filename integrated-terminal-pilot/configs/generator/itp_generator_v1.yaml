@@ -1,0 +1,193 @@
+# Project I Step 2 generator configuration (itp_generator_v1).
+# SYNTHETIC - NOT CALIBRATED TO A REAL TERMINAL.
+# Every parameter below is covered by exactly one record in
+# itp_generator_v1_decisions.yaml; the loader rejects uncovered or mismatched values.
+config_schema_version: 1
+generator_version: itp_generator_v1
+scenario_schema_version: itp_scenario_v1
+stream_namespace: itp_v1
+
+seed_bands:
+  development: {first: 10000000, last: 10999999}
+  validation: {first: 11000000, last: 11999999}
+  test: {first: 12000000, last: 12999999}
+  diagnostic: {first: 13000000, last: 13999999}
+
+generation_policy:
+  allowed_splits: [development]
+
+development_batch:
+  itp_medium: 30
+  itp_heavy: 30
+  itp_low: 5
+  itp_yard_bottleneck: 5
+
+families:
+  itp_medium:
+    role: primary
+    ppo_regime: medium_heavy
+    traffic:
+      vessel_count: 16
+      mean_interarrival_minutes: 190.0
+      min_vessel_length_m: 200.0
+      max_vessel_length_m: 360.0
+      min_workload_moves: 250
+      max_workload_moves: 900
+    terminal:
+      berth_length_m: 1200.0
+      min_clearance_m: 20.0
+      quay_crane_count: 4
+      quay_crane_moves_per_hour: 30.0
+      max_cranes_per_vessel: 2
+    yard:
+      block_count: 4
+      capacity_teu: 2200.0
+      bay_count: 40
+      row_count: 14
+      max_tiers: 5
+      handling_capacity_moves_per_hour: 60.0
+      initial_occupancy_fraction: 0.5
+  itp_heavy:
+    role: primary
+    ppo_regime: medium_heavy
+    traffic:
+      vessel_count: 24
+      mean_interarrival_minutes: 120.0
+      min_vessel_length_m: 200.0
+      max_vessel_length_m: 360.0
+      min_workload_moves: 250
+      max_workload_moves: 900
+    terminal:
+      berth_length_m: 1200.0
+      min_clearance_m: 20.0
+      quay_crane_count: 4
+      quay_crane_moves_per_hour: 30.0
+      max_cranes_per_vessel: 2
+    yard:
+      block_count: 4
+      capacity_teu: 2200.0
+      bay_count: 40
+      row_count: 14
+      max_tiers: 5
+      handling_capacity_moves_per_hour: 60.0
+      initial_occupancy_fraction: 0.5
+  itp_low:
+    role: development_diagnostic
+    ppo_regime: medium_heavy
+    traffic:
+      vessel_count: 8
+      mean_interarrival_minutes: 300.0
+      min_vessel_length_m: 200.0
+      max_vessel_length_m: 360.0
+      min_workload_moves: 250
+      max_workload_moves: 900
+    terminal:
+      berth_length_m: 1200.0
+      min_clearance_m: 20.0
+      quay_crane_count: 4
+      quay_crane_moves_per_hour: 30.0
+      max_cranes_per_vessel: 2
+    yard:
+      block_count: 4
+      capacity_teu: 2200.0
+      bay_count: 40
+      row_count: 14
+      max_tiers: 5
+      handling_capacity_moves_per_hour: 60.0
+      initial_occupancy_fraction: 0.5
+  itp_yard_bottleneck:
+    role: development_diagnostic
+    ppo_regime: medium_heavy
+    traffic:
+      vessel_count: 18
+      mean_interarrival_minutes: 160.0
+      min_vessel_length_m: 200.0
+      max_vessel_length_m: 360.0
+      min_workload_moves: 300
+      max_workload_moves: 900
+    terminal:
+      berth_length_m: 1200.0
+      min_clearance_m: 20.0
+      quay_crane_count: 4
+      quay_crane_moves_per_hour: 30.0
+      max_cranes_per_vessel: 2
+    yard:
+      block_count: 2
+      capacity_teu: 800.0
+      bay_count: 20
+      row_count: 10
+      max_tiers: 5
+      handling_capacity_moves_per_hour: 60.0
+      initial_occupancy_fraction: 0.5
+
+yard_layout:
+  apron_depth_m: 100.0
+  block_gap_m: 40.0
+  ground_slot_length_m: 6.5
+  ground_slot_width_m: 2.8
+  gate_setback_m: 100.0
+  bay_axis: X
+  capabilities: [general]
+  allowed_sizes: [20_ft, 40_ft]
+
+cargo:
+  discharge_share_min: 0.4
+  discharge_share_max: 0.6
+  transshipment_share_of_load: 0.3
+  max_transshipment_share_of_discharge: 0.5
+  min_transshipment_connection_min: 720.0
+  forty_ft_share: 0.6
+  empty_share: 0.0
+  reefer_share: 0.0
+  hazardous_share: 0.0
+  laden_weight_kg:
+    20_ft: {min: 8000, max: 28000}
+    40_ft: {min: 10000, max: 30000}
+  empty_weight_kg:
+    20_ft: 2300
+    40_ft: 3800
+
+landside:
+  export_gate_lead_max_min: 2880.0
+  import_dwell_min_min: 720.0
+  import_dwell_max_min: 4320.0
+  initial_import_pickup_max_min: 2880.0
+
+physics_profiles:
+  standard_v1:
+    service:
+      berthing_preparation_minutes: 30.0
+      service_minutes_per_move: 0.5
+      departure_preparation_minutes: 20.0
+    crane:
+      efficiency: {one: 1.0, two: 0.92, three: 0.82, four_plus: 0.72}
+      productivity_factor: 1.0
+    transport:
+      enabled: true
+      speed_m_per_min: 250.0
+      handover_min: 2.0
+      units_per_crane: 4
+    yard:
+      constraints_enabled: true
+      congestion_rho0: 0.7
+      congestion_g_min: 0.5
+      landside_reserved_fraction: 0.2
+      gate_flow_demand: block_handling_capacity
+    work:
+      batch_size_containers: 10
+      max_load_wait_min: 240.0
+    visibility:
+      future_horizon_min: 240.0
+    episode:
+      max_drain_extension_min: 10080.0
+    kernel:
+      same_timestamp_cycle_limit: 10000
+    landside:
+      export_cutoff_min: 360.0
+  degenerate_equivalence_v1:
+    base_profile: standard_v1
+    quay_crane_moves_per_hour: 120.0
+    max_cranes_per_vessel: 1
+    quay_crane_count_rule: max_coexisting_vessels
+    transport_enabled: false
+    yard_constraints_enabled: false

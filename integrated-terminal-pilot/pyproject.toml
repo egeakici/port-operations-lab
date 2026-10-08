@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "integrated-terminal-pilot"
+version = "0.1.0"
+description = "Project I: integrated berth, quay-crane and yard research pilot for Port Operations Lab."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0,<7",
+    "terminal-core==0.1.0",
+    "mini-port-sim==0.1.0",
+    "berth-allocation-lab==0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = ["integration: uses installed Project 01-03 packages and repository files"]

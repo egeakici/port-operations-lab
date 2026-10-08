@@ -1,0 +1,391 @@
+{
+  "container_groups": [
+    {
+      "container_size": "20_ft",
+      "flow": "import",
+      "group_id": "GRP-0001",
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "quantity": 1,
+      "source_vessel_id": "V001",
+      "target_vessel_id": null
+    },
+    {
+      "container_size": "40_ft",
+      "flow": "import",
+      "group_id": "GRP-0002",
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "quantity": 1,
+      "source_vessel_id": "V001",
+      "target_vessel_id": null
+    },
+    {
+      "container_size": "40_ft",
+      "flow": "transshipment",
+      "group_id": "GRP-0003",
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "quantity": 1,
+      "source_vessel_id": "V001",
+      "target_vessel_id": "V002"
+    },
+    {
+      "container_size": "20_ft",
+      "flow": "export",
+      "group_id": "GRP-0004",
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "quantity": 2,
+      "source_vessel_id": null,
+      "target_vessel_id": "V002"
+    }
+  ],
+  "containers": [
+    {
+      "cargo_flow": "import",
+      "container_group_id": "GRP-0001",
+      "container_id": "CNT-000001",
+      "container_size": "20_ft",
+      "destination_vessel_id": null,
+      "gross_weight_kg": 18000,
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "origin_vessel_id": "V001",
+      "present_at_episode_start": false,
+      "scheduled_gate_in_time_min": null,
+      "scheduled_pickup_time_min": 300.0,
+      "size_teu": 1.0,
+      "source_scenario_id": "itp_example_development_seed10000000",
+      "terminal_entry_mode": "VESSEL",
+      "terminal_exit_mode": "LANDSIDE"
+    },
+    {
+      "cargo_flow": "import",
+      "container_group_id": "GRP-0002",
+      "container_id": "CNT-000002",
+      "container_size": "40_ft",
+      "destination_vessel_id": null,
+      "gross_weight_kg": 26500,
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "origin_vessel_id": "V001",
+      "present_at_episode_start": false,
+      "scheduled_gate_in_time_min": null,
+      "scheduled_pickup_time_min": 420.0,
+      "size_teu": 2.0,
+      "source_scenario_id": "itp_example_development_seed10000000",
+      "terminal_entry_mode": "VESSEL",
+      "terminal_exit_mode": "LANDSIDE"
+    },
+    {
+      "cargo_flow": "transshipment",
+      "container_group_id": "GRP-0003",
+      "container_id": "CNT-000003",
+      "container_size": "40_ft",
+      "destination_vessel_id": "V002",
+      "gross_weight_kg": 21000,
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "origin_vessel_id": "V001",
+      "present_at_episode_start": false,
+      "scheduled_gate_in_time_min": null,
+      "scheduled_pickup_time_min": null,
+      "size_teu": 2.0,
+      "source_scenario_id": "itp_example_development_seed10000000",
+      "terminal_entry_mode": "VESSEL",
+      "terminal_exit_mode": "VESSEL"
+    },
+    {
+      "cargo_flow": "export",
+      "container_group_id": "GRP-0004",
+      "container_id": "CNT-000004",
+      "container_size": "20_ft",
+      "destination_vessel_id": "V002",
+      "gross_weight_kg": 15200,
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "origin_vessel_id": null,
+      "present_at_episode_start": false,
+      "scheduled_gate_in_time_min": 120.0,
+      "scheduled_pickup_time_min": null,
+      "size_teu": 1.0,
+      "source_scenario_id": "itp_example_development_seed10000000",
+      "terminal_entry_mode": "LANDSIDE",
+      "terminal_exit_mode": "VESSEL"
+    },
+    {
+      "cargo_flow": "export",
+      "container_group_id": "GRP-0004",
+      "container_id": "CNT-000005",
+      "container_size": "20_ft",
+      "destination_vessel_id": "V002",
+      "gross_weight_kg": 12400,
+      "is_hazardous": false,
+      "is_reefer": false,
+      "load_state": "laden",
+      "origin_vessel_id": null,
+      "present_at_episode_start": true,
+      "scheduled_gate_in_time_min": null,
+      "scheduled_pickup_time_min": null,
+      "size_teu": 1.0,
+      "source_scenario_id": "itp_example_development_seed10000000",
+      "terminal_entry_mode": "LANDSIDE",
+      "terminal_exit_mode": "VESSEL"
+    }
+  ],
+  "fingerprints": {
+    "berth_projection_fingerprint": "771fee9410fa9bd399177982233b3351d7810632075e93d2da442d169bad7c38",
+    "berth_projection_physical_fingerprint": "6fedf13d2513261ad34d97a400897c2bbb7306d379f451c3b533be5df99baa5f",
+    "container_manifest_fingerprint": "3e599cbf89e0b21d6328eee61425af33128aed6740fc6c4a79b5d13076cbe65b",
+    "exogenous_schedule_fingerprint": "100eb1ca7d43547a0351091043c7bc4c62fc713bfd500421590645b8dbee4731",
+    "generator_config_fingerprint": null,
+    "physical_fingerprint": "1b835e7bb621d418e4dfce5fd0c3a01f78dfcac8512701abb40371cfd9595dd6",
+    "physics_config_fingerprint": "e377fcf7a09042430ee3fa1d4168c154fc060cd8c9d542a8f6d42bc54147b76c",
+    "resource_fingerprint": "f0bb5a3c6e686f85ef58fc58e89cc41a1bfa9c967cc22814c57a24b11cb12a66",
+    "scenario_fingerprint": "5b093b326f94006ffac889770db34c5654775306df86164184bf478dca003c1d",
+    "terminal_geometry_fingerprint": "d6691801c4e5f9374b68be97b9ce82f077ca83e61571cf07f91dde9d64f2d706"
+  },
+  "identity": {
+    "data_provenance": "synthetic",
+    "generator_version": "hand_written_example",
+    "physics_profile": "standard_v1",
+    "project_id": "project_i_integrated_terminal_pilot",
+    "scenario_family": "itp_example",
+    "scenario_id": "itp_example_development_seed10000000",
+    "scenario_seed": 10000000,
+    "split": "development",
+    "yard_fidelity": "G0"
+  },
+  "initial_state": {
+    "block_status": {
+      "B01": "open",
+      "B02": "open"
+    },
+    "container_locations": [
+      {
+        "container_id": "CNT-000001",
+        "location": {
+          "bay": null,
+          "kind": "VESSEL",
+          "location_id": "V001",
+          "row": null,
+          "slot_resolution": null,
+          "tier": null
+        },
+        "status": "EXPECTED_BY_VESSEL"
+      },
+      {
+        "container_id": "CNT-000002",
+        "location": {
+          "bay": null,
+          "kind": "VESSEL",
+          "location_id": "V001",
+          "row": null,
+          "slot_resolution": null,
+          "tier": null
+        },
+        "status": "EXPECTED_BY_VESSEL"
+      },
+      {
+        "container_id": "CNT-000003",
+        "location": {
+          "bay": null,
+          "kind": "VESSEL",
+          "location_id": "V001",
+          "row": null,
+          "slot_resolution": null,
+          "tier": null
+        },
+        "status": "EXPECTED_BY_VESSEL"
+      },
+      {
+        "container_id": "CNT-000004",
+        "location": {
+          "bay": null,
+          "kind": "EXTERNAL_LANDSIDE",
+          "location_id": null,
+          "row": null,
+          "slot_resolution": null,
+          "tier": null
+        },
+        "status": "EXPECTED_BY_LANDSIDE"
+      },
+      {
+        "container_id": "CNT-000005",
+        "location": {
+          "bay": null,
+          "kind": "YARD_BLOCK",
+          "location_id": "B02",
+          "row": null,
+          "slot_resolution": "BLOCK_ONLY",
+          "tier": null
+        },
+        "status": "IN_YARD"
+      }
+    ],
+    "time_min": 0.0
+  },
+  "physics": {
+    "crane": {
+      "efficiency": {
+        "four_plus": 0.72,
+        "one": 1.0,
+        "three": 0.82,
+        "two": 0.92
+      },
+      "productivity_factor": 1.0
+    },
+    "episode": {
+      "max_drain_extension_min": 10080.0
+    },
+    "kernel": {
+      "same_timestamp_cycle_limit": 10000
+    },
+    "landside": {
+      "export_cutoff_min": 360.0
+    },
+    "service": {
+      "berthing_preparation_minutes": 30.0,
+      "departure_preparation_minutes": 20.0,
+      "service_minutes_per_move": 0.5
+    },
+    "transport": {
+      "enabled": true,
+      "handover_min": 2.0,
+      "speed_m_per_min": 250.0,
+      "units_per_crane": 4
+    },
+    "visibility": {
+      "future_horizon_min": 240.0
+    },
+    "work": {
+      "batch_size_containers": 10,
+      "max_load_wait_min": 240.0
+    },
+    "yard": {
+      "congestion_g_min": 0.5,
+      "congestion_rho0": 0.7,
+      "constraints_enabled": true,
+      "gate_flow_demand": "block_handling_capacity",
+      "landside_reserved_fraction": 0.2
+    }
+  },
+  "resources": {
+    "quay_cranes": [
+      {
+        "compatible_vessel_ids": null,
+        "crane_id": "QC01",
+        "home_position_m": 600.0,
+        "nominal_moves_per_hour": 30.0,
+        "rail_id": "R1",
+        "unavailability_windows": []
+      }
+    ]
+  },
+  "schema_version": "itp_scenario_v1",
+  "terminal": {
+    "gates": [
+      {
+        "gate_id": "G01",
+        "x_m": 600.0,
+        "y_m": 261.2
+      }
+    ],
+    "quay": {
+      "berth_length_m": 1200.0,
+      "min_clearance_m": 20.0,
+      "quay_line_y_m": 0.0
+    },
+    "yard_blocks": [
+      {
+        "allowed_sizes": [
+          "20_ft",
+          "40_ft"
+        ],
+        "bay_axis": "X",
+        "bay_count": 8,
+        "block_id": "B01",
+        "capabilities": [
+          "general"
+        ],
+        "capacity_teu": 96.0,
+        "geometric_capacity_teu": 128.0,
+        "geometric_slot_count": 128,
+        "ground_slot_length_m": 6.5,
+        "ground_slot_width_m": 2.8,
+        "handling_capacity_moves_per_hour": 40.0,
+        "max_tiers": 4,
+        "operating_fill_limit": 0.75,
+        "origin_x_m": 100.0,
+        "origin_y_m": 150.0,
+        "row_count": 4,
+        "transfer_point_x_m": 126.0,
+        "transfer_point_y_m": 150.0
+      },
+      {
+        "allowed_sizes": [
+          "20_ft",
+          "40_ft"
+        ],
+        "bay_axis": "X",
+        "bay_count": 8,
+        "block_id": "B02",
+        "capabilities": [
+          "general"
+        ],
+        "capacity_teu": 96.0,
+        "geometric_capacity_teu": 128.0,
+        "geometric_slot_count": 128,
+        "ground_slot_length_m": 6.5,
+        "ground_slot_width_m": 2.8,
+        "handling_capacity_moves_per_hour": 40.0,
+        "max_tiers": 4,
+        "operating_fill_limit": 0.75,
+        "origin_x_m": 400.0,
+        "origin_y_m": 150.0,
+        "row_count": 4,
+        "transfer_point_x_m": 426.0,
+        "transfer_point_y_m": 150.0
+      }
+    ]
+  },
+  "vessels": [
+    {
+      "arrival_time_min": 0.0,
+      "discharge_move_count": 3,
+      "discharge_teu": 5.0,
+      "extra_work_units": 0,
+      "length_m": 250.0,
+      "load_move_count": 0,
+      "load_teu": 0.0,
+      "max_cranes": 1,
+      "nominal_service_time_min": 51.5,
+      "priority": 2,
+      "vessel_id": "V001",
+      "workload_moves": 3
+    },
+    {
+      "arrival_time_min": 600.0,
+      "discharge_move_count": 0,
+      "discharge_teu": 0.0,
+      "extra_work_units": 0,
+      "length_m": 220.0,
+      "load_move_count": 3,
+      "load_teu": 4.0,
+      "max_cranes": 1,
+      "nominal_service_time_min": 51.5,
+      "priority": 2,
+      "vessel_id": "V002",
+      "workload_moves": 3
+    }
+  ]
+}
