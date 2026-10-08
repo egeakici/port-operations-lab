@@ -3,9 +3,9 @@
 Project 03 is the berth-allocation optimization laboratory for the Port
 Operations Lab roadmap.
 
-Current status: Step 12 scientific benchmark and diagnostic work complete.
-Frozen Step 9/11 held-out results are analyzed separately for Static and
-Dynamic BAP. CPU/CUDA inference parity remains unverified; Step 13 remains.
+Current status: **PROJECT 03 COMPLETE** for its frozen synthetic Berth
+Allocation research scope. Steps 1-13 are complete. Static and Dynamic BAP
+remain scientifically distinct; CPU/CUDA inference parity remains unverified.
 
 Completed:
 
@@ -30,9 +30,12 @@ Completed:
   three-seed summaries and deterministic stratified bootstrap.
 - Step 12B: locked decision/WAIT/tail diagnostics, source-grounded case traces
   and bounded CPU decision-latency measurements.
+- Step 13: immutable SQLite results warehouse, final CSV tables and figures,
+  scientific report, provenance/backup manifest and independent release verifier.
 
-Completed: Steps 1-12. Next: Step 13. See the scientific benchmark findings
-for the remaining CPU/CUDA parity and source-data limitations.
+The final release is `experiments/results/project03/project03_final_v1/`.
+It is derived from frozen Step 12A/B evidence and is Git-ignored. The
+scientific findings and limitations remain in the documents below.
 
 The project scope is continuous berth allocation with two branches:
 
@@ -52,8 +55,9 @@ decisions with earliest service starts, not unrestricted continuous BAP.
 `StaticBAPEnv` exposes the same fixed-order candidate decisions to RL agents.
 Step 9 trains MaskablePPO policies on it; see the Step 9 note for the measured
 pilot results, which are short-budget pilots, not established performance.
-Planned methods include continuous optimization, rolling-horizon references,
-and later DQN-family experiments.
+Continuous optimization, rolling-horizon references and other new algorithms
+would require a separate future research protocol; they are not part of the
+completed Project 03 baseline.
 
 Read the frozen Step 1 specification:
 
@@ -103,6 +107,29 @@ Read the Step 12A benchmark protocol and reproduction commands:
 Read the Step 12B scientific findings and diagnostic protocol:
 
 - [docs/scientific_benchmark_results.md](docs/scientific_benchmark_results.md)
+
+Read the final report and query the verified warehouse:
+
+- [docs/project03_final_report.md](docs/project03_final_report.md)
+- [docs/project03_results_queries.md](docs/project03_results_queries.md)
+
+From this directory, inspect or verify the release with single-line PowerShell commands:
+
+```powershell
+python scripts/build_project03_results.py --dry-run
+python scripts/verify_project03_release.py
+```
+
+`python scripts/build_project03_results.py --build` is only for a new release:
+it refuses to overwrite an existing directory. An optional external archive
+can be created with `python scripts/create_project03_backup.py --output "D:\project03_final_v1.zip"`;
+the source files are never deleted.
+
+## What next?
+
+Project 03 is closed as an isolated BAP research lab. Any stronger search,
+real-terminal calibration or integrated berth/crane/yard work belongs to a
+new protocol and identity outside this frozen release.
 
 Minimal online episode (run from the Project 03 directory):
 
