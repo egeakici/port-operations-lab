@@ -2,7 +2,7 @@
 # SYNTHETIC - NOT CALIBRATED TO A REAL TERMINAL.
 # Every parameter below is covered by exactly one record in
 # itp_generator_v1_decisions.yaml; the loader rejects uncovered or mismatched values.
-config_schema_version: 1
+config_schema_version: 2
 generator_version: itp_generator_v1
 scenario_schema_version: itp_scenario_v1
 stream_namespace: itp_v1
@@ -19,13 +19,14 @@ generation_policy:
 development_batch:
   itp_medium: 30
   itp_heavy: 30
-  itp_low: 5
-  itp_yard_bottleneck: 5
+  itp_low: 10
+  itp_yard_bottleneck: 10
 
 families:
   itp_medium:
     role: primary
     ppo_regime: medium_heavy
+    intended_bottleneck: none
     traffic:
       vessel_count: 16
       mean_interarrival_minutes: 190.0
@@ -40,7 +41,8 @@ families:
       quay_crane_moves_per_hour: 30.0
       max_cranes_per_vessel: 2
     yard:
-      block_count: 4
+      block_count: 12
+      block_line_count: 3
       capacity_teu: 2200.0
       bay_count: 40
       row_count: 14
@@ -50,6 +52,7 @@ families:
   itp_heavy:
     role: primary
     ppo_regime: medium_heavy
+    intended_bottleneck: none
     traffic:
       vessel_count: 24
       mean_interarrival_minutes: 120.0
@@ -64,7 +67,8 @@ families:
       quay_crane_moves_per_hour: 30.0
       max_cranes_per_vessel: 2
     yard:
-      block_count: 4
+      block_count: 12
+      block_line_count: 3
       capacity_teu: 2200.0
       bay_count: 40
       row_count: 14
@@ -74,6 +78,7 @@ families:
   itp_low:
     role: development_diagnostic
     ppo_regime: medium_heavy
+    intended_bottleneck: none
     traffic:
       vessel_count: 8
       mean_interarrival_minutes: 300.0
@@ -88,7 +93,8 @@ families:
       quay_crane_moves_per_hour: 30.0
       max_cranes_per_vessel: 2
     yard:
-      block_count: 4
+      block_count: 12
+      block_line_count: 3
       capacity_teu: 2200.0
       bay_count: 40
       row_count: 14
@@ -98,6 +104,7 @@ families:
   itp_yard_bottleneck:
     role: development_diagnostic
     ppo_regime: medium_heavy
+    intended_bottleneck: yard_block_handling
     traffic:
       vessel_count: 18
       mean_interarrival_minutes: 160.0
@@ -112,17 +119,19 @@ families:
       quay_crane_moves_per_hour: 30.0
       max_cranes_per_vessel: 2
     yard:
-      block_count: 2
-      capacity_teu: 800.0
-      bay_count: 20
-      row_count: 10
+      block_count: 12
+      block_line_count: 3
+      capacity_teu: 2200.0
+      bay_count: 40
+      row_count: 14
       max_tiers: 5
-      handling_capacity_moves_per_hour: 60.0
-      initial_occupancy_fraction: 0.5
+      handling_capacity_moves_per_hour: 30.0
+      initial_occupancy_fraction: 0.7
 
 yard_layout:
   apron_depth_m: 100.0
   block_gap_m: 40.0
+  block_line_gap_m: 40.0
   ground_slot_length_m: 6.5
   ground_slot_width_m: 2.8
   gate_setback_m: 100.0

@@ -23,7 +23,10 @@ def test_default_config_loads_with_full_decision_coverage(config):
             covered.update(leaf for leaf in leaves if leaf == path or leaf.startswith(path + "."))
     assert covered == set(leaves)
     counts = config.decision_status_counts()
-    assert counts["FROZEN"] > 0 and counts["PROPOSED_PENDING_REVIEW"] > 0 and counts["BLOCKED"] == 1
+    assert counts["FROZEN"] > 0 and counts["PROPOSED_PENDING_REVIEW"] > 0
+    # S2-025 (bottleneck storage) was BLOCKED before the stabilization; it is superseded.
+    assert counts["BLOCKED"] == 0
+    assert not {"S2-024", "S2-025", "S2-029", "S2-030"} & {r["decision_id"] for r in config.decisions}
 
 
 def test_seed_bands_match_protocol(config):
@@ -63,10 +66,21 @@ def test_invented_value_cannot_be_labelled_frozen():
     ({"families.itp_low.terminal.max_cranes_per_vessel": 5}, "max_cranes_per_vessel"),
     ({"families.itp_low.traffic.max_vessel_length_m": 1300.0}, "exceeds quay length"),
     ({"physics_profiles.degenerate_equivalence_v1.quay_crane_moves_per_hour": 100.0}, "Step 1 profile"),
+    ({"families.itp_low.yard.block_count": 15, "families.itp_low.yard.block_line_count": 3}, "exceeds the quay"),
+    ({"families.itp_low.yard.block_count": 10}, "multiple of block_line_count"),
+    ({"families.itp_low.yard.block_line_count": 13}, "block_line_count"),
+    ({"families.itp_low.intended_bottleneck": "berth"}, "intended_bottleneck"),
 ])
 def test_invalid_configuration_is_rejected(changes, message):
     with pytest.raises(GeneratorConfigError, match=message):
         mutated_config(changes)
+
+
+def test_pre_stabilization_config_schema_is_rejected():
+    params, register = raw_config()
+    params["config_schema_version"] = 1
+    with pytest.raises(GeneratorConfigError, match="config_schema_version must be 2"):
+        build_generator_config(params, register)
 
 
 def test_yaml_and_memory_configs_have_same_fingerprint(config):

@@ -12,7 +12,7 @@ from integrated_terminal_pilot.scenarios.generator import (
 from integrated_terminal_pilot.scenarios.models import ID_PATTERNS, PRE_EPISODE, TEU_BY_SIZE
 from integrated_terminal_pilot.scenarios.serialization import scenario_bytes
 from integrated_terminal_pilot.scenarios.validation import validate_scenario
-from tests.conftest import DEV, SEED
+from tests.conftest import DEV, SEED, mutated_config
 
 
 def test_same_seed_and_config_is_byte_identical(config, low_doc):
@@ -169,10 +169,17 @@ def test_split_labels_and_namespace_protection(config, low_doc):
         assert error.value.code == "SEED_NAMESPACE_VIOLATION"
 
 
-def test_blocked_family_is_refused(config):
+def test_blocked_decision_refuses_generation(config):
+    """A BLOCKED family-scoped decision refuses only that family; a global one refuses all."""
+    blocked = mutated_config({}, statuses={"S2-033": "BLOCKED"})
     with pytest.raises(ScenarioGenerationError) as error:
-        generate_scenario(config, "itp_yard_bottleneck", DEV, SEED)
-    assert error.value.code == "UNSUPPORTED_ASSUMPTION" and "S2-025" in error.value.message
+        generate_scenario(blocked, "itp_yard_bottleneck", DEV, SEED)
+    assert error.value.code == "UNSUPPORTED_ASSUMPTION" and "S2-033" in error.value.message
+    assert [d["decision_id"] for d in blocked.blocked_decisions_for_family("itp_low")] == []
+    global_block = mutated_config({}, statuses={"S2-060": "BLOCKED"})
+    for family in global_block.family_names:
+        with pytest.raises(ScenarioGenerationError, match="S2-060"):
+            generate_scenario(global_block, family, DEV, SEED)
 
 
 def test_max_coexisting_vessels_bound():

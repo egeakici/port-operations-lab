@@ -25,13 +25,27 @@ Draw structure (all draws via entity-keyed streams, protocol 6.3):
   ``initial_import/{k}``. Their attributes (size, load state, weight,
   landside timing) are drawn from streams keyed by those semantic keys, so
   attribute families are independent of each other and of ID numbering.
+* Export pre-staging (``export_prestaging``): gate-in request
+  ``= destination arrival - export_cutoff_min - U[0, export_gate_lead_max_min]``.
+  A request ``>= 0`` is an in-episode gate-in; a negative request means the
+  container physically entered before the episode and is MANDATORY initial
+  inventory. Nothing is shifted to fit the yard.
 * Container IDs ``CNT-nnnnnn`` are assigned in category order (discharge
   cargo by vessel, exports by vessel, pre-episode transshipment by vessel,
   initial import filler last). Changing the initial-occupancy target therefore
   never relabels vessel cargo.
-* Initial inventory (pre-episode exports and transshipment, then import filler
-  up to the occupancy target) is placed in blocks at block level only (G0
+* Initial inventory has two classes. MANDATORY: pre-staged exports and
+  pre-episode transshipment, which the cargo and timing contract requires at
+  t = 0; it is never dropped and is rejected (``YARD_CAPACITY_EXCEEDED``) only if
+  it exceeds the operating capacity. OPTIONAL: background import containers
+  (origin ``PRE_EPISODE``) added only while the occupancy target leaves room.
+  If mandatory TEU alone exceed the target, no background is added and the
+  target is reported infeasible (diagnostics ``target_status``); nothing is
+  removed or resampled. All inventory is placed at block level only (G0
   ``BLOCK_ONLY``) by a deterministic balancing rule; no Bay/Row/Tier is invented.
+* Yard blocks form ``block_line_count`` equal lines parallel to the quay
+  (line 1 nearest the quay), centred along the quay, separated by
+  ``block_line_gap_m`` roads. Block ids run line by line, left to right.
 """
 
 from __future__ import annotations
@@ -201,19 +215,26 @@ def build_yard_blocks(family: dict[str, Any], layout: dict[str, Any],
                       berth_length_m: float) -> list[dict[str, Any]]:
     yard = family["yard"]
     count = int(yard["block_count"])
+    lines = int(yard["block_line_count"])
+    if lines < 1 or count % lines:
+        raise ScenarioGenerationError(
+            "INVALID_YARD_GEOMETRY", f"{count} blocks cannot form {lines} equal lines.")
+    per_line = count // lines
     slot_length = float(layout["ground_slot_length_m"])
     block_length = yard["bay_count"] * slot_length
-    total = count * block_length + (count - 1) * layout["block_gap_m"]
+    block_depth = yard["row_count"] * layout["ground_slot_width_m"]
+    total = per_line * block_length + (per_line - 1) * layout["block_gap_m"]
     if total > berth_length_m + 1e-9:
         raise ScenarioGenerationError(
             "INVALID_YARD_GEOMETRY",
-            f"Yard row of {count} blocks ({total} m) exceeds quay length {berth_length_m} m.")
+            f"Yard line of {per_line} blocks ({total} m) exceeds quay length {berth_length_m} m.")
     start = (berth_length_m - total) / 2.0
     geometric = int(yard["bay_count"] * yard["row_count"] * yard["max_tiers"])
     blocks = []
     for index in range(count):
-        origin_x = round(start + index * (block_length + layout["block_gap_m"]), 6)
-        origin_y = float(layout["apron_depth_m"])
+        line, position = divmod(index, per_line)
+        origin_x = round(start + position * (block_length + layout["block_gap_m"]), 6)
+        origin_y = round(layout["apron_depth_m"] + line * (block_depth + layout["block_line_gap_m"]), 6)
         blocks.append({
             "block_id": f"B{index + 1:02d}",
             "origin_x_m": origin_x,
@@ -238,9 +259,30 @@ def build_yard_blocks(family: dict[str, Any], layout: dict[str, Any],
 
 
 def build_gate(family: dict[str, Any], layout: dict[str, Any], berth_length_m: float) -> dict[str, Any]:
+    """One gate centred behind the last block line."""
+    lines = int(family["yard"]["block_line_count"])
     depth = family["yard"]["row_count"] * layout["ground_slot_width_m"]
+    yard_depth = lines * depth + (lines - 1) * layout["block_line_gap_m"]
     return {"gate_id": "G01", "x_m": berth_length_m / 2.0,
-            "y_m": round(layout["apron_depth_m"] + depth + layout["gate_setback_m"], 6)}
+            "y_m": round(layout["apron_depth_m"] + yard_depth + layout["gate_setback_m"], 6)}
+
+
+def export_prestaging(arrival_time_min: float, export_cutoff_min: float,
+                      gate_lead_min: float) -> tuple[bool, float | None]:
+    """Causal export pre-staging rule; returns ``(present_at_start, gate_in_request_min)``.
+
+    The container must be received by ``arrival - cutoff`` (DQ11). Its request
+    ``arrival - cutoff - lead`` uses an exogenous lead drawn before this call and
+    never depends on yard capacity or on any policy. A request ``>= 0`` lies in
+    the episode (``0 <= request <= arrival - cutoff``). A negative request means
+    the container entered before t = 0: it is initial inventory with no in-episode
+    gate-in. If ``arrival < cutoff`` no admissible in-episode gate-in exists, so
+    every export of that vessel is pre-staged.
+    """
+    request = arrival_time_min - export_cutoff_min - gate_lead_min
+    if request < 0.0:
+        return True, None
+    return False, request
 
 
 def max_coexisting_vessels(lengths: list[float], berth_length_m: float, clearance_m: float) -> int:
@@ -376,11 +418,10 @@ def _draft_vessel_cargo(streams: KeyedStreams, vessels: list[dict[str, Any]], pl
             key = f"{vid}/export/{k:04d}"
             lead = streams.rng("container", key, "gate_lead").uniform(
                 0.0, landside["export_gate_lead_max_min"])
-            gate_in = vessel["arrival_time_min"] - cutoff - lead
-            present = gate_in < 0.0
+            present, gate_in = export_prestaging(vessel["arrival_time_min"], cutoff, lead)
             drafts.append({"key": key, **_draw_unit(streams, key, cargo), "flow": "export",
                            "origin": None, "destination": vid, "present": present,
-                           "gate_in": None if present else gate_in, "pickup": None})
+                           "gate_in": gate_in, "pickup": None})
     for vessel in vessels:
         vid = vessel["vessel_id"]
         for k in range(plan["initial_demand"].get(vid, 0)):
@@ -449,22 +490,31 @@ def _place_initial_inventory(streams: KeyedStreams, containers: list[dict[str, A
     target = {bid: fraction * cap for bid, cap in capacity.items()}
     used = {bid: 0.0 for bid in capacity}
     placements: dict[str, str] = {}
-    required_teu = 0.0
-    for record in containers:
-        if not record["present_at_episode_start"]:
-            continue
-        required_teu += record["size_teu"]
+    mandatory = [r for r in containers if r["present_at_episode_start"]]
+    mandatory_teu = sum(r["size_teu"] for r in mandatory)
+    mandatory_by_flow: dict[str, float] = {}
+    for record in mandatory:
+        mandatory_by_flow[record["cargo_flow"]] = mandatory_by_flow.get(record["cargo_flow"], 0.0) + record["size_teu"]
+    capacity_total = sum(capacity.values())
+    if mandatory_teu > capacity_total + 1e-9:
+        raise ScenarioGenerationError(
+            "YARD_CAPACITY_EXCEEDED",
+            f"Mandatory initial inventory ({mandatory_teu} TEU: {dict(sorted(mandatory_by_flow.items()))}) "
+            f"exceeds the yard operating capacity {capacity_total} TEU.")
+    for record in mandatory:
         block = _choose_block(blocks, used, target, record) or _choose_block(blocks, used, capacity, record)
         if block is None:
             raise ScenarioGenerationError(
                 "YARD_CAPACITY_EXCEEDED",
-                f"Pre-episode inventory needs {required_teu} TEU or more, exceeding available "
-                f"yard capacity {sum(capacity.values())} TEU (container {record['container_id']}).")
+                f"Mandatory initial inventory ({mandatory_teu} TEU) cannot be placed in eligible "
+                f"blocks (container {record['container_id']}, {record['container_size']}).")
         placements[record["container_id"]] = block
         used[block] += record["size_teu"]
+    target_total = sum(target.values())
+    exceeds = mandatory_teu > target_total + 1e-9
     filler = 0
     landside, cargo = params["landside"], params["cargo"]
-    while True:
+    while not exceeds:  # optional background only while the target leaves room
         key = f"initial_import/{filler:05d}"
         unit = _draw_unit(streams, key, cargo)
         pickup = streams.rng("container", key, "pickup_delay").uniform(
@@ -479,14 +529,25 @@ def _place_initial_inventory(streams: KeyedStreams, containers: list[dict[str, A
         placements[record["container_id"]] = block
         used[block] += record["size_teu"]
         filler += 1
+    initial_total = sum(used.values())
     return placements, {
-        "target_teu": sum(target.values()),
-        "required_pre_episode_teu": required_teu,
-        "filler_import_containers": filler,
+        "target_occupancy_fraction": fraction,
+        "target_teu": target_total,
+        "capacity_teu_total": capacity_total,
+        "mandatory_initial_teu": mandatory_teu,
+        "mandatory_initial_teu_by_flow": dict(sorted(mandatory_by_flow.items())),
+        "mandatory_initial_containers": len(mandatory),
+        "minimum_initial_occupancy_fraction": mandatory_teu / capacity_total,
+        "optional_initial_teu": initial_total - mandatory_teu,
+        "optional_initial_containers": filler,
         "initial_teu_by_block": dict(sorted(used.items())),
-        "initial_teu_total": sum(used.values()),
-        "capacity_teu_total": sum(capacity.values()),
-        "exceeds_target": required_teu > sum(target.values()) + 1e-9,
+        "initial_teu_total": initial_total,
+        "realized_initial_occupancy_fraction": initial_total / capacity_total,
+        "target_status": "MANDATORY_EXCEEDS_TARGET" if exceeds else "MET",
+        # Backward-compatible aliases of the first Step 2 diagnostics.
+        "required_pre_episode_teu": mandatory_teu,
+        "filler_import_containers": filler,
+        "exceeds_target": exceeds,
     }
 
 

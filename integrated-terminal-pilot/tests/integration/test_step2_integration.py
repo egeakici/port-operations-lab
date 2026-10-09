@@ -23,7 +23,9 @@ from integrated_terminal_pilot.scenarios.outputs import (
     DEFAULT_OUTPUT_ROOT, canonical_run_contents, generate_run, plan_run, validate_run, audit_run,
 )
 from integrated_terminal_pilot.scenarios.validation import validate_scenario
-from tests.conftest import DEV, HEAVY_SEED, PROJECT_ROOT, SEED, mutated_config, refingerprint
+from tests.conftest import (
+    DEV, HEAVY_SEED, PRE_STABILIZATION_YARD, PROJECT_ROOT, SEED, mutated_config, refingerprint,
+)
 
 pytestmark = pytest.mark.integration
 REPO_ROOT = PROJECT_ROOT.parent
@@ -52,20 +54,32 @@ def test_a_b_d_primary_families_generate_valid_reconciled_scenarios(request, con
     assert all(250 <= v["workload_moves"] <= 900 and 200 <= v["length_m"] <= 360 for v in doc["vessels"])
 
 
-def test_b_heavy_rejection_is_explicit_and_not_repaired(config):
+def test_b_heavy_seed_valid_under_stabilized_yard_and_rejected_under_old_yard(config, heavy_doc):
+    """Heavy seed 10_000_000 needs 9686 TEU of mandatory inventory at t = 0.
+
+    The pre-stabilization 4-block yard (8800 TEU) must still reject it explicitly (no repair);
+    the 12-block reference (26400 TEU) holds it below the 0.5 target.
+    """
+    assert heavy_doc["identity"]["scenario_seed"] == SEED
+    assert validate_scenario(heavy_doc, generator_config=config).ok
+    old_yard = mutated_config(PRE_STABILIZATION_YARD)
     with pytest.raises(ScenarioGenerationError) as error:
-        generate_scenario(config, "itp_heavy", DEV, SEED)
+        generate_scenario(old_yard, "itp_heavy", DEV, SEED)
     assert error.value.code == "YARD_CAPACITY_EXCEEDED"
+    assert "9686.0 TEU" in error.value.message and "8800.0 TEU" in error.value.message
 
 
-def test_c_yard_bottleneck_is_blocked_with_evidence(config):
+def test_c_yard_bottleneck_is_initially_feasible_and_capacity_violation_is_rejected(config, bottleneck_result):
+    doc, inventory = bottleneck_result.scenario, bottleneck_result.diagnostics["initial_inventory"]
+    assert validate_scenario(doc, generator_config=config).ok
+    assert inventory["target_status"] == "MET"
+    assert inventory["mandatory_initial_teu"] <= inventory["initial_teu_total"] <= inventory["capacity_teu_total"]
+    assert abs(inventory["realized_initial_occupancy_fraction"] - 0.7) < 0.001
+    # Negative fixture: a deliberately undersized bottleneck yard is rejected, never repaired.
+    tiny = mutated_config({"families.itp_yard_bottleneck.yard.capacity_teu": 300.0})
     with pytest.raises(ScenarioGenerationError) as error:
-        generate_scenario(config, "itp_yard_bottleneck", DEV, SEED)
-    assert error.value.code == "UNSUPPORTED_ASSUMPTION"
-    unblocked = mutated_config({}, statuses={"S2-025": "PROPOSED_PENDING_REVIEW"})
-    with pytest.raises(ScenarioGenerationError) as infeasible:
-        generate_scenario(unblocked, "itp_yard_bottleneck", DEV, SEED)
-    assert infeasible.value.code == "YARD_CAPACITY_EXCEEDED"
+        generate_scenario(tiny, "itp_yard_bottleneck", DEV, SEED)
+    assert error.value.code == "YARD_CAPACITY_EXCEEDED"
 
 
 @pytest.mark.parametrize("fixture", ["medium_doc", "heavy_doc", "low_doc"])
@@ -216,6 +230,35 @@ def test_s_frozen_checkpoints_unmodified():
     for relative, expected in CHECKPOINT_SHA256.items():
         path = root / relative / "best_validation_model.zip"
         assert hashlib.sha256(path.read_bytes()).hexdigest() == expected, relative
+
+
+# Berth projections recorded by the first Step 2 run (dev_3f1f0d9335_3e15947a, 4-block yard). The
+# stabilization changed only yard and inventory inputs, so Project 03 inputs must be identical.
+PRE_STABILIZATION_PROJECTIONS = {
+    ("itp_low", SEED): ("128aa17d217d767b019beaef17f94636d6ed2be2aa2de8044dbb1dbb66b5979b",
+                        "783a64d4940cab06e0ef0440c4a4485b1ac51154f6f1fa33888a6cb024961e03"),
+    ("itp_medium", SEED): ("522bcba8d81c17db11b8dc6a6807f4209bec69f0a42edbce5ae52bba9f2fe81f",
+                           "ffd7f2db28fdac91a1e5561c1e6c95f27cc3e6f1051fcbb6b9258ad007d00991"),
+}
+FIRST_RUN = DEFAULT_OUTPUT_ROOT / "development" / "dev_3f1f0d9335_3e15947a"
+FIRST_RUN_MANIFEST_SHA256 = "3a12da33f304d9d6322486a0834ae90730107100b2386a7ba36e73e847659352"
+
+
+@pytest.mark.parametrize("family, seed", sorted(PRE_STABILIZATION_PROJECTIONS))
+def test_u_project03_projection_unchanged_by_stabilization(config, family, seed):
+    doc = generate_scenario(config, family, DEV, seed)
+    content, physical = PRE_STABILIZATION_PROJECTIONS[(family, seed)]
+    assert doc["fingerprints"]["berth_projection_fingerprint"] == content
+    assert doc["fingerprints"]["berth_projection_physical_fingerprint"] == physical
+
+
+def test_v_first_step2_run_is_unchanged():
+    if not FIRST_RUN.exists():
+        pytest.skip("The first Step 2 run is a local, Git-ignored artifact and is absent here.")
+    from integrated_terminal_pilot.scenarios.outputs import verify_manifest
+    from integrated_terminal_pilot.scenarios.serialization import file_sha256
+    assert file_sha256(FIRST_RUN / "manifest.json") == FIRST_RUN_MANIFEST_SHA256
+    assert verify_manifest(FIRST_RUN)["passed"]
 
 
 def test_t_no_held_out_or_validation_namespace_generated(config):

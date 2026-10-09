@@ -6,6 +6,11 @@
 # source_kind: STEP1_FROZEN | STEP1_PROPOSED | STEP1_INFERRED | REPOSITORY_DERIVED | STEP2_PROVISIONAL | STEP2_BRIEF
 # Every leaf of itp_generator_v1.yaml (except config_schema_version) must be covered exactly once,
 # and selected_value must equal the configured value at every listed path.
+# Step 2 stabilization (config schema 2): S2-024, S2-025, S2-029 and S2-030 (separate 2 x 800 TEU
+# bottleneck yard; S2-025 was BLOCKED) are SUPERSEDED and removed. Every family now uses the
+# reference block geometry (S2-022/023/026/027/035); the bottleneck is defined by S2-008/033/034.
+# Evidence: docs/step2_stabilization_report.md. A record is user-approved only if FROZEN;
+# PROPOSED_PENDING_REVIEW values are technically validated on development seeds only.
 register_version: 1
 records:
   - decision_id: S2-001
@@ -99,17 +104,36 @@ records:
   - decision_id: S2-007
     parameter_name: planned development batch size per family
     parameter_paths: [development_batch]
-    selected_value: {itp_medium: 30, itp_heavy: 30, itp_low: 5, itp_yard_bottleneck: 5}
+    selected_value: {itp_medium: 30, itp_heavy: 30, itp_low: 10, itp_yard_bottleneck: 10}
     unit: scenarios
-    allowed_range: ">= 30 per primary family (Step 4 degenerate test); >= 1 for development families"
+    allowed_range: ">= 30 per primary family (Step 4 degenerate test); >= 10 for development families"
     source_kind: STEP1_INFERRED
     source_document: docs/implementation_roadmap.md
-    source_section: "Step 4 degenerate equivalence test (>= 30 development scenarios per family)"
-    rationale: Minimum required by the Step 4 equivalence protocol; development families kept small.
+    source_section: "Step 4 degenerate equivalence test (>= 30 development scenarios per family); Step 2 stabilization brief 16"
+    rationale: Minimum required by the Step 4 equivalence protocol; development families raised from 5 to the stabilization minimum of 10 contiguous seeds.
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D23
     impact_on_generator: Default counts of the development batch command (overridable per run).
     impact_on_future_simulator: Supplies Step 4 test scenarios.
+  - decision_id: S2-008
+    parameter_name: intended bottleneck resource per family (descriptive design label)
+    parameter_paths: [families.itp_medium.intended_bottleneck, families.itp_heavy.intended_bottleneck, families.itp_low.intended_bottleneck, families.itp_yard_bottleneck.intended_bottleneck]
+    selected_value: null
+    selected_values:
+      families.itp_medium.intended_bottleneck: none
+      families.itp_heavy.intended_bottleneck: none
+      families.itp_low.intended_bottleneck: none
+      families.itp_yard_bottleneck.intended_bottleneck: yard_block_handling
+    unit: none
+    allowed_range: "none | yard_block_handling"
+    source_kind: STEP2_BRIEF
+    source_document: Step 2 stabilization brief
+    source_section: "11 Rebuild the Yard Bottleneck family (document which resource is intended to be the bottleneck)"
+    rationale: "Declares design intent only. yard_block_handling means the family differs from the reference by a reduced block handling capacity (S2-033) and a starting occupancy at the congestion threshold (S2-034). Whether the yard actually binds at runtime is a Step 4 observation, never a Step 2 claim."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    impact_on_generator: Recorded in the run plan, manifest and quality report; changes no draw.
+    impact_on_future_simulator: None (label); Step 4 reports whether the declared resource binds.
   - decision_id: S2-010
     parameter_name: itp_medium traffic
     parameter_paths: [families.itp_medium.traffic]
@@ -243,9 +267,9 @@ records:
     unit: cranes
     allowed_range: "4, 6 or 8 (protocol 11 sensitivity levels)"
     source_kind: REPOSITORY_DERIVED
-    source_document: "03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml; 02-mini-port-simulation/scenarios/yard_bottleneck.json"
-    source_section: "terminal.quay_crane_count"
-    rationale: "Step 1 states no base fleet size. The source families all use 4. Step 1 protocol 11 lists sensitivity levels 4, 6, 8 'around base', which suggests 6. Both alternatives are legitimate, so this value is NOT final: 4 is used only because it is the repository value of the source families, and the choice must be confirmed before validation."
+    source_document: "Step 2 stabilization brief 9; 03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml"
+    source_section: "Baseline quay crane decision; terminal.quay_crane_count"
+    rationale: "Step 1 states no base fleet size; the source families all use 4. The Step 2 stabilization brief (section 9) selects 4 as the explicit Project I v1 reference fleet so that crane count does not change together with the yard configuration. 6 and 8 are NOT rejected: they remain protocol 11 sensitivity levels. Effective two-crane capacity is 2 x 30 x 0.92 = 55.2 moves/h, below the 120 moves/h implied by the nominal BAP rate of ServiceConfig(30, 0.5, 20); that gap is intended research content and is not reconciled. Status stays PROPOSED until the user formally freezes it."
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D08
     impact_on_generator: Number of crane records.
@@ -279,78 +303,50 @@ records:
     impact_on_generator: Vessel.max_cranes.
     impact_on_future_simulator: Crane allocation limit.
   - decision_id: S2-022
-    parameter_name: yard block count and TEU capacity (low/medium/heavy)
-    parameter_paths: [families.itp_medium.yard.block_count, families.itp_heavy.yard.block_count, families.itp_low.yard.block_count]
-    selected_value: 4
+    parameter_name: yard block count (all families)
+    parameter_paths: [families.itp_medium.yard.block_count, families.itp_heavy.yard.block_count, families.itp_low.yard.block_count, families.itp_yard_bottleneck.yard.block_count]
+    selected_value: 12
     unit: blocks
-    allowed_range: ">= 1"
-    source_kind: REPOSITORY_DERIVED
-    source_document: "03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml"
-    source_section: "terminal.yard_block_count"
-    rationale: Repository value of the source families (never exercised physically in Project 03).
+    allowed_range: ">= 1; multiple of block_line_count; each line must fit the quay"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/step2_stabilization_report.md
+    source_section: "3 Root cause; 5 Alternatives; 6 Selected configuration"
+    rationale: "Was 4 (Project 03 config value, never exercised physically). With 4 x 2200 = 8800 TEU, contract-implied mandatory initial inventory (pre-staged exports + pre-episode transshipment) exceeded the 0.5 target in 11/30 medium and 28/30 heavy development seeds and exceeded total capacity in heavy seed 10000000 (9686 TEU = 1.10 x capacity). Twelve identical blocks (3 lines of 4, S2-035) give 26400 TEU. Per-block geometry, capacity and handling rate are unchanged, so only the number of block lines changes. Fixed per family and configuration version; never resized per seed. Synthetic order-of-magnitude plausibility only (about 22 TEU of operating capacity per metre of quay); not calibrated."
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D11
-    impact_on_generator: Number of yard blocks; layout.
-    impact_on_future_simulator: Yard capacity and distances.
+    impact_on_generator: Number of yard blocks; layout; total capacity; amount of optional background inventory needed to reach the target.
+    impact_on_future_simulator: Yard capacity, aggregate handling capacity and transfer distances.
   - decision_id: S2-023
-    parameter_name: yard block TEU capacity (low/medium/heavy)
-    parameter_paths: [families.itp_medium.yard.capacity_teu, families.itp_heavy.yard.capacity_teu, families.itp_low.yard.capacity_teu]
+    parameter_name: yard block TEU capacity (all families)
+    parameter_paths: [families.itp_medium.yard.capacity_teu, families.itp_heavy.yard.capacity_teu, families.itp_low.yard.capacity_teu, families.itp_yard_bottleneck.yard.capacity_teu]
     selected_value: 2200.0
     unit: TEU
     allowed_range: "<= geometric slots x operating_fill_limit"
     source_kind: REPOSITORY_DERIVED
     source_document: "03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml"
     source_section: "terminal.yard_block_capacity_teu"
-    rationale: Repository value; never exercised physically in Project 03. The quality report states the resulting TEU balance honestly.
+    rationale: "Repository value, unchanged per block (2200 <= 40 x 14 x 5 x 0.8 = 2240). The stabilization changes the number of blocks (S2-022), not the block. The bottleneck family now uses the same block; its former 800 TEU blocks (S2-025) are superseded."
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D11
     impact_on_generator: Block capacity; initial-inventory target.
     impact_on_future_simulator: Storage gate.
-  - decision_id: S2-024
-    parameter_name: yard bottleneck block count
-    parameter_paths: [families.itp_yard_bottleneck.yard.block_count]
-    selected_value: 2
-    unit: blocks
-    allowed_range: ">= 1"
-    source_kind: REPOSITORY_DERIVED
-    source_document: 02-mini-port-simulation/scenarios/yard_bottleneck.json
-    source_section: terminal.yard_block_count
-    rationale: Repository bottleneck definition.
-    status: PROPOSED_PENDING_REVIEW
-    linked_step1_decision: D11
-    impact_on_generator: Number of blocks.
-    impact_on_future_simulator: Yard capacity.
-  - decision_id: S2-025
-    parameter_name: yard bottleneck block TEU capacity
-    parameter_paths: [families.itp_yard_bottleneck.yard.capacity_teu]
-    selected_value: 800.0
-    unit: TEU
-    allowed_range: "<= geometric slots x operating_fill_limit"
-    source_kind: REPOSITORY_DERIVED
-    source_document: 02-mini-port-simulation/scenarios/yard_bottleneck.json
-    source_section: terminal.yard_block_capacity_teu
-    rationale: "Repository bottleneck definition. BLOCKED BY EVIDENCE (Step 2 smoke run, development seeds 10000000-10000009): 0 of 10 scenarios are feasible because the pre-episode export/transshipment inventory implied by the provisional landside timing (S2-060) exceeds 2 x 800 TEU at t = 0. The generator rejects such scenarios (YARD_CAPACITY_EXCEEDED) and does not shrink cargo or timing to fit. Resolution needs a decision on bottleneck storage capacity and/or export lead time; until then the family is not generated."
-    status: BLOCKED
-    linked_step1_decision: D11
-    impact_on_generator: Family itp_yard_bottleneck is refused (no scenarios generated).
-    impact_on_future_simulator: No yard-bottleneck development scenarios until resolved.
   - decision_id: S2-026
-    parameter_name: block grid for 2200 TEU blocks
-    parameter_paths: [families.itp_medium.yard.bay_count, families.itp_heavy.yard.bay_count, families.itp_low.yard.bay_count]
+    parameter_name: block grid for 2200 TEU blocks (bays, all families)
+    parameter_paths: [families.itp_medium.yard.bay_count, families.itp_heavy.yard.bay_count, families.itp_low.yard.bay_count, families.itp_yard_bottleneck.yard.bay_count]
     selected_value: 40
     unit: bays
     allowed_range: "even, >= 2"
     source_kind: STEP2_PROVISIONAL
     source_document: docs/container_yard_foundation.md
     source_section: "6.1 YardBlockRecord (bay_count even); no value in Step 1"
-    rationale: "With rows 14 and tiers 5, 40 x 14 x 5 = 2800 slots; x (5-1)/5 = 2240 TEU >= 2200 TEU. Four blocks of 40 x 6.5 m = 260 m plus three 40 m gaps = 1160 m fit the 1200 m quay."
+    rationale: "With rows 14 and tiers 5, 40 x 14 x 5 = 2800 slots; x (5-1)/5 = 2240 TEU >= 2200 TEU. One line of four blocks of 40 x 6.5 m = 260 m plus three 40 m gaps = 1160 m fits the 1200 m quay; three such lines are placed inland (S2-035)."
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D12
     impact_on_generator: Block geometry and footprint.
     impact_on_future_simulator: Transfer-point distances; G1 grid.
   - decision_id: S2-027
-    parameter_name: rows for 2200 TEU blocks
-    parameter_paths: [families.itp_medium.yard.row_count, families.itp_heavy.yard.row_count, families.itp_low.yard.row_count]
+    parameter_name: rows for 2200 TEU blocks (all families)
+    parameter_paths: [families.itp_medium.yard.row_count, families.itp_heavy.yard.row_count, families.itp_low.yard.row_count, families.itp_yard_bottleneck.yard.row_count]
     selected_value: 14
     unit: rows
     allowed_range: ">= 1"
@@ -376,77 +372,93 @@ records:
     linked_step1_decision: D12
     impact_on_generator: Geometry; fill limit.
     impact_on_future_simulator: G1 grid.
-  - decision_id: S2-029
-    parameter_name: block grid for 800 TEU blocks (bays)
-    parameter_paths: [families.itp_yard_bottleneck.yard.bay_count]
-    selected_value: 20
-    unit: bays
-    allowed_range: "even, >= 2"
-    source_kind: STEP2_PROVISIONAL
-    source_document: docs/container_yard_foundation.md
-    source_section: "6.1; no value in Step 1"
-    rationale: "20 x 10 x 5 = 1000 slots; x 0.8 = 800 TEU."
-    status: PROPOSED_PENDING_REVIEW
-    linked_step1_decision: D12
-    impact_on_generator: Geometry.
-    impact_on_future_simulator: G1 grid; distances.
-  - decision_id: S2-030
-    parameter_name: block grid for 800 TEU blocks (rows)
-    parameter_paths: [families.itp_yard_bottleneck.yard.row_count]
-    selected_value: 10
-    unit: rows
-    allowed_range: ">= 1"
-    source_kind: STEP2_PROVISIONAL
-    source_document: docs/container_yard_foundation.md
-    source_section: "6.1; no value in Step 1"
-    rationale: See S2-029.
-    status: PROPOSED_PENDING_REVIEW
-    linked_step1_decision: D12
-    impact_on_generator: Geometry.
-    impact_on_future_simulator: G1 grid.
   - decision_id: S2-031
-    parameter_name: block handling capacity (NO STEP 1 VALUE)
-    parameter_paths: [families.itp_medium.yard.handling_capacity_moves_per_hour, families.itp_heavy.yard.handling_capacity_moves_per_hour, families.itp_low.yard.handling_capacity_moves_per_hour, families.itp_yard_bottleneck.yard.handling_capacity_moves_per_hour]
+    parameter_name: block handling capacity, reference families (NO STEP 1 VALUE)
+    parameter_paths: [families.itp_medium.yard.handling_capacity_moves_per_hour, families.itp_heavy.yard.handling_capacity_moves_per_hour, families.itp_low.yard.handling_capacity_moves_per_hour]
     selected_value: 60.0
     unit: moves/h per block
     allowed_range: "> 0; protocol 11 sensitivity x0.5, x1, x2 of base"
     source_kind: STEP2_PROVISIONAL
     source_document: docs/integration_specification.md
     source_section: "5.3 Coupling C (mu_b PROPOSED, no value); container_yard_foundation.md 6.1"
-    rationale: "No defensible Step 1 or repository value exists. 60 moves/h is a placeholder that lets the field be generated and validated; it gates no Step 2 output. The Step 4 yard-handling coupling must not be used for any validation comparison until this value is decided."
+    rationale: "Synthetic research assumption; no Step 1 or repository value exists. 60 moves/h per block is twice one quay crane's nominal rate, so one block feeds one crane, but after the 20 % landside reservation (48 moves/h ship-side) a single block cannot fully feed a two-crane vessel (2 x 30 x 0.92 = 55.2 moves/h). Recommended v1 base; must be frozen before the Step 4 physics freeze and any validation comparison."
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D11
     blocks: [step4_physics_freeze, validation_comparisons]
     impact_on_generator: Recorded on yard block records only.
     impact_on_future_simulator: Coupling C capacity.
   - decision_id: S2-032
-    parameter_name: initial yard occupancy fraction
-    parameter_paths: [families.itp_medium.yard.initial_occupancy_fraction, families.itp_heavy.yard.initial_occupancy_fraction, families.itp_low.yard.initial_occupancy_fraction, families.itp_yard_bottleneck.yard.initial_occupancy_fraction]
+    parameter_name: initial yard occupancy target, reference families
+    parameter_paths: [families.itp_medium.yard.initial_occupancy_fraction, families.itp_heavy.yard.initial_occupancy_fraction, families.itp_low.yard.initial_occupancy_fraction]
     selected_value: 0.5
-    unit: fraction of capacity_teu
-    allowed_range: "0.3, 0.5, 0.7 (protocol 11 levels)"
+    unit: fraction of total capacity_teu
+    allowed_range: "0.3, 0.5, 0.7 (protocol 11 levels); must be >= the mandatory initial fraction of every generated seed"
     source_kind: STEP1_INFERRED
     source_document: docs/scientific_experiment_protocol.md
     source_section: "11 Sensitivity (initial yard occupancy fraction 0.3, 0.5, 0.7 around base)"
-    rationale: Step 1 lists sensitivity levels around an unstated base; 0.5 is the middle level. Initial import filler stops at this target; required pre-staged exports/transshipment may exceed it up to capacity, and the realized value is reported.
+    rationale: "Step 1 lists sensitivity levels around an unstated base; 0.5 is the middle level. It is a TARGET for total initial occupancy: mandatory inventory always stays; optional background imports fill only up to the target. If mandatory inventory alone exceeds the target, nothing is removed or resampled, no background is added and the scenario reports target_status MANDATORY_EXCEEDS_TARGET. Under the 12-block reference no declared development seed does so. Level 0.3 is NOT supported for itp_heavy (mandatory reaches about 0.37)."
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D11
-    impact_on_generator: Number of initial import filler containers.
+    impact_on_generator: Number of optional background import containers.
     impact_on_future_simulator: Starting congestion.
+  - decision_id: S2-033
+    parameter_name: block handling capacity, yard bottleneck family
+    parameter_paths: [families.itp_yard_bottleneck.yard.handling_capacity_moves_per_hour]
+    selected_value: 30.0
+    unit: moves/h per block
+    allowed_range: "> 0 and below the reference value (S2-031)"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "11 Sensitivity (yard handling capacity x0.5 level); Step 2 stabilization brief 11"
+    rationale: "Bottleneck redesign: same physical terminal as the reference families, with yard equipment productivity at the protocol x0.5 level. The ship-side share after the 20 % landside reservation is 24 moves/h per block, below one crane's nominal 30 moves/h and below a two-crane vessel's 55.2 moves/h. A static capacity contrast only; runtime binding is a Step 4 observation."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    blocks: [step4_physics_freeze, validation_comparisons]
+    impact_on_generator: Recorded on yard block records only.
+    impact_on_future_simulator: Coupling C capacity of the bottleneck family.
+  - decision_id: S2-034
+    parameter_name: initial yard occupancy target, yard bottleneck family
+    parameter_paths: [families.itp_yard_bottleneck.yard.initial_occupancy_fraction]
+    selected_value: 0.7
+    unit: fraction of total capacity_teu
+    allowed_range: "0.3, 0.5, 0.7 (protocol 11 levels)"
+    source_kind: STEP1_INFERRED
+    source_document: docs/scientific_experiment_protocol.md
+    source_section: "11 Sensitivity (initial yard occupancy 0.7 level); integration_specification.md 5.3 (rho0 = 0.70)"
+    rationale: "Starts the bottleneck terminal at the congestion threshold rho0, so any net inflow reduces effective block handling capacity from the first event. Same target semantics as S2-032."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D11
+    impact_on_generator: Number of optional background import containers in the bottleneck family.
+    impact_on_future_simulator: Starting congestion of the bottleneck family.
+  - decision_id: S2-035
+    parameter_name: number of block lines parallel to the quay (all families)
+    parameter_paths: [families.itp_medium.yard.block_line_count, families.itp_heavy.yard.block_line_count, families.itp_low.yard.block_line_count, families.itp_yard_bottleneck.yard.block_line_count]
+    selected_value: 3
+    unit: lines
+    allowed_range: ">= 1; block_count divisible by it"
+    source_kind: STEP2_PROVISIONAL
+    source_document: docs/step2_stabilization_report.md
+    source_section: "6 Selected configuration (multi-line layout, config schema 2, amendment A9)"
+    rationale: "Four 260 m blocks already fill the 1200 m quay (1160 m), so more storage needs lines further inland, not wider lines. Three lines of 4 blocks with 40 m roads: lines start at y = 100.0, 179.2 and 258.4 m; yard depth 197.6 m; gate at y = 397.6 m. Footprints never overlap (validator DQ21)."
+    status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D12
+    impact_on_generator: Block origins, transfer points and gate position.
+    impact_on_future_simulator: Coupling B distances (quay-to-block 100 to 1308 m).
   - decision_id: S2-040
-    parameter_name: yard layout spacing (apron depth, block gap, gate setback)
-    parameter_paths: [yard_layout.apron_depth_m, yard_layout.block_gap_m, yard_layout.gate_setback_m]
+    parameter_name: yard layout spacing (apron depth, block gap, block-line gap, gate setback)
+    parameter_paths: [yard_layout.apron_depth_m, yard_layout.block_gap_m, yard_layout.block_line_gap_m, yard_layout.gate_setback_m]
     selected_value: null
     selected_values:
       yard_layout.apron_depth_m: 100.0
       yard_layout.block_gap_m: 40.0
+      yard_layout.block_line_gap_m: 40.0
       yard_layout.gate_setback_m: 100.0
     unit: m
     allowed_range: "> 0; layout must fit the quay length"
     source_kind: STEP2_PROVISIONAL
     source_document: docs/integration_specification.md
     source_section: "5.2 Coupling B (block transfer point; no layout values in Step 1)"
-    rationale: "Simple synthetic layout: one row of blocks centred along the quay, apron 100 m deep, 40 m roads between blocks, gate 100 m behind the yard. Distances span about 100-1150 m, so transport binds for far blocks under the D10 values."
+    rationale: "Simple synthetic layout: lines of blocks centred along the quay, apron 100 m deep, 40 m roads between blocks and between block lines (same road width), gate 100 m behind the last line. Rectilinear quay-to-block distances span 100-1308 m, so transport binds for far blocks under the D10 values (cycle 2 x d / 250 + 2 min; 4 units cap a crane below 30 moves/h beyond about 750 m)."
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D10
     impact_on_generator: Block origins, transfer points, gate position.
@@ -593,7 +605,7 @@ records:
     source_kind: STEP2_PROVISIONAL
     source_document: docs/container_yard_foundation.md
     source_section: "2 (scheduled_gate_in_time_min, scheduled_pickup_time_min); no values in Step 1"
-    rationale: "Uniform placeholders. Export gate-in = destination arrival - export_cutoff_min - U[0, lead_max]; a negative result means the export entered before the episode and is initial inventory. Import pickup request = origin arrival + U[dwell_min, dwell_max]. Initial import pickup request ~ U[0, initial_import_pickup_max_min]."
+    rationale: "Synthetic research assumptions (uniform, not calibrated). Export gate-in request = destination arrival - export_cutoff_min - U[0, lead_max] (generator.export_prestaging); a negative request means the export physically entered before the episode and is MANDATORY initial inventory. The lead was deliberately NOT shortened during stabilization: that would reduce mandatory inventory only by moving gate-ins later to fit the yard. Export dwell before cutoff averages 24 h. Import pickup request = origin arrival + U[dwell_min, dwell_max] (0.5-3 days). Optional background import pickup request ~ U[0, initial_import_pickup_max_min]."
     status: PROPOSED_PENDING_REVIEW
     linked_step1_decision: D26
     impact_on_generator: Exogenous landside request times; amount of pre-staged export inventory.

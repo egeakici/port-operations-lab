@@ -37,15 +37,21 @@ DECISION_FIELDS = (
     "status", "linked_step1_decision", "impact_on_generator", "impact_on_future_simulator",
 )
 OPTIONAL_DECISION_FIELDS = ("selected_values", "blocks")
+# Config schema 2 (Step 2 stabilization, amendment A9): additive keys
+# families.*.intended_bottleneck, families.*.yard.block_line_count and
+# yard_layout.block_line_gap_m (multi-line block layout). Scenario schema unchanged.
+CONFIG_SCHEMA_VERSION = 2
+INTENDED_BOTTLENECKS = ("none", "yard_block_handling")
 FAMILY_KEYS = {
     "role": None,
     "ppo_regime": None,
+    "intended_bottleneck": None,
     "traffic": ("vessel_count", "mean_interarrival_minutes", "min_vessel_length_m",
                 "max_vessel_length_m", "min_workload_moves", "max_workload_moves"),
     "terminal": ("berth_length_m", "min_clearance_m", "quay_crane_count",
                  "quay_crane_moves_per_hour", "max_cranes_per_vessel"),
-    "yard": ("block_count", "capacity_teu", "bay_count", "row_count", "max_tiers",
-             "handling_capacity_moves_per_hour", "initial_occupancy_fraction"),
+    "yard": ("block_count", "block_line_count", "capacity_teu", "bay_count", "row_count",
+             "max_tiers", "handling_capacity_moves_per_hour", "initial_occupancy_fraction"),
 }
 TOP_LEVEL_KEYS = (
     "config_schema_version", "generator_version", "scenario_schema_version", "stream_namespace",
@@ -218,8 +224,9 @@ def _exact_keys(mapping: Any, expected: tuple[str, ...], where: str) -> None:
 
 def _validate_parameters(p: dict[str, Any]) -> None:
     _exact_keys(p, TOP_LEVEL_KEYS, "configuration")
-    if p["config_schema_version"] != 1:
-        _fail("config_schema_version must be 1.")
+    if p["config_schema_version"] != CONFIG_SCHEMA_VERSION:
+        _fail(f"config_schema_version must be {CONFIG_SCHEMA_VERSION} (schema 1 predates the "
+              "multi-line yard layout; see docs/step2_stabilization_report.md).")
     if p["generator_version"] != GENERATOR_VERSION:
         _fail(f"generator_version must be {GENERATOR_VERSION}.")
     if p["scenario_schema_version"] != SCENARIO_SCHEMA_VERSION:
@@ -259,12 +266,20 @@ def _validate_parameters(p: dict[str, Any]) -> None:
         _number(count, f"development_batch.{name}", integer=True, minimum=0)
 
     layout = p["yard_layout"]
-    _exact_keys(layout, ("apron_depth_m", "block_gap_m", "ground_slot_length_m",
-                         "ground_slot_width_m", "gate_setback_m", "bay_axis", "capabilities",
-                         "allowed_sizes"), "yard_layout")
-    for key in ("apron_depth_m", "block_gap_m", "ground_slot_length_m", "ground_slot_width_m",
-                "gate_setback_m"):
+    _exact_keys(layout, ("apron_depth_m", "block_gap_m", "block_line_gap_m",
+                         "ground_slot_length_m", "ground_slot_width_m", "gate_setback_m",
+                         "bay_axis", "capabilities", "allowed_sizes"), "yard_layout")
+    for key in ("apron_depth_m", "block_gap_m", "block_line_gap_m", "ground_slot_length_m",
+                "ground_slot_width_m", "gate_setback_m"):
         _number(layout[key], f"yard_layout.{key}", positive=True)
+    for name, family in families.items():
+        yard = family["yard"]
+        per_line = yard["block_count"] // yard["block_line_count"]
+        width = (per_line * yard["bay_count"] * layout["ground_slot_length_m"]
+                 + (per_line - 1) * layout["block_gap_m"])
+        if width > family["terminal"]["berth_length_m"] + 1e-9:
+            _fail(f"families.{name}: a line of {per_line} blocks ({width} m) exceeds the quay "
+                  f"length {family['terminal']['berth_length_m']} m.")
     if layout["bay_axis"] != "X":
         _fail("yard_layout.bay_axis must be 'X' (FROZEN v1).")
     from terminal_core import ContainerSize, YardCapability
@@ -319,6 +334,8 @@ def _validate_family(name: str, family: Any) -> None:
         _fail(f"families.{name}.role must be primary or development_diagnostic.")
     if family["ppo_regime"] not in ("medium_heavy", "tiny"):
         _fail(f"families.{name}.ppo_regime must be medium_heavy or tiny.")
+    if family["intended_bottleneck"] not in INTENDED_BOTTLENECKS:
+        _fail(f"families.{name}.intended_bottleneck must be one of {INTENDED_BOTTLENECKS}.")
     for section in ("traffic", "terminal", "yard"):
         _exact_keys(family[section], FAMILY_KEYS[section], f"families.{name}.{section}")
     t, term, yard = family["traffic"], family["terminal"], family["yard"]
@@ -345,6 +362,11 @@ def _validate_family(name: str, family: Any) -> None:
     _number(term["max_cranes_per_vessel"], f"{where}.terminal.max_cranes_per_vessel",
             integer=True, minimum=1, maximum=term["quay_crane_count"])
     _number(yard["block_count"], f"{where}.yard.block_count", integer=True, minimum=1, maximum=99)
+    _number(yard["block_line_count"], f"{where}.yard.block_line_count", integer=True, minimum=1,
+            maximum=yard["block_count"])
+    if yard["block_count"] % yard["block_line_count"]:
+        _fail(f"{where}.yard.block_count must be a multiple of block_line_count "
+              "(equal lines of blocks).")
     _number(yard["capacity_teu"], f"{where}.yard.capacity_teu", positive=True)
     _number(yard["bay_count"], f"{where}.yard.bay_count", integer=True, minimum=2)
     if yard["bay_count"] % 2:

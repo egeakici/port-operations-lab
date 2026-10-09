@@ -21,7 +21,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 GOLDEN_PATH = PROJECT_ROOT / "tests" / "fixtures" / "golden" / "itp_example_development_seed10000000.scenario.json"
 DEV = "development"
 SEED = 10_000_000
-HEAVY_SEED = 10_000_001  # seed 10_000_000 of itp_heavy is rejected (YARD_CAPACITY_EXCEEDED)
+# Heavy seed 10_000_000 was rejected under the 4-block yard (YARD_CAPACITY_EXCEEDED); under the
+# stabilized 12-block reference it is valid (test_b checks both contracts).
+HEAVY_SEED = SEED
+# Physical yard configuration that preceded the Step 2 stabilization (for regression contrasts).
+PRE_STABILIZATION_YARD = {
+    "families.itp_heavy.yard.block_count": 4, "families.itp_heavy.yard.block_line_count": 1,
+    "families.itp_medium.yard.block_count": 4, "families.itp_medium.yard.block_line_count": 1,
+}
 
 
 def raw_config() -> tuple[dict[str, Any], dict[str, Any]]:
@@ -87,6 +94,11 @@ def medium_doc(config):
 @pytest.fixture(scope="session")
 def heavy_doc(config):
     return generate_scenario(config, "itp_heavy", DEV, HEAVY_SEED)
+
+
+@pytest.fixture(scope="session")
+def bottleneck_result(config):
+    return generate_scenario_with_diagnostics(config, "itp_yard_bottleneck", DEV, SEED)
 
 
 @pytest.fixture(scope="session")

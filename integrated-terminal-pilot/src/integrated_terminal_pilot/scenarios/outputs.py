@@ -42,11 +42,15 @@ DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "experiments" / "scenarios"
 INDEX_COLUMNS = (
     "scenario_id", "family", "split", "scenario_seed", "physics_profile", "status",
     "rejection_code", "rejection_message", "vessel_count", "container_count", "teu_total",
-    "crane_moves_total", "physical_fingerprint", "container_manifest_fingerprint",
+    "crane_moves_total", "mandatory_initial_teu", "optional_initial_teu",
+    "initial_occupancy_fraction", "initial_target_status", "physical_fingerprint", "container_manifest_fingerprint",
     "exogenous_schedule_fingerprint", "berth_projection_fingerprint",
     "berth_projection_physical_fingerprint", "ppo_medium_heavy_support", "ppo_tiny_support",
     "dynamic_env_reset", "file_sha256", "file_bytes",
 )
+# Wall-clock stage timings are kept out of the deterministic index and quality report;
+# they are summarized in the manifest only (which already carries a timestamp).
+TIMING_KEYS = ("generation_s", "validation_s", "projection_reset_s", "serialization_s")
 DEPENDENCIES = ("integrated-terminal-pilot", "terminal-core", "mini-port-sim",
                 "berth-allocation-lab", "gymnasium", "numpy", "PyYAML")
 
@@ -76,6 +80,7 @@ def plan_run(config: GeneratorConfig, counts: dict[str, int] | None = None, *,
         families.append({"family": family, "count": count, "seeds": seeds,
                          "blocked_by": blocked,
                          "role": config.family(family)["role"],
+                         "intended_bottleneck": config.family(family)["intended_bottleneck"],
                          "ppo_regime": config.family(family)["ppo_regime"]})
     plan_key = {"counts": counts, "split": split, "first_seed_offset": first_seed_offset,
                 "physics_profile": physics_profile}
@@ -113,6 +118,13 @@ def _versions() -> dict[str, str | None]:
         except metadata.PackageNotFoundError:
             versions[name] = None
     return versions
+
+
+def _timing_stats(values: list[float]) -> dict[str, float] | None:
+    if not values:
+        return None
+    return {"count": len(values), "min": min(values), "max": max(values),
+            "mean": sum(values) / len(values), "total": sum(values)}
 
 
 def _write_json(path: Path, value: Any) -> None:
@@ -160,8 +172,10 @@ def generate_run(config: GeneratorConfig, plan: dict[str, Any],
                            rejection_code=error.code, rejection_message=error.message)
                 rows.append(row)
                 continue
+            generated = time.perf_counter()
             doc = result.scenario
             report = validate_scenario(doc, generator_config=config)
+            validated = time.perf_counter()
             validation_reports.append(report.to_dict())
             if not report.ok:
                 row.update(status="rejected", rejection_code=sorted(report.codes)[0],
@@ -178,9 +192,20 @@ def generate_run(config: GeneratorConfig, plan: dict[str, Any],
                     reset["projection_fingerprint_matches"] else "failed"
             else:
                 reset_status = "not_supported"
+            projected = time.perf_counter()
             path = write_scenario(doc, scenario_dir)
-            timings.append(time.perf_counter() - started)
+            written = time.perf_counter()
+            timings.append(written - started)
             fps = doc["fingerprints"]
+            inventory = result.diagnostics["initial_inventory"]
+            row.update(
+                mandatory_initial_teu=inventory["mandatory_initial_teu"],
+                optional_initial_teu=inventory["optional_initial_teu"],
+                initial_occupancy_fraction=inventory["realized_initial_occupancy_fraction"],
+                initial_target_status=inventory["target_status"],
+                generation_s=round(generated - started, 3), validation_s=round(validated - generated, 3),
+                projection_reset_s=round(projected - validated, 3),
+                serialization_s=round(written - projected, 3))
             row.update(
                 status="accepted", rejection_code="", rejection_message="",
                 vessel_count=len(doc["vessels"]), container_count=len(doc["containers"]),
@@ -209,7 +234,13 @@ def generate_run(config: GeneratorConfig, plan: dict[str, Any],
             {r["scenario_id"]: r["physical_fingerprint"] for r in accepted})
     else:
         fingerprint_audit["collision_audit"] = {"passed": None, "skipped": True}
-    summary = quality_summary(accepted_docs, diagnostics, rows)
+    summary = quality_summary(
+        accepted_docs, diagnostics, rows,
+        config_info={"generator_version": config.parameters["generator_version"],
+                     "config_schema_version": config.parameters["config_schema_version"],
+                     "config_file_sha256": config.config_file_sha256,
+                     "decisions_file_sha256": config.decisions_file_sha256,
+                     "generator_config_fingerprint": config.parameters_fingerprint})
 
     _write_json(staging / "generation_config.json", {
         "config_path": Path(config.config_path).name, "decisions_path": Path(config.decisions_path).name,
@@ -255,9 +286,14 @@ def generate_run(config: GeneratorConfig, plan: dict[str, Any],
         "physics_profile": plan["physics_profile"],
         "scenario_family_counts": {f["family"]: {"planned": f["count"],
                                                  "accepted": sum(1 for r in accepted if r["family"] == f["family"]),
-                                                 "blocked_by": f["blocked_by"]}
+                                                 "not_accepted": sum(1 for r in rows if r["family"] == f["family"]
+                                                                     and r["status"] != "accepted"),
+                                                 "blocked_by": f["blocked_by"],
+                                                 "intended_bottleneck": f.get("intended_bottleneck")}
                                    for f in plan["families"]},
         "row_status_counts": status_counts,
+        "initial_occupancy_target_infeasible": sorted(
+            r["scenario_id"] for r in accepted if r["initial_target_status"] != "MET"),
         "physical_fingerprint_digest": sha256_of(sorted(r["physical_fingerprint"] for r in accepted)),
         "container_manifest_fingerprint_digest": sha256_of(sorted(r["container_manifest_fingerprint"] for r in accepted)),
         "projection_fingerprint_digest": sha256_of(sorted(r["berth_projection_fingerprint"] for r in accepted)),
@@ -268,6 +304,7 @@ def generate_run(config: GeneratorConfig, plan: dict[str, Any],
                                       "final_experiments_authorized": False},
         "created_at": datetime.now(timezone.utc).isoformat(),
         "performance": {"seconds_per_accepted_scenario_mean": (sum(timings) / len(timings)) if timings else None,
+                        "stage_seconds": {key: _timing_stats([r[key] for r in accepted]) for key in TIMING_KEYS},
                         "max_scenario_file_bytes": max((r["file_bytes"] for r in accepted), default=None),
                         "total_scenario_bytes": sum(r["file_bytes"] for r in accepted)},
         "generation_performed": True,

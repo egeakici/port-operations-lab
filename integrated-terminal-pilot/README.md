@@ -12,9 +12,12 @@ Operating System, a commercial product, or a new RL training project.
 Current status:
 
 - Step 1 — Integration Specification and Compatibility Contracts: **Complete** (commit `48b9f80`).
-- Step 2 — Unified Synthetic Scenario Generator: **Complete** (verified; awaiting
-  user review). Several generator parameters are provisional and must be approved
-  before any validation comparison ([open decisions](docs/step2_scenario_generator.md#21-unresolved-choices-requiring-a-decision)).
+- Step 2 — Unified Synthetic Scenario Generator: **Implemented** (commit `032bc23`) and
+  **stabilized** (uncommitted, awaiting user review). The 12-block reference yard and the
+  rebuilt yard-bottleneck family are technically validated on development seeds. Their
+  numerical values remain PROPOSED until the user approves them
+  ([stabilization report and approval table](docs/step2_stabilization_report.md),
+  [open decisions](docs/step2_scenario_generator.md#21-choices-that-still-require-a-decision)).
 - Next: Step 3 — Primitive Crane & Yard Policies.
 
 No simulator, policy, adapter or RL code exists. Step 2 adds only the scenario
@@ -27,7 +30,7 @@ From this directory in PowerShell (Projects 01–03 installed in editable mode):
 ```powershell
 python -m pip install -e .
 python scripts/generate_integrated_scenarios.py --dry-run
-python scripts/generate_integrated_scenarios.py --generate --family itp_medium=5 --family itp_heavy=5 --family itp_low=5
+python scripts/generate_integrated_scenarios.py --generate --family itp_medium=2 --family itp_heavy=2 --family itp_low=2 --family itp_yard_bottleneck=2
 python scripts/validate_integrated_scenarios.py --validate --run-dir experiments/scenarios/development/<run_id>
 python scripts/validate_integrated_scenarios.py --audit --run-dir experiments/scenarios/development/<run_id>
 python -m pytest -q
@@ -77,7 +80,8 @@ Read in this order:
 | [docs/bap_compatibility_contract.md](docs/bap_compatibility_contract.md) | Frozen Dynamic PPO compatibility gate, nominal vs. realized service, PASS/BLOCK rules |
 | [docs/scientific_experiment_protocol.md](docs/scientific_experiment_protocol.md) | S1/S2, A1/B1/A2/B2, A3/B3, splits, seeds, KPIs, uncertainty, held-out lock |
 | [docs/implementation_roadmap.md](docs/implementation_roadmap.md) | Eight steps, inputs/outputs, gates, tests, exclusions |
-| [docs/step2_scenario_generator.md](docs/step2_scenario_generator.md) | Step 2: generator usage, decision resolution, amendments A1–A8, container model, validation, development data, limitations |
+| [docs/step2_scenario_generator.md](docs/step2_scenario_generator.md) | Step 2: generator usage, decision resolution, amendments A1–A10, container model, validation, development data, limitations |
+| [docs/step2_stabilization_report.md](docs/step2_stabilization_report.md) | Step 2 stabilization: yard-capacity root cause, pre-staging rule, alternatives, 12-block reference, bottleneck redesign, development campaign, approval table |
 
 ## Status vocabulary used in every document
 
@@ -100,12 +104,14 @@ SHA-256 only.
 
 ## Known limitations (Step 2)
 
-- Most cargo, landside and yard parameters are provisional. `itp_yard_bottleneck` is
-  BLOCKED (its pre-episode inventory exceeds its storage), and `itp_heavy` rejects
-  about 3 % of seeds for the same reason. Data is never altered to pass.
+- Most cargo, landside and yard parameters are synthetic research assumptions, PROPOSED and
+  not calibrated. They must be approved before any validation comparison. Data is never
+  altered to pass, and infeasible inputs are rejected explicitly.
+- Step 2 establishes structural validity and initial physical feasibility only. Whether
+  the yard or the cranes actually bind at runtime is a Step 4 question.
 - Generated scenarios are G0 (block-level). G1 slot data is validated but never
   fabricated. No stacking or relocation logic exists.
-- Scenario files are 5–12 MB, because individual containers are the source of truth.
+- Scenario files are about 10–19 MB, because individual containers are the source of truth.
 
 ## Next step
 
