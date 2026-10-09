@@ -13,15 +13,20 @@ Current status:
 
 - Step 1 — Integration Specification and Compatibility Contracts: **Complete** (commit `48b9f80`).
 - Step 2 — Unified Synthetic Scenario Generator: **Implemented** (commit `032bc23`) and
-  **stabilized** (uncommitted, awaiting user review). The 12-block reference yard and the
-  rebuilt yard-bottleneck family are technically validated on development seeds. Their
-  numerical values remain PROPOSED until the user approves them
+  **stabilized** (commit `c42d64c`). The 12-block reference yard and the rebuilt
+  yard-bottleneck family are technically validated on development seeds. Their numerical
+  values remain PROPOSED until the user approves them
   ([stabilization report and approval table](docs/step2_stabilization_report.md),
   [open decisions](docs/step2_scenario_generator.md#21-choices-that-still-require-a-decision)).
-- Next: Step 3 — Primitive Crane & Yard Policies.
+- Step 3 — Primitive Crane & Yard Policies: **Complete** (uncommitted, awaiting user review).
+  P_c (`primitive_crane_greedy_v1`) and P_y (`yard_first_fit_v1`) work over immutable
+  decision-time observations and return declarative actions
+  ([docs/step3_primitive_policies.md](docs/step3_primitive_policies.md)).
+- Next: Step 4 — Cloneable Integrated Terminal Simulator.
 
-No simulator, policy, adapter or RL code exists. Step 2 adds only the scenario
-generator package `integrated_terminal_pilot.scenarios`.
+No simulator, kernel, validator, adapter or RL code exists. The packages are
+`integrated_terminal_pilot.scenarios` (Step 2) and `integrated_terminal_pilot.policies`
+(Step 3: decisions only, no execution).
 
 ## Step 2 quick start
 
@@ -82,6 +87,7 @@ Read in this order:
 | [docs/implementation_roadmap.md](docs/implementation_roadmap.md) | Eight steps, inputs/outputs, gates, tests, exclusions |
 | [docs/step2_scenario_generator.md](docs/step2_scenario_generator.md) | Step 2: generator usage, decision resolution, amendments A1–A10, container model, validation, development data, limitations |
 | [docs/step2_stabilization_report.md](docs/step2_stabilization_report.md) | Step 2 stabilization: yard-capacity root cause, pre-staging rule, alternatives, 12-block reference, bottleneck redesign, development campaign, approval table |
+| [docs/step3_primitive_policies.md](docs/step3_primitive_policies.md) | Step 3: observation and action contracts, P_c and P_y, diagnostic yard heuristic, Project 02 equivalence, visibility rules, Step 4 integration notes |
 
 ## Status vocabulary used in every document
 
@@ -115,5 +121,6 @@ SHA-256 only.
 
 ## Next step
 
-Step 3 — Primitive Crane & Yard Policies
-([roadmap](docs/implementation_roadmap.md#step-3--primitive-crane--yard-policies)).
+Step 4 — Cloneable Integrated Terminal Simulator
+([roadmap](docs/implementation_roadmap.md#step-4--cloneable-integrated-terminal-simulator)).
+The Step 2 physical parameters must be approved before Step 4 freezes physics.
