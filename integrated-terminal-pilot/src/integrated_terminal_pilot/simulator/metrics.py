@@ -172,11 +172,108 @@ def build_result(kernel, *, audits: bool = True, include_vessels: bool = True,
         "blocks": blocks,
         "vessels": vessels,
     }
+    result["service_compliance"], result["time_decomposition"] = _compliance_and_decomposition(kernel)
     if audits:
         result["audits"] = run_audits(kernel)
         if s.ledger is not None:
             result["ledger_sha256"] = ledger_sha256(s.ledger)
     return result
+
+
+PHASE_KEYS = (("berth_wait_min", "phase_min_WAITING"), ("berthing_prep_min", "phase_min_BERTHING_PREP"),
+              ("handling_min", "phase_min_HANDLING"), ("departure_prep_min", "phase_min_DEPARTURE_PREP"))
+
+
+def _compliance_and_decomposition(kernel) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Closure diagnostics: cargo fulfilment separate from departure; observed phase partition.
+
+    Observation of a vessel runs from its arrival to ``min(departure, run end)``; the run end is
+    ``T_end`` for drain truncation and the stop time otherwise. Unfinished phases count only their
+    elapsed part; nothing is extrapolated. A vessel that departed with rolled-over cargo is
+    *departed* but not *cargo-fulfilled*.
+    """
+    from integrated_terminal_pilot.simulator.kernel import TerminalKernel
+
+    catalog, s = kernel.catalog, kernel.state
+    end = s.now_min
+    rows, max_error = [], 0.0
+    totals = {key: 0.0 for key, _ in PHASE_KEYS}
+    causes = {cause: 0.0 for cause in TerminalKernel.HANDLING_CAUSES}
+    capacity_equivalent = 0.0
+    departed = fulfilled = rolled = required = completed = unfinished = 0
+    complete_turnarounds, observed = [], []
+    for record in catalog.vessels:
+        v = s.vessels[record.vessel_id]
+        required += record.workload_moves
+        completed += v.completed_moves
+        rolled_here = len(v.rolled_over_container_ids)
+        rolled += rolled_here
+        unfinished += kernel.remaining_moves(record.vessel_id)
+        is_departed = v.departure_time_min is not None
+        departed += is_departed
+        is_fulfilled = is_departed and rolled_here == 0 and v.completed_moves == record.workload_moves
+        fulfilled += is_fulfilled
+        arrived = v.phase != "NOT_ARRIVED"
+        row = {"vessel_id": record.vessel_id, "arrived": arrived, "departed": is_departed,
+               "cargo_fulfilled": is_fulfilled, "required_moves": record.workload_moves,
+               "completed_moves": v.completed_moves, "rolled_over_containers": rolled_here,
+               "rolled_over_moves": rolled_here, "unfinished_moves": kernel.remaining_moves(record.vessel_id)}
+        if arrived:
+            stop = v.departure_time_min if is_departed else end
+            observed_total = stop - record.arrival_time_min
+            parts = {key: v.acc.get(acc_key, 0.0) for key, acc_key in PHASE_KEYS}
+            unclassified = observed_total - sum(parts.values())
+            max_error = max(max_error, abs(unclassified))
+            row.update(parts, unclassified_min=unclassified,
+                       observed_turnaround_min=observed_total,
+                       observed_turnaround_kind="complete" if is_departed else "restricted_censored",
+                       handling_cause_min={c: v.acc.get(f"handling_cause_min_{c}", 0.0)
+                                           for c in TerminalKernel.HANDLING_CAUSES},
+                       handling_capacity_equivalent_min=v.acc.get("handling_capacity_equivalent_min", 0.0))
+            for key in totals:
+                totals[key] += parts[key]
+            for cause in causes:
+                causes[cause] += row["handling_cause_min"][cause]
+            capacity_equivalent += row["handling_capacity_equivalent_min"]
+            observed.append(observed_total)
+            if is_departed:
+                complete_turnarounds.append(observed_total)
+        rows.append(row)
+    handling_total = totals["handling_min"]
+    compliance = {
+        "terminal_status": s.status,
+        "vessels_total": len(catalog.vessels),
+        "vessels_departed": departed,
+        "vessels_cargo_fulfilled": fulfilled,
+        "required_ship_moves": required,
+        "completed_ship_moves": completed,
+        "rolled_over_containers": rolled,
+        "rolled_over_moves": rolled,
+        "unfinished_ship_moves_at_stop": unfinished,
+        "cargo_completion_ratio": completed / required if required else 1.0,
+        "cargo_fulfillment_complete": fulfilled == len(catalog.vessels),
+        "completed_only_mean_turnaround_min": (sum(complete_turnarounds) / len(complete_turnarounds)
+                                               if complete_turnarounds else None),
+        "completed_only_vessels": len(complete_turnarounds),
+        "restricted_observed_turnaround_total_min": sum(observed),
+        "restricted_observed_turnaround_mean_min": sum(observed) / len(observed) if observed else None,
+        "observation_end_min": end,
+        "definition": "observed turnaround = min(departure, run end) - arrival for arrived vessels; "
+                      "rollover counts as unfulfilled cargo",
+    }
+    decomposition = {
+        "phase_totals_min": totals,
+        "handling_cause_totals_min": causes,
+        "handling_cause_shares": {c: (m / handling_total if handling_total > 0 else None) for c, m in causes.items()},
+        "handling_capacity_equivalent_min": capacity_equivalent,
+        "unattributed_share_of_handling": (causes["UNATTRIBUTED"] / handling_total if handling_total > 0 else None),
+        "max_phase_reconciliation_error_min": max_error,
+        "handling_cause_reconciliation_error_min": abs(sum(causes.values()) - handling_total),
+        "precedence_note": "exclusive bookkeeping partition (CRANE_SHORTAGE, idle-crane reasons, then binding "
+                           "rate caps); not identification of a unique causal bottleneck",
+        "vessels": rows,
+    }
+    return compliance, decomposition
 
 
 def _explain(record, v, acc: dict[str, float], handling: float | None, nominal_handling: float) -> list[str]:

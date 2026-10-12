@@ -1,6 +1,6 @@
-"""Canonical runtime trace (export, digest, standalone validation).
+"""Canonical runtime trace (export, digest, standalone validation) in ``full`` or ``summary`` mode.
 
-A run directory holds deterministic, canonical files (no wall-clock data):
+Canonical files (no wall-clock data), each hashed over its exact UTF-8 bytes:
 
 * ``events.jsonl``     every processed kernel event (``KE-`` id, time, D22 priority, type,
                        entity key, generation) in processing order;
@@ -12,9 +12,19 @@ A run directory holds deterministic, canonical files (no wall-clock data):
 * ``final_state.json`` the ``itp_state_v1`` snapshot at the end of the run;
 * ``result.json``      KPIs, status and audits (wall-clock fields removed).
 
-``engineering.json`` (wall-clock timings, host) is written separately and is not part of the
-canonical digest. ``manifest.json`` lists the SHA-256 of every canonical file and the combined
-``trace_sha256``. Two equivalent runs give identical canonical files.
+Trace modes (Step 4 closure):
+
+* ``full``    writes every canonical file.
+* ``summary`` writes only ``blocking.jsonl``, ``rejections.jsonl`` and ``result.json``; the large
+  per-event files (events, decisions, ledger, final state) are **not written**, but their digests
+  are computed by streaming exactly the same bytes, in the same order, through SHA-256. Every
+  per-file digest and the combined ``trace_sha256`` are therefore identical in both modes. A summary
+  run is **digest-verifiable** (re-run from the same scenario, physics, policies and code version
+  and compare digests); it is not independently replayable from its own files. Summary mode
+  saves disk only: the kernel still keeps its ledger and event log in memory (needed for the
+  post-run audits), so in-memory use is the same as in full mode.
+
+``engineering.json`` (wall-clock timings, host) is never part of the canonical digest.
 """
 
 from __future__ import annotations
@@ -22,15 +32,17 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable, Iterator
 
 from integrated_terminal_pilot.simulator.ledger import (
     ALLOWED_STATUS_PAIRS, TRANSITIONS, ledger_jsonl_lines,
 )
 
 TRACE_SCHEMA_VERSION = "itp_trace_v1"
+TRACE_MODES = ("full", "summary")
 CANONICAL_FILES = ("events.jsonl", "decisions.jsonl", "ledger.jsonl", "blocking.jsonl", "rejections.jsonl",
                    "final_state.json", "result.json")
+SUMMARY_WRITTEN_FILES = ("blocking.jsonl", "rejections.jsonl", "result.json")
 WALL_CLOCK_KEYS = ("wall_seconds",)
 
 
@@ -38,65 +50,118 @@ def _dumps(value: Any) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
-def _event_lines(kernel) -> list[str]:
-    log = kernel.state.event_log or []
-    return [_dumps({"event_id": f"KE-{e[0]:08d}", "time_min": e[1], "priority": e[2], "event_type": e[3],
-                    "entity_key": e[4], "generation": e[5]}) for e in log]
+def _lines(rows: Iterable[str]) -> Iterator[str]:
+    for row in rows:
+        yield row + "\n"
 
 
-def _decision_lines(kernel) -> list[str]:
-    return [_dumps({"decision_id": d[0], "time_min": d[1], "kind": d[2], "effect": d[3]})
-            for d in kernel.state.decision_log]
+def _event_lines(kernel) -> Iterator[str]:
+    for e in kernel.state.event_log or []:
+        yield _dumps({"event_id": f"KE-{e[0]:08d}", "time_min": e[1], "priority": e[2], "event_type": e[3],
+                      "entity_key": e[4], "generation": e[5]})
 
 
-def _blocking_lines(kernel) -> list[str]:
-    return [_dumps({"crane_id": e[0], "vessel_id": e[1], "reason": e[2], "start_min": e[3], "end_min": e[4]})
-            for e in kernel.state.block_episodes]
+def _decision_lines(kernel) -> Iterator[str]:
+    for d in kernel.state.decision_log:
+        yield _dumps({"decision_id": d[0], "time_min": d[1], "kind": d[2], "effect": d[3]})
 
 
-def canonical_files(kernel, *, rejections: list | None = None, run_id: str | None = None) -> dict[str, str]:
-    """Canonical text of every trace file (deterministic for a given scenario, policies and actions)."""
-    result = kernel.result(run_id=None)
-    for key in WALL_CLOCK_KEYS:
-        result.pop(key, None)
+def _blocking_lines(kernel) -> Iterator[str]:
+    for e in kernel.state.block_episodes:
+        yield _dumps({"crane_id": e[0], "vessel_id": e[1], "reason": e[2], "start_min": e[3], "end_min": e[4]})
+
+
+def canonical_streams(kernel, *, rejections: list | None = None,
+                      result: dict | None = None) -> dict[str, Iterator[str]]:
+    """Lazy canonical text chunks of every trace file (deterministic for scenario, policies, actions)."""
+    if result is None:
+        result = kernel.result(run_id=None)
+    result = {k: v for k, v in result.items() if k not in WALL_CLOCK_KEYS}
     ledger = kernel.state.ledger or []
     scenario_id = kernel.catalog.scenario_id
+
+    def final_state() -> Iterator[str]:
+        # C-accelerated json.dumps: the same bytes as a streaming encoder, about 10x faster; the
+        # snapshot text is materialized once, transiently (about 12-18 MB for a heavy scenario).
+        yield _dumps(kernel.snapshot()) + "\n"
+
+    def result_text() -> Iterator[str]:
+        yield json.dumps(result, sort_keys=True, indent=1, allow_nan=False) + "\n"
+
     return {
-        "events.jsonl": "".join(line + "\n" for line in _event_lines(kernel)),
-        "decisions.jsonl": "".join(line + "\n" for line in _decision_lines(kernel)),
-        "ledger.jsonl": "".join(line + "\n" for line in ledger_jsonl_lines(ledger, run_id=None,
-                                                                          scenario_id=scenario_id)),
-        "blocking.jsonl": "".join(line + "\n" for line in _blocking_lines(kernel)),
-        "rejections.jsonl": "".join(_dumps(r) + "\n" for r in (rejections or [])),
-        "final_state.json": _dumps(kernel.snapshot()) + "\n",
-        "result.json": json.dumps(result, sort_keys=True, indent=1, allow_nan=False) + "\n",
+        "events.jsonl": _lines(_event_lines(kernel)),
+        "decisions.jsonl": _lines(_decision_lines(kernel)),
+        "ledger.jsonl": _lines(ledger_jsonl_lines(ledger, run_id=None, scenario_id=scenario_id)),
+        "blocking.jsonl": _lines(_blocking_lines(kernel)),
+        "rejections.jsonl": _lines(_dumps(r) for r in (rejections or [])),
+        "final_state.json": final_state(),
+        "result.json": result_text(),
     }
+
+
+def canonical_files(kernel, *, rejections: list | None = None, result: dict | None = None) -> dict[str, str]:
+    """Fully materialized canonical files (tests and small runs)."""
+    return {name: "".join(chunks)
+            for name, chunks in canonical_streams(kernel, rejections=rejections, result=result).items()}
+
+
+def _combine(hashes: dict[str, str]) -> str:
+    return hashlib.sha256("".join(f"{n}:{hashes[n]}\n" for n in CANONICAL_FILES).encode()).hexdigest()
 
 
 def digest_files(files: dict[str, str]) -> dict[str, Any]:
     hashes = {name: hashlib.sha256(files[name].encode("utf-8")).hexdigest() for name in CANONICAL_FILES}
-    combined = hashlib.sha256("".join(f"{n}:{hashes[n]}\n" for n in CANONICAL_FILES).encode()).hexdigest()
-    return {"files": hashes, "trace_sha256": combined}
+    return {"files": hashes, "trace_sha256": _combine(hashes)}
 
 
-def trace_digest(kernel, *, rejections: list | None = None) -> str:
-    return digest_files(canonical_files(kernel, rejections=rejections))["trace_sha256"]
+def emit_trace(kernel, out_dir: Path | None, *, mode: str = "full", rejections: list | None = None,
+               result: dict | None = None) -> dict[str, Any]:
+    """Stream every canonical file through SHA-256; write it only if ``mode`` keeps it.
+
+    Returns ``{"files": per-file sha256, "trace_sha256", "sizes_bytes", "written"}``.
+    """
+    if mode not in TRACE_MODES:
+        raise ValueError(f"trace mode must be one of {TRACE_MODES}")
+    hashes, sizes, written = {}, {}, []
+    for name, chunks in canonical_streams(kernel, rejections=rejections, result=result).items():
+        digest, size = hashlib.sha256(), 0
+        keep = out_dir is not None and (mode == "full" or name in SUMMARY_WRITTEN_FILES)
+        stream = (out_dir / name).open("x", encoding="utf-8", newline="\n") if keep else None
+        try:
+            for chunk in chunks:
+                data = chunk.encode("utf-8")
+                digest.update(data)
+                size += len(data)
+                if stream is not None:
+                    stream.write(chunk)
+        finally:
+            if stream is not None:
+                stream.close()
+        hashes[name], sizes[name] = digest.hexdigest(), size
+        if keep:
+            written.append(name)
+    return {"files": hashes, "trace_sha256": _combine(hashes), "sizes_bytes": sizes, "written": written}
+
+
+def trace_digest(kernel, *, rejections: list | None = None, result: dict | None = None) -> str:
+    return emit_trace(kernel, None, rejections=rejections, result=result)["trace_sha256"]
 
 
 def write_trace(kernel, out_dir: str | Path, *, run_id: str, rejections: list | None = None,
-                engineering: dict | None = None, metadata: dict | None = None) -> dict[str, Any]:
+                engineering: dict | None = None, metadata: dict | None = None, mode: str = "full",
+                result: dict | None = None) -> dict[str, Any]:
     """Write a run directory exclusively (an existing directory is never overwritten)."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=False)
-    files = canonical_files(kernel, rejections=rejections)
-    for name, text in files.items():
-        with (out / name).open("x", encoding="utf-8", newline="\n") as stream:
-            stream.write(text)
-    digest = digest_files(files)
-    manifest = {"schema_version": TRACE_SCHEMA_VERSION, "run_id": run_id,
+    emitted = emit_trace(kernel, out, mode=mode, rejections=rejections, result=result)
+    manifest = {"schema_version": TRACE_SCHEMA_VERSION, "run_id": run_id, "trace_mode": mode,
+                "verifiability": ("full trace: independently replayable and digest-verifiable" if mode == "full"
+                                  else "summary: digest-verifiable only (re-run with the same scenario, physics, "
+                                       "policies and code version; per-event files not written)"),
                 "scenario_id": kernel.catalog.scenario_id, "fingerprints": kernel.catalog.fingerprints,
-                "status": kernel.status, **digest, **(metadata or {}),
-                "sizes_bytes": {name: len(files[name].encode("utf-8")) for name in CANONICAL_FILES}}
+                "status": kernel.status, "files": emitted["files"], "trace_sha256": emitted["trace_sha256"],
+                "files_written": emitted["written"], **(metadata or {}),
+                "sizes_bytes": emitted["sizes_bytes"]}
     with (out / "manifest.json").open("x", encoding="utf-8", newline="\n") as stream:
         stream.write(json.dumps(manifest, sort_keys=True, indent=1) + "\n")
     with (out / "engineering.json").open("x", encoding="utf-8", newline="\n") as stream:
@@ -109,6 +174,10 @@ def validate_trace_dir(run_dir: str | Path, scenario_doc: dict[str, Any]) -> dic
     run_dir = Path(run_dir)
     issues: list[str] = []
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    if manifest.get("trace_mode", "full") != "full":
+        return {"ok": False, "issues": ["summary trace: per-event files were not written; verify by replay "
+                                        "(digest-verifiable only)"], "trace_sha256": manifest["trace_sha256"],
+                "trace_mode": manifest["trace_mode"]}
     files = {name: (run_dir / name).read_text(encoding="utf-8") for name in CANONICAL_FILES}
     digest = digest_files(files)
     if digest != {"files": manifest["files"], "trace_sha256": manifest["trace_sha256"]}:
@@ -184,5 +253,5 @@ def validate_trace_dir(run_dir: str | Path, scenario_doc: dict[str, Any]) -> dic
             "ledger_records": len(ledger), "containers": len(loc), "trace_sha256": manifest["trace_sha256"]}
 
 
-__all__ = ["CANONICAL_FILES", "TRACE_SCHEMA_VERSION", "canonical_files", "digest_files", "trace_digest",
-           "validate_trace_dir", "write_trace"]
+__all__ = ["CANONICAL_FILES", "SUMMARY_WRITTEN_FILES", "TRACE_MODES", "TRACE_SCHEMA_VERSION", "canonical_files",
+           "canonical_streams", "digest_files", "emit_trace", "trace_digest", "validate_trace_dir", "write_trace"]

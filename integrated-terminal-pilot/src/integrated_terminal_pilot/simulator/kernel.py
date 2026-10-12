@@ -571,8 +571,12 @@ class TerminalKernel:
                 _add(v.acc, f"phase_min_{v.phase}", dt)
                 if v.phase == "WAITING":
                     waiting += 1
-                elif v.phase == "HANDLING" and counts.get(vessel_id, 0) == 0:
-                    _add(v.acc, "handling_no_crane_min", dt)
+                elif v.phase == "HANDLING":
+                    if counts.get(vessel_id, 0) == 0:
+                        _add(v.acc, "handling_no_crane_min", dt)
+                    cause, equivalent = self._handling_cause(vessel_id)
+                    _add(v.acc, f"handling_cause_min_{cause}", dt)
+                    _add(v.acc, "handling_capacity_equivalent_min", dt * equivalent)
             kpi["waiting_vessel_min"] = kpi.get("waiting_vessel_min", 0.0) + waiting * dt
             at_gate = sum(len(q) for q in s.gate_queue.values())
             kpi["gate_waiting_container_min"] = kpi.get("gate_waiting_container_min", 0.0) + at_gate * dt
@@ -582,6 +586,55 @@ class TerminalKernel:
                     block.busy_min += dt
         if t > s.now_min:
             s.now_min = t
+
+    # Exclusive bookkeeping categories for HANDLING minutes (closure diagnostics). Precedence is a
+    # documented accounting convention, not identification of a unique causal bottleneck.
+    HANDLING_CAUSES = ("CRANE_SHORTAGE", "YARD_STORAGE_FULL", "CARGO_UNAVAILABLE", "SEQUENCING_ASSIGNED_IDLE",
+                       "YARD_HANDLING_CONSTRAINED", "TRANSPORT_CONSTRAINED", "MULTIPLE_CONSTRAINTS",
+                       "AT_CRANE_RATE", "UNATTRIBUTED")
+
+    def _handling_cause(self, vessel_id: str) -> tuple[str, float]:
+        """Category of the current HANDLING interval of a vessel, from runtime state only.
+
+        1. no crane assigned -> CRANE_SHORTAGE;
+        2. cranes assigned, none working -> the cranes' runtime blocked reason
+           (YARD_CAPACITY -> YARD_STORAGE_FULL, CARGO_UNAVAILABLE, NO_REMAINING_WORK ->
+           SEQUENCING_ASSIGNED_IDLE; several reasons or none -> UNATTRIBUTED);
+        3. at least one crane working -> the rate caps actually binding on the working batches
+           (yard share below demand -> YARD_HANDLING_CONSTRAINED; transport below crane rate ->
+           TRANSPORT_CONSTRAINED; both -> MULTIPLE_CONSTRAINTS; neither -> AT_CRANE_RATE).
+
+        Also returns the vessel's modelled processing rate relative to its reference rate
+        ``r_ref = max_cranes x nominal x eff(max_cranes)`` (capped at 1): integrating it gives
+        productive-capacity-equivalent minutes. A model-equivalent quantity, not causal proof.
+        """
+        s, catalog = self.state, self.catalog
+        cranes = [c for c in s.cranes.values() if c.assigned_vessel_id == vessel_id]
+        record = catalog.vessel_by_id[vessel_id]
+        nominal = catalog.cranes[0].nominal_moves_per_hour if catalog.cranes else 0.0
+        r_ref = record.max_cranes * nominal * self._service.crane_efficiency(record.max_cranes)
+        working = [s.work_orders[c.current_work_order_id] for c in cranes if c.current_work_order_id]
+        rate = sum(wo.rate_moves_per_hour for wo in working)
+        equivalent = min(1.0, rate / r_ref) if r_ref > 0 else 0.0
+        if not cranes:
+            return "CRANE_SHORTAGE", equivalent
+        if not working:
+            reasons = {c.blocked_reason for c in cranes}
+            mapping = {"YARD_CAPACITY": "YARD_STORAGE_FULL", "CARGO_UNAVAILABLE": "CARGO_UNAVAILABLE",
+                       "NO_REMAINING_WORK": "SEQUENCING_ASSIGNED_IDLE"}
+            if len(reasons) == 1 and next(iter(reasons)) in mapping:
+                return mapping[next(iter(reasons))], equivalent
+            return "UNATTRIBUTED", equivalent
+        tol = 1e-9
+        yard = any(wo.rate_moves_per_hour < wo.demand_moves_per_hour - tol for wo in working)
+        transport = any(wo.demand_moves_per_hour < wo.crane_rate_moves_per_hour - tol for wo in working)
+        if yard and transport:
+            return "MULTIPLE_CONSTRAINTS", equivalent
+        if yard:
+            return "YARD_HANDLING_CONSTRAINED", equivalent
+        if transport:
+            return "TRANSPORT_CONSTRAINED", equivalent
+        return "AT_CRANE_RATE", equivalent
 
     # ------------------------------------------------------------------ container transitions
     def _move(self, i: int, event_type: str, to_location: tuple[str, str | None], *, cause: str,
@@ -1232,7 +1285,12 @@ class TerminalKernel:
         """
         s, catalog = self.state, self.catalog
         physics = catalog.physics
-        counts = self.crane_count_by_vessel()
+        if physics.efficiency_basis == "working":  # closure diagnostic only (see PhysicsConfig)
+            counts: dict[str, int] = {}
+            for wo in self._ship_work_orders():
+                counts[wo.vessel_id] = counts.get(wo.vessel_id, 0) + 1
+        else:  # frozen reference: cranes assigned to the vessel (spec §5.1)
+            counts = self.crane_count_by_vessel()
         ship: dict[str, list] = {}
         for wo in self._ship_work_orders():
             block_record = catalog.block_by_id[wo.block_id]

@@ -53,16 +53,32 @@ def default_source(family: str, seed: int, profile: str) -> dict[str, Any]:
     return {"family": family, "seed": seed, "profile": profile}
 
 
+def _condition(options: dict[str, Any]):
+    from integrated_terminal_pilot.simulator.diagnostics import DiagnosticCondition
+
+    return DiagnosticCondition(options.get("yard_policy", "yard_first_fit_v1"), options.get("crane_count") or 4,
+                               options.get("efficiency_basis", "assigned"))
+
+
 def run_once(doc: dict[str, Any], options: dict[str, Any]) -> tuple[TerminalKernel, Any, dict[str, float]]:
+    from integrated_terminal_pilot.policies import create_policy
+    from integrated_terminal_pilot.simulator.diagnostics import build_condition_catalog
+
     timings: dict[str, float] = {}
+    condition = _condition(options)
     t0 = time.perf_counter()
-    catalog = ScenarioCatalog.from_document(doc, validate=options.get("validate", True))
+    if condition.is_reference and not options.get("crane_count"):
+        catalog = ScenarioCatalog.from_document(doc, validate=options.get("validate", True))
+    else:  # Step 4 closure diagnostic override (in memory; source scenario untouched)
+        catalog, _ = build_condition_catalog(doc, condition, validate=options.get("validate", True))
     timings["catalog_seconds"] = time.perf_counter() - t0
     t0 = time.perf_counter()
     kernel = TerminalKernel.from_catalog(catalog, invariant_mode=options.get("invariants", "cheap"),
                                          full_check_interval=options.get("full_check_interval", 0))
     timings["kernel_init_seconds"] = time.perf_counter() - t0
-    run = run_episode(kernel, **default_policies(), until_min=options.get("until_min"),
+    policies = default_policies()
+    policies["yard_policy"] = create_policy(condition.yard_policy_id)
+    run = run_episode(kernel, **policies, until_min=options.get("until_min"),
                       max_decisions=options.get("max_decisions"), max_cycles=options.get("max_cycles"))
     timings["run_seconds"] = run.wall_seconds
     return kernel, run, timings
@@ -122,7 +138,9 @@ def cmd_smoke(args: argparse.Namespace) -> int:
               else default_source(args.family, args.seed, args.profile))
     doc = load_source(source)
     options = {"until_min": args.until_min, "max_cycles": args.max_cycles, "max_decisions": args.max_decisions,
-               "invariants": args.invariants, "full_check_interval": args.full_check_interval}
+               "invariants": args.invariants, "full_check_interval": args.full_check_interval,
+               "yard_policy": args.yard_policy, "crane_count": args.crane_count,
+               "efficiency_basis": args.efficiency_basis}
     t0 = time.perf_counter()
     kernel, run, timings = run_once(doc, options)
     t1 = time.perf_counter()
@@ -130,7 +148,12 @@ def cmd_smoke(args: argparse.Namespace) -> int:
     timings["result_and_audits_seconds"] = time.perf_counter() - t1
     timings["total_seconds"] = time.perf_counter() - t0
     summary = summarize(kernel, run, result)
-    summary["trace_sha256"] = trace_digest(kernel, rejections=run.rejections)
+    condition = _condition(options)
+    summary["condition"] = {"condition_id": condition.condition_id, "is_reference": condition.is_reference,
+                            "note": None if condition.is_reference else
+                            "DIAGNOSTIC OVERRIDE (Step 4 closure): not the reference physics/policy"}
+    summary["service_compliance"] = result["service_compliance"]
+    summary["trace_sha256"] = trace_digest(kernel, rejections=run.rejections, result=result)
     if args.repeat:
         again, again_run, _ = run_once(doc, options)
         summary["repeat_trace_sha256"] = trace_digest(again, rejections=again_run.rejections)
@@ -140,7 +163,8 @@ def cmd_smoke(args: argparse.Namespace) -> int:
         run_id = args.run_id or (f"{doc['identity']['scenario_id']}__"
                                  f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}")
         out = Path(args.out_root) / run_id
-        manifest = write_trace(kernel, out, run_id=run_id, rejections=run.rejections,
+        manifest = write_trace(kernel, out, run_id=run_id, rejections=run.rejections, mode=args.trace_mode,
+                               result=result,
                                engineering={"timings": timings, "python": sys.version,
                                             "platform": platform.platform()},
                                metadata={"label": LABEL, "source": source, "options": options,
@@ -148,7 +172,9 @@ def cmd_smoke(args: argparse.Namespace) -> int:
                                                       "crane": "primitive_crane_greedy_v1",
                                                       "yard": "yard_first_fit_v1"}})
         summary["run_dir"] = str(out)
+        summary["trace_mode"] = args.trace_mode
         summary["trace_sizes_bytes"] = manifest["sizes_bytes"]
+        summary["files_written"] = manifest["files_written"]
     print(json.dumps(summary, indent=1, sort_keys=True, default=str))
     return 0 if summary["status"] != "FAILED" and summary["audits_ok"] else 1
 
@@ -158,6 +184,11 @@ def cmd_validate(args: argparse.Namespace) -> int:
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     doc = load_source(manifest["source"])
     report = validate_trace_dir(run_dir, doc)
+    if manifest.get("trace_mode") == "summary" and not args.replay:
+        report["hint"] = "summary traces are digest-verifiable: re-run with --replay"
+    if args.replay and manifest.get("trace_mode") == "summary":
+        report["ok"] = True
+        report["issues"] = []
     if args.replay:
         kernel, run, _ = run_once(doc, manifest["options"])
         replayed = trace_digest(kernel, rejections=run.rejections)
@@ -321,6 +352,26 @@ def cmd_measure(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_closure(args: argparse.Namespace) -> int:
+    from integrated_terminal_pilot.simulator import closure
+
+    if args.plan:
+        plan_dir, plan, digest = closure.ensure_plan(reason=args.deviation_reason)
+        print(json.dumps({"plan_dir": str(plan_dir), "plan_sha256": digest, "unique_runs": plan["unique_runs"],
+                          "conditions": [c["condition_id"] for c in plan["conditions"]]}, indent=1))
+        return 0
+    if args.report:
+        report = closure.build_report()
+        print(json.dumps({k: report[k] for k in ("plan_sha256", "unique_runs_planned", "runs_executed",
+                                                 "report_path", "selection_statement")}, indent=1))
+        return 0
+    shard = tuple(int(x) for x in args.shard.split("/")) if args.shard else None
+    outcome = closure.run_campaign(resume=args.resume, limit_runs=args.limit_runs, progress=args.progress,
+                                   dry_run=args.dry_run, reason=args.deviation_reason, shard=shard)
+    print(json.dumps(outcome, indent=1))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Project I Step 4 integrated-kernel developer tools.")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -338,6 +389,13 @@ def build_parser() -> argparse.ArgumentParser:
     smoke.add_argument("--out-root", default=str(SMOKE_ROOT))
     smoke.add_argument("--run-id")
     smoke.add_argument("--no-write", action="store_true")
+    smoke.add_argument("--trace-mode", default="full", choices=("full", "summary"))
+    smoke.add_argument("--yard-policy", default="yard_first_fit_v1",
+                       choices=("yard_first_fit_v1", "yard_occupancy_balance_v1"),
+                       help="reference: yard_first_fit_v1 (AM-01 balanced is PROPOSED, diagnostic only)")
+    smoke.add_argument("--crane-count", type=int, help="DIAGNOSTIC fleet override (development only)")
+    smoke.add_argument("--efficiency-basis", default="assigned", choices=("assigned", "working"),
+                       help="reference: assigned; working is a diagnostic override")
     smoke.set_defaults(func=cmd_smoke)
     validate = sub.add_parser("validate", help="validate a written trace (optionally replay it)")
     validate.add_argument("--run-dir", required=True)
@@ -359,6 +417,17 @@ def build_parser() -> argparse.ArgumentParser:
     measure.add_argument("--out-root", default=str(PERFORMANCE_ROOT))
     measure.add_argument("--no-write", action="store_true")
     measure.set_defaults(func=cmd_measure)
+    closure_parser = sub.add_parser("closure", help="Step 4 closure development characterization (FCFS only)")
+    mode = closure_parser.add_mutually_exclusive_group()
+    mode.add_argument("--plan", action="store_true", help="write/verify the hashed pre-run plan only")
+    mode.add_argument("--dry-run", action="store_true", help="show planned/completed counts, run nothing")
+    mode.add_argument("--report", action="store_true", help="summarize executed runs (no new runs)")
+    closure_parser.add_argument("--resume", action="store_true", help="continue after verifying existing runs")
+    closure_parser.add_argument("--limit-runs", type=int, help="execute at most N new runs")
+    closure_parser.add_argument("--progress", action="store_true")
+    closure_parser.add_argument("--deviation-reason", help="required to record a changed plan")
+    closure_parser.add_argument("--shard", help="K/N: execute only runs with plan index mod N == K (parallel)")
+    closure_parser.set_defaults(func=cmd_closure)
     return parser
 
 

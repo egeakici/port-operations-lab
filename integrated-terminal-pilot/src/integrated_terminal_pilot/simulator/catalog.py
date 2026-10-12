@@ -54,6 +54,10 @@ class PhysicsConfig:
     max_drain_extension_min: float
     same_timestamp_cycle_limit: int
     export_cutoff_min: float
+    # Not part of the scenario schema. "assigned" is the frozen Step 4 reference (spec §5.1:
+    # eff(n) with n = cranes assigned to the vessel). "working" (cranes actually working a batch)
+    # exists only as a Step 4 closure *diagnostic* override; it is never read from a scenario.
+    efficiency_basis: str = "assigned"
 
     @classmethod
     def from_document(cls, physics: dict[str, Any]) -> "PhysicsConfig":
@@ -110,6 +114,8 @@ class PhysicsConfig:
             problems.append("congestion needs rho0 in [0, 1) and g_min in (0, 1]")
         if not 0.0 <= self.landside_reserved_fraction <= 1.0:
             problems.append("landside_reserved_fraction must be in [0, 1]")
+        if self.efficiency_basis not in ("assigned", "working"):
+            problems.append(f"efficiency_basis {self.efficiency_basis!r} must be assigned or working")
         if problems:
             raise UnsupportedScenario("; ".join(problems))
 

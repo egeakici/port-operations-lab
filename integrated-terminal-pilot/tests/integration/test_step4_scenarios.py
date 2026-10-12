@@ -94,3 +94,25 @@ def test_observable_clone_on_a_generated_scenario(medium_doc):
     run_episode(observable, **default_policies())
     assert observable.status in ("COMPLETED", "TRUNCATED_DRAIN_LIMIT", "DEADLOCK")
     assert kernel.status == "RUNNING"
+
+
+def test_full_and_summary_trace_modes_agree_on_a_development_scenario(low_doc, tmp_path):
+    """Step 4 closure: identical canonical digests, physics and audits in both trace modes."""
+    import hashlib
+
+    from integrated_terminal_pilot.simulator.trace import CANONICAL_FILES, write_trace
+
+    manifests, kpis = {}, {}
+    for mode in ("full", "summary"):
+        kernel = TerminalKernel.from_scenario(low_doc, validate=False)
+        outcome = run_episode(kernel, **default_policies())
+        result = kernel.result()
+        assert result["audits"]["ok"] and outcome.status == "COMPLETED"
+        manifests[mode] = write_trace(kernel, tmp_path / mode, run_id=mode, mode=mode, result=result)
+        kpis[mode] = (result["kpi"], result["service_compliance"], result["status"])
+    assert manifests["full"]["files"] == manifests["summary"]["files"]
+    assert manifests["full"]["trace_sha256"] == manifests["summary"]["trace_sha256"]
+    assert kpis["full"] == kpis["summary"]
+    for name in CANONICAL_FILES:  # the written full files really have the recorded digests
+        assert hashlib.sha256((tmp_path / "full" / name).read_bytes()).hexdigest() == manifests["full"]["files"][name]
+    assert not (tmp_path / "summary" / "ledger.jsonl").exists()
