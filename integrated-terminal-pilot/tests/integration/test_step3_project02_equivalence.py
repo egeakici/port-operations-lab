@@ -141,7 +141,7 @@ def test_p_c_reproduces_project02_greedy_crane_rule(case):
 
 
 def test_documented_difference_ready_task_cap():
-    """Project 02 assigns at most one crane per READY task; P_c (vessel level, D16) does not."""
+    """Project 02 assigns at most one crane per READY task; P_c (vessel level; batches formed under D15, sequenced under D16) does not."""
     fx = CraneFixture()
     fx.berth("V001", max_cranes=3, ready_tasks=1, minute=0)
     observation = crane_observation(fx)

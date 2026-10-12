@@ -129,3 +129,22 @@ they are not experimental results.
   config loader accepts the optional `approval` field. No parameter value changed.
 * Preserved: every other record, every Step 1 decision, the scenario schema, the generator and all
   existing scenario artifacts.
+
+## 7. Step 4 closure update (2026-10-12) — approval-ready entries, still PENDING
+
+The ten values of §1 remain the **only** user-approved physics. Nothing below is approved. Each
+entry is written so that a later explicit user approval can be recorded without changing physics
+or code behaviour (the kernel already executes exactly these rules).
+
+| Item | Current behaviour (unchanged) | Status | Evidence (closure) | What approval would record |
+| --- | --- | --- | --- | --- |
+| D15 batch size | `work.batch_size_containers = 10` (S2-075) | PROPOSED_PENDING_REVIEW | no evidence for tuning; must never be tuned for coordination | S2-075 batch part FROZEN with an approval block |
+| D17 rollover wait | `work.max_load_wait_min = 240` (S2-075) | PROPOSED_PENDING_REVIEW | rollover now reported as **unfulfilled cargo**, separate from departure (closure §6.5) | S2-075 rollover part FROZEN with an approval block |
+| R5 release admission | ≤ 1 GATE_OUT batch per block, FIFO; receipts limited only by atomic TEU reservation | Step 4 execution rule, PENDING review | without it, the Project 01 projection audit rejected a heavy development state (7,859 TEU attributed to a 2,200 TEU block); INV15 now enforces the rule every cycle; pickup delay grows when a block's release stream is busy | record as a frozen v1 execution rule (scope unchanged) |
+| R1 efficiency basis | `assigned` (spec §5.1) in the reference | FROZEN by spec text; `working` exists only as a closure diagnostic override | C3 diagnostics compare both | none needed unless the user wants `working` (that would be a spec amendment) |
+| AM-01 yard baseline | reference P_y stays `yard_first_fit_v1` | PROPOSED / PENDING USER APPROVAL | C1 diagnostics | [protocol_amendments.md](protocol_amendments.md) checklist |
+| Reference crane fleet | 4 cranes (user-approved) | APPROVED; 6 and 8 are development sensitivity only | C2 diagnostics | any change would be an explicit pre-validation physics amendment with a new resolved-physics fingerprint |
+
+D15/D16 labels were audited (closure §5): no Project I file attributes the batch-size rule to D16;
+four imprecise "batches dispatched by D16" phrasings were clarified (batches are formed under D15
+and sequenced under D16). No dispatch behaviour changed.

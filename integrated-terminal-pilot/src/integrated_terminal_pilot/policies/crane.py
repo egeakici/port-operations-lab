@@ -9,7 +9,7 @@ in ``crane_id`` order, capped by ``max_cranes`` minus the vessel's current
 cranes) from tasks to vessels. Generalisations (docs/step3_primitive_policies.md):
 
 * no cap by the number of READY tasks: Project I cranes are assigned to the
-  vessel, and the kernel's dispatch rule D16 chooses batches;
+  vessel; the kernel forms batches under D15 and sequences them under D16 (discharge before load);
 * crane eligibility also honours ``compatible_vessel_ids`` (Project 02 has none);
 * several vessels are decided in one call; cranes claimed by an earlier vessel
   are skipped, as when Project 02's dispatcher applies each vessel's result

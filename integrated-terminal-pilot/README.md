@@ -28,6 +28,13 @@ Current status:
   ([docs/step4_integrated_simulator.md](docs/step4_integrated_simulator.md)). Ten v1 reference
   values are user-approved; the remaining physics stays PROPOSED
   ([docs/step4_physics_approval_audit.md](docs/step4_physics_approval_audit.md)).
+- Step 4 closure (pre-Step-5 diagnostics, not a new step): **in progress, awaiting user
+  decisions**. Summary trace mode, isolated diagnostic overrides, vessel-time decomposition,
+  cargo-fulfilment accounting and a development-only FCFS characterization campaign
+  ([docs/step4_closure_diagnostics.md](docs/step4_closure_diagnostics.md)). Amendment AM-01 (common
+  balanced yard baseline) is **PROPOSED**, not approved
+  ([docs/protocol_amendments.md](docs/protocol_amendments.md)); the Step 5 reference yard policy is
+  not finalized.
 - Next: Step 5 — Independent Integrated Benchmark (not started).
 
 Packages: `integrated_terminal_pilot.scenarios` (Step 2), `integrated_terminal_pilot.policies`
@@ -45,6 +52,8 @@ python scripts/run_integrated_smoke.py --family itp_low --seed 10000000 --repeat
 python scripts/validate_integrated_trace.py --run-dir experiments/step4_smoke/<run_id> --replay --show-state
 python scripts/run_degenerate_equivalence.py --family itp_medium=30 --family itp_heavy=30 --family itp_low=10 --family itp_yard_bottleneck=10
 python scripts/measure_step4_performance.py --family itp_heavy --clone-at-min 1500
+python scripts/run_step4_closure_campaign.py --dry-run
+python scripts/run_step4_closure_campaign.py --report
 ```
 
 The smoke runs use a labelled physical integration fixture (Project 03 online FCFS over the

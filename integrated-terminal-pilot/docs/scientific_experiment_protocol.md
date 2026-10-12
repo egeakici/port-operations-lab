@@ -321,3 +321,9 @@ Not allowed: real-terminal productivity or ROI; optimality (Rollout is a
 heuristic); crane-aware or yard-aware PPO; a "coordination effect" read from
 C5; any statement about scenarios outside the families; reuse of Project 03
 held-out results as Project I evidence.
+
+## Amendment register
+
+Proposed and approved amendments are recorded append-only in
+[protocol_amendments.md](protocol_amendments.md); the text above is not edited in place.
+AM-01 (common occupancy-balancing yard baseline) is PROPOSED / PENDING USER APPROVAL.

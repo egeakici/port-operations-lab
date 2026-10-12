@@ -248,7 +248,7 @@ Source inspected:
 
 | Aspect | Project 02 | Project I |
 | --- | --- | --- |
-| Crane granularity | one crane per READY task: `min(ready tasks, available cranes, max_cranes − current)` | cranes to the vessel up to `max_cranes − current`; batches dispatched by the kernel (D16). **Not capped by ready tasks** |
+| Crane granularity | one crane per READY task: `min(ready tasks, available cranes, max_cranes − current)` | cranes to the vessel up to `max_cranes − current`; batches formed by the kernel under D15 and sequenced under D16. **Not capped by ready tasks** |
 | Crane candidates | status `AVAILABLE`, `crane_id` (sorted) order | same, plus `compatible_vessel_ids` (absent in Project 01) |
 | Vessel order | dispatcher loop over vessels in berthing order, applying each result | `(berth_start_time_min, vessel_id)`; claims are tracked inside one call |
 | Mutation | the policy is pure; the dispatcher mutates `Terminal` | the policy is pure; Step 4 executes |

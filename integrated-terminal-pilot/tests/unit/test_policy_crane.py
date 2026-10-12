@@ -252,6 +252,6 @@ def test_crane_views_expose_no_hidden_future_fields():
 # 25 Project I-only states ------------------------------------------------------------------
 
 def test_vessel_level_allocation_is_not_capped_by_ready_tasks():
-    """Project 02 caps by READY tasks; P_c assigns up to max_cranes whenever work remains (D16 dispatches)."""
+    """Project 02 caps by READY tasks; P_c assigns up to max_cranes whenever work remains (the kernel forms batches under D15 and sequences them under D16)."""
     action = P_C.decide(observe([vessel("V001", max_cranes=3, remaining=1)], [crane(f"QC0{i}") for i in (1, 2, 3)]))
     assert plan(action) == {"V001": ("QC01", "QC02", "QC03")}

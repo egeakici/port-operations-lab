@@ -146,6 +146,16 @@ cover.
 
 - **Excluded:** experimental arms beyond A1; parameter tuning.
 
+### Step 4 closure (pre-Step-5 diagnostic stabilization; not a new numbered step)
+
+Recorded 2026-10-12. Development-only diagnostics after the Step 4 commit `2b6153a`: summary trace
+mode, isolated diagnostic overrides (crane fleet 4/6/8, yard policy, efficiency basis), observed
+vessel-time decomposition, cargo-fulfilment accounting, and an FCFS-only characterization campaign.
+It stages amendment AM-01 (common occupancy-balancing yard baseline) as **PROPOSED**; the Step 5
+reference yard policy is **not** finalized. See
+[step4_closure_diagnostics.md](step4_closure_diagnostics.md) and
+[protocol_amendments.md](protocol_amendments.md).
+
 ## Step 5 — Independent Integrated Benchmark
 
 - **Inputs:** Step 4 kernel; BAP compatibility contract.
