@@ -171,10 +171,12 @@ def test_split_labels_and_namespace_protection(config, low_doc):
 
 def test_blocked_decision_refuses_generation(config):
     """A BLOCKED family-scoped decision refuses only that family; a global one refuses all."""
-    blocked = mutated_config({}, statuses={"S2-033": "BLOCKED"})
+    # S2-013 (bottleneck traffic): family-scoped and still pending. (S2-033 was used before Step 4;
+    # it is now user-approved, and an approved record can only be FROZEN.)
+    blocked = mutated_config({}, statuses={"S2-013": "BLOCKED"})
     with pytest.raises(ScenarioGenerationError) as error:
         generate_scenario(blocked, "itp_yard_bottleneck", DEV, SEED)
-    assert error.value.code == "UNSUPPORTED_ASSUMPTION" and "S2-033" in error.value.message
+    assert error.value.code == "UNSUPPORTED_ASSUMPTION" and "S2-013" in error.value.message
     assert [d["decision_id"] for d in blocked.blocked_decisions_for_family("itp_low")] == []
     global_block = mutated_config({}, statuses={"S2-060": "BLOCKED"})
     for family in global_block.family_names:

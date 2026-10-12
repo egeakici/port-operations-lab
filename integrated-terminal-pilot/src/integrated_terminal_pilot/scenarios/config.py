@@ -36,7 +36,10 @@ DECISION_FIELDS = (
     "allowed_range", "source_kind", "source_document", "source_section", "rationale",
     "status", "linked_step1_decision", "impact_on_generator", "impact_on_future_simulator",
 )
-OPTIONAL_DECISION_FIELDS = ("selected_values", "blocks")
+OPTIONAL_DECISION_FIELDS = ("selected_values", "blocks", "approval")
+# Step 4: explicit user approval of a value (Step 4 brief section 6). Only a record carrying a
+# complete approval block (or a Step 1 FROZEN / Step 2 brief source) may be FROZEN.
+APPROVAL_FIELDS = ("approved_by", "approval_source", "approval_date", "approved_value", "scope")
 # Config schema 2 (Step 2 stabilization, amendment A9): additive keys
 # families.*.intended_bottleneck, families.*.yard.block_line_count and
 # yard_layout.block_line_gap_m (multi-line block layout). Scenario schema unchanged.
@@ -483,9 +486,19 @@ def _validate_register(register: Any, parameters: dict[str, Any]) -> tuple[dict[
             _fail(f"Decision {decision_id}: invalid status {record['status']!r}.")
         if record["source_kind"] not in SOURCE_KINDS:
             _fail(f"Decision {decision_id}: invalid source_kind {record['source_kind']!r}.")
+        approval = record.get("approval")
+        if approval is not None:
+            if (not isinstance(approval, dict) or set(approval) != set(APPROVAL_FIELDS)
+                    or approval["approved_by"] != "user"
+                    or not all(isinstance(approval[k], str) and approval[k] for k in APPROVAL_FIELDS)):
+                _fail(f"Decision {decision_id}: approval must have exactly {APPROVAL_FIELDS} "
+                      "with approved_by 'user'.")
+            if record["status"] != "FROZEN":
+                _fail(f"Decision {decision_id}: an approved record must be FROZEN.")
         if record["status"] == "FROZEN" and record["source_kind"] not in ("STEP1_FROZEN",
-                                                                         "STEP2_BRIEF"):
-            _fail(f"Decision {decision_id}: only Step 1 FROZEN or Step 2 brief rules may be FROZEN.")
+                                                                         "STEP2_BRIEF")                 and approval is None:
+            _fail(f"Decision {decision_id}: only Step 1 FROZEN or Step 2 brief rules, or values with an "
+                  "explicit user approval record, may be FROZEN.")
         paths = record["parameter_paths"]
         if not isinstance(paths, list) or not paths:
             _fail(f"Decision {decision_id}: parameter_paths must be a non-empty list.")

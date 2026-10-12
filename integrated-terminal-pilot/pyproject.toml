@@ -26,4 +26,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-markers = ["integration: uses installed Project 01-03 packages and repository files"]
+markers = [
+    "integration: uses installed Project 01-03 packages and repository files",
+    "slow: long Step 4 campaign (full degenerate-equivalence gate); runs only with ITP_RUN_SLOW=1",
+]

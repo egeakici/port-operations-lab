@@ -11,6 +11,10 @@
 # reference block geometry (S2-022/023/026/027/035); the bottleneck is defined by S2-008/033/034.
 # Evidence: docs/step2_stabilization_report.md. A record is user-approved only if FROZEN;
 # PROPOSED_PENDING_REVIEW values are technically validated on development seeds only.
+# Step 4 (2026-10-09): the user approved ten v1 reference values (Step 4 brief section 6). The
+# records covering them (S2-019, S2-020, S2-021, S2-022, S2-023, S2-031, S2-032, S2-033, S2-034
+# and the new S2-071A split from S2-071) are FROZEN with an explicit `approval` block. Every other
+# PROPOSED_PENDING_REVIEW record is unchanged. Audit: docs/step4_physics_approval_audit.md.
 register_version: 1
 records:
   - decision_id: S2-001
@@ -269,8 +273,14 @@ records:
     source_kind: REPOSITORY_DERIVED
     source_document: "Step 2 stabilization brief 9; 03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml"
     source_section: "Baseline quay crane decision; terminal.quay_crane_count"
-    rationale: "Step 1 states no base fleet size; the source families all use 4. The Step 2 stabilization brief (section 9) selects 4 as the explicit Project I v1 reference fleet so that crane count does not change together with the yard configuration. 6 and 8 are NOT rejected: they remain protocol 11 sensitivity levels. Effective two-crane capacity is 2 x 30 x 0.92 = 55.2 moves/h, below the 120 moves/h implied by the nominal BAP rate of ServiceConfig(30, 0.5, 20); that gap is intended research content and is not reconciled. Status stays PROPOSED until the user formally freezes it."
-    status: PROPOSED_PENDING_REVIEW
+    rationale: "Step 1 states no base fleet size; the source families all use 4. The Step 2 stabilization brief (section 9) selects 4 as the explicit Project I v1 reference fleet so that crane count does not change together with the yard configuration. 6 and 8 are NOT rejected: they remain protocol 11 sensitivity levels. Effective two-crane capacity is 2 x 30 x 0.92 = 55.2 moves/h, below the 120 moves/h implied by the nominal BAP rate of ServiceConfig(30, 0.5, 20); that gap is intended research content and is not reconciled. Frozen by explicit user approval in the Step 4 brief (see approval); 6 cranes remains a future sensitivity option."
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "quay_crane_count = 4"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D08
     impact_on_generator: Number of crane records.
     impact_on_future_simulator: Crane capacity; strongly affects realized service.
@@ -284,7 +294,13 @@ records:
     source_document: docs/unified_data_contract.md
     source_section: "5 Quay crane record (PROPOSED 30.0, Project 02 default)"
     rationale: Step 1 proposed value; equals Project 02/03 configs.
-    status: PROPOSED_PENDING_REVIEW
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "quay_crane_nominal_moves_per_hour = 30"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D09
     impact_on_generator: Crane records.
     impact_on_future_simulator: Coupling A.
@@ -298,7 +314,13 @@ records:
     source_document: 02-mini-port-simulation/src/mini_port_sim/arrivals/vessel_generator.py
     source_section: "VesselArrivalGenerator (max_cranes=2); repository_capability_audit.md R1 uses the same value"
     rationale: Step 1 gives no max_cranes rule; Project 02 assigns 2 to every vessel. Uniform rule, not size-dependent, to avoid inventing a length-to-crane mapping.
-    status: PROPOSED_PENDING_REVIEW
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "max_cranes_per_vessel = 2"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D08
     impact_on_generator: Vessel.max_cranes.
     impact_on_future_simulator: Crane allocation limit.
@@ -312,7 +334,13 @@ records:
     source_document: docs/step2_stabilization_report.md
     source_section: "3 Root cause; 5 Alternatives; 6 Selected configuration"
     rationale: "Was 4 (Project 03 config value, never exercised physically). With 4 x 2200 = 8800 TEU, contract-implied mandatory initial inventory (pre-staged exports + pre-episode transshipment) exceeded the 0.5 target in 11/30 medium and 28/30 heavy development seeds and exceeded total capacity in heavy seed 10000000 (9686 TEU = 1.10 x capacity). Twelve identical blocks (3 lines of 4, S2-035) give 26400 TEU. Per-block geometry, capacity and handling rate are unchanged, so only the number of block lines changes. Fixed per family and configuration version; never resized per seed. Synthetic order-of-magnitude plausibility only (about 22 TEU of operating capacity per metre of quay); not calibrated."
-    status: PROPOSED_PENDING_REVIEW
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "yard_block_count = 12 (with S2-023: total_yard_operating_capacity_teu = 26400)"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D11
     impact_on_generator: Number of yard blocks; layout; total capacity; amount of optional background inventory needed to reach the target.
     impact_on_future_simulator: Yard capacity, aggregate handling capacity and transfer distances.
@@ -326,7 +354,13 @@ records:
     source_document: "03-berth-allocation-lab/configs/scenarios/synthetic_{low,medium,heavy}.yaml"
     source_section: "terminal.yard_block_capacity_teu"
     rationale: "Repository value, unchanged per block (2200 <= 40 x 14 x 5 x 0.8 = 2240). The stabilization changes the number of blocks (S2-022), not the block. The bottleneck family now uses the same block; its former 800 TEU blocks (S2-025) are superseded."
-    status: PROPOSED_PENDING_REVIEW
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "total_yard_operating_capacity_teu = 26400 over the approved 12 blocks, i.e. 2200 TEU per block (stabilized geometry preserved)"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D11
     impact_on_generator: Block capacity; initial-inventory target.
     impact_on_future_simulator: Storage gate.
@@ -382,9 +416,14 @@ records:
     source_document: docs/integration_specification.md
     source_section: "5.3 Coupling C (mu_b PROPOSED, no value); container_yard_foundation.md 6.1"
     rationale: "Synthetic research assumption; no Step 1 or repository value exists. 60 moves/h per block is twice one quay crane's nominal rate, so one block feeds one crane, but after the 20 % landside reservation (48 moves/h ship-side) a single block cannot fully feed a two-crane vessel (2 x 30 x 0.92 = 55.2 moves/h). Recommended v1 base; must be frozen before the Step 4 physics freeze and any validation comparison."
-    status: PROPOSED_PENDING_REVIEW
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "normal_yard_block_handling_moves_per_hour = 60"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D11
-    blocks: [step4_physics_freeze, validation_comparisons]
     impact_on_generator: Recorded on yard block records only.
     impact_on_future_simulator: Coupling C capacity.
   - decision_id: S2-032
@@ -397,7 +436,13 @@ records:
     source_document: docs/scientific_experiment_protocol.md
     source_section: "11 Sensitivity (initial yard occupancy fraction 0.3, 0.5, 0.7 around base)"
     rationale: "Step 1 lists sensitivity levels around an unstated base; 0.5 is the middle level. It is a TARGET for total initial occupancy: mandatory inventory always stays; optional background imports fill only up to the target. If mandatory inventory alone exceeds the target, nothing is removed or resampled, no background is added and the scenario reports target_status MANDATORY_EXCEEDS_TARGET. Under the 12-block reference no declared development seed does so. Level 0.3 is NOT supported for itp_heavy (mandatory reaches about 0.37)."
-    status: PROPOSED_PENDING_REVIEW
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "normal_initial_yard_occupancy_target = 0.50"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D11
     impact_on_generator: Number of optional background import containers.
     impact_on_future_simulator: Starting congestion.
@@ -411,9 +456,14 @@ records:
     source_document: docs/scientific_experiment_protocol.md
     source_section: "11 Sensitivity (yard handling capacity x0.5 level); Step 2 stabilization brief 11"
     rationale: "Bottleneck redesign: same physical terminal as the reference families, with yard equipment productivity at the protocol x0.5 level. The ship-side share after the 20 % landside reservation is 24 moves/h per block, below one crane's nominal 30 moves/h and below a two-crane vessel's 55.2 moves/h. A static capacity contrast only; runtime binding is a Step 4 observation."
-    status: PROPOSED_PENDING_REVIEW
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "bottleneck_yard_block_handling_moves_per_hour = 30"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D11
-    blocks: [step4_physics_freeze, validation_comparisons]
     impact_on_generator: Recorded on yard block records only.
     impact_on_future_simulator: Coupling C capacity of the bottleneck family.
   - decision_id: S2-034
@@ -426,7 +476,13 @@ records:
     source_document: docs/scientific_experiment_protocol.md
     source_section: "11 Sensitivity (initial yard occupancy 0.7 level); integration_specification.md 5.3 (rho0 = 0.70)"
     rationale: "Starts the bottleneck terminal at the congestion threshold rho0, so any net inflow reduces effective block handling capacity from the first event. Same target semantics as S2-032."
-    status: PROPOSED_PENDING_REVIEW
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "bottleneck_initial_yard_occupancy_target = 0.70"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D11
     impact_on_generator: Number of optional background import containers in the bottleneck family.
     impact_on_future_simulator: Starting congestion of the bottleneck family.
@@ -625,16 +681,40 @@ records:
     impact_on_generator: nominal_service_time_min via planned_berth_occupancy_minutes.
     impact_on_future_simulator: Preparation phases.
   - decision_id: S2-071
-    parameter_name: multi-crane efficiency
-    parameter_paths: [physics_profiles.standard_v1.crane.efficiency]
-    selected_value: {one: 1.0, two: 0.92, three: 0.82, four_plus: 0.72}
+    parameter_name: "multi-crane efficiency for one, three and four or more cranes (two cranes: S2-071A)"
+    parameter_paths: [physics_profiles.standard_v1.crane.efficiency.one, physics_profiles.standard_v1.crane.efficiency.three, physics_profiles.standard_v1.crane.efficiency.four_plus]
+    selected_value: null
+    selected_values:
+      physics_profiles.standard_v1.crane.efficiency.one: 1.0
+      physics_profiles.standard_v1.crane.efficiency.three: 0.82
+      physics_profiles.standard_v1.crane.efficiency.four_plus: 0.72
     unit: factor
     allowed_range: "(0, 1]; one = 1.0"
     source_kind: STEP1_PROPOSED
     source_document: docs/unified_data_contract.md
     source_section: "6 Physics configuration (PROPOSED values = Project 02 ServiceConfig)"
-    rationale: Project 02 defaults, validated through ServiceConfig.
+    rationale: "Project 02 defaults, validated through ServiceConfig. Split in Step 4 so that only the user-approved two-crane factor (S2-071A) is frozen. With max_cranes_per_vessel = 2 (S2-021) the three and four-plus factors are unreachable in the v1 reference configuration; they matter only for sensitivity levels."
     status: PROPOSED_PENDING_REVIEW
+    linked_step1_decision: D09
+    impact_on_generator: Physics block only.
+    impact_on_future_simulator: Coupling A.
+  - decision_id: S2-071A
+    parameter_name: two-crane efficiency
+    parameter_paths: [physics_profiles.standard_v1.crane.efficiency.two]
+    selected_value: 0.92
+    unit: factor
+    allowed_range: "(0, 1]"
+    source_kind: STEP1_PROPOSED
+    source_document: docs/unified_data_contract.md
+    source_section: "6 Physics configuration (PROPOSED values = Project 02 ServiceConfig)"
+    rationale: "Project 02 ServiceConfig two_crane_efficiency. Applied once per crane to every crane assigned to a vessel with two cranes (D09: 2 x 30 x 0.92 = 55.2 moves/h aggregate when both work)."
+    status: FROZEN
+    approval:
+      approved_by: user
+      approval_source: "Project I Step 4 brief, section 6 (user-approved Project I v1 reference physics)"
+      approval_date: "2026-10-09"
+      approved_value: "two_crane_efficiency = 0.92"
+      scope: "Project I v1 reference configuration only; SYNTHETIC, not calibrated to a real terminal; not a blanket approval of other decisions"
     linked_step1_decision: D09
     impact_on_generator: Physics block only.
     impact_on_future_simulator: Coupling A.

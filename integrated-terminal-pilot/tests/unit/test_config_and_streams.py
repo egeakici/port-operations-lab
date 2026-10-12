@@ -56,6 +56,19 @@ def test_invented_value_cannot_be_labelled_frozen():
         build_generator_config(params, register)
 
 
+def test_approval_record_must_be_complete_and_frozen():
+    params, register = raw_config()
+    record = next(r for r in register["records"] if r["decision_id"] == "S2-031")
+    record["approval"]["approved_by"] = "assistant"
+    with pytest.raises(GeneratorConfigError, match="approval must have"):
+        build_generator_config(params, register)
+    params, register = raw_config()
+    record = next(r for r in register["records"] if r["decision_id"] == "S2-031")
+    record["status"] = "PROPOSED_PENDING_REVIEW"
+    with pytest.raises(GeneratorConfigError, match="must be FROZEN"):
+        build_generator_config(params, register)
+
+
 @pytest.mark.parametrize("changes, message", [
     ({"physics_profiles.standard_v1.service.service_minutes_per_move": 0.6}, "D20"),
     ({"physics_profiles.standard_v1.visibility.future_horizon_min": 120.0}, "D18"),

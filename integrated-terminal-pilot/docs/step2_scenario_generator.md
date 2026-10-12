@@ -49,6 +49,12 @@ Without `--family`, `--generate` uses `development_batch` (30 medium, 30 heavy,
   record's value differs from the configuration. It also fails if a value not taken from a
   FROZEN Step 1 decision (or a Step 2 process rule) is labelled `FROZEN`.
 
+> **Step 4 update (2026-10-09):** the user approved ten v1 reference values; the register is now
+> 23 FROZEN / 29 PROPOSED_PENDING_REVIEW over 52 records (S2-071 split into S2-071 and S2-071A).
+> Parameter values and scenario fingerprints are unchanged. See
+> [step4_physics_approval_audit.md](step4_physics_approval_audit.md). The counts below are the
+> Step 2 state.
+
 Status counts: **13 FROZEN, 38 PROPOSED_PENDING_REVIEW, 0 BLOCKED, 0 DEFERRED**
 (51 records). Before the stabilization they were 13 / 37 / 1 / 0. The stabilization
 removed the four superseded bottleneck-yard records S2-024, S2-025 (BLOCKED), S2-029 and

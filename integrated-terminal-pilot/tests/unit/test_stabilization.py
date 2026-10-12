@@ -292,14 +292,23 @@ def test_infeasible_seeds_are_reported_not_resampled(tmp_path):
 
 # --- 24-27: decision statuses, bottleneck design, degenerate profile --------------------
 
+# Step 4 brief section 6: the user approved exactly these records (ten reference values).
+USER_APPROVED = ("S2-019", "S2-020", "S2-021", "S2-022", "S2-023", "S2-031", "S2-032", "S2-033",
+                 "S2-034", "S2-071A")
+
+
 def test_stabilization_values_are_not_silently_frozen(config):
     records = {r["decision_id"]: r for r in config.decisions}
-    for decision_id in ("S2-008", "S2-019", "S2-022", "S2-023", "S2-031", "S2-032", "S2-033",
-                        "S2-034", "S2-035", "S2-040", "S2-060", "S2-079"):
+    for decision_id in ("S2-008", "S2-035", "S2-040", "S2-060", "S2-071", "S2-073", "S2-074", "S2-075",
+                        "S2-077", "S2-078", "S2-079"):
         assert records[decision_id]["status"] == "PROPOSED_PENDING_REVIEW", decision_id
+    for decision_id in USER_APPROVED:
+        assert records[decision_id]["status"] == "FROZEN", decision_id
+        assert records[decision_id]["approval"]["approved_by"] == "user"
     for record in config.decisions:
         if record["status"] == "FROZEN":
-            assert record["source_kind"] in ("STEP1_FROZEN", "STEP2_BRIEF")
+            assert record["source_kind"] in ("STEP1_FROZEN", "STEP2_BRIEF")                 or record["decision_id"] in USER_APPROVED
+        assert ("approval" in record) == (record["decision_id"] in USER_APPROVED)
     assert config.family("itp_medium")["terminal"]["quay_crane_count"] == 4  # brief 9 reference fleet
 
 
