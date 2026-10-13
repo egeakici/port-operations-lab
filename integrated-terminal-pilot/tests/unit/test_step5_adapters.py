@@ -295,15 +295,15 @@ def test_illegal_policy_output_fails_the_run_without_repair():
 
 
 # 8 / 9 ------------------------------------------------------------ fairness and metadata
-def test_profiles_are_explicit_and_am01_is_not_approved():
+def test_profiles_are_explicit_and_the_lock_stays_blocked():
     assert DEFAULT_YARD_PROFILE == "protocol_v1_first_fit"
     assert yard_profile("yard_first_fit_v1")[0] == "protocol_v1_first_fit"
     assert YARD_PROFILES["am01_balanced_diagnostic"]["role"] == "development_diagnostic"
-    assert am01_status() != "APPROVED"
+    assert am01_status() == "APPROVED_IN_EFFECT"          # approved 2026-10-13 (pre-Step 6)
     state = approval_state()
-    assert state["scientific_protocol_lock"] == "BLOCKED"
-    assert state["frozen"] == 23 and state["proposed_pending_review"] == 29
-    assert len(state["user_approved_reference_values"]) == 10
+    assert state["scientific_protocol_lock"] == "BLOCKED" and state["validation_authorized"] is False
+    assert state["frozen"] + state["proposed_pending_review"] == 52 and state["proposed_pending_review"] > 0
+    assert len(state["user_approved_reference_values"]) == 11   # ten Step 4 values + S2-075
 
 
 # 14 --------------------------------------------------------------- integrity

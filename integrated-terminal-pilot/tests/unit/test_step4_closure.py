@@ -94,15 +94,18 @@ def test_d17_rollover_departs_but_is_not_cargo_fulfilled():
     assert row["handling_cause_min"]["CARGO_UNAVAILABLE"] == pytest.approx(240.0)
 
 
-# 4-5 ---------------------------------------------------------------- AM-01 staged, not frozen
-def test_am01_is_proposed_and_the_reference_yard_policy_is_unchanged():
+# 4-5 ---------------------------------------------------------------- AM-01 (approved 2026-10-13)
+def test_am01_approval_keeps_the_historical_closure_reference_reproducible():
+    # The Step 4 closure staged AM-01 as PROPOSED; the owner approved it on 2026-10-13 (append-only
+    # record). The closure campaign's reference condition and the v1 fixture default stay first fit so
+    # that historical runs reproduce; the primary research P_y is selected by research profile.
     assert REFERENCE_YARD_POLICY_ID == DEFAULT_YARD_POLICY_ID == "yard_first_fit_v1"
     assert isinstance(default_policies()["yard_policy"], FirstFitYardPolicy)
-    assert POLICY_REGISTRY["yard_occupancy_balance_v1"]["role"] == "diagnostic"
-    assert POLICY_REGISTRY["yard_first_fit_v1"]["role"] == "primitive"
+    assert POLICY_REGISTRY["yard_occupancy_balance_v1"]["role"] == "primitive"
+    assert POLICY_REGISTRY["yard_first_fit_v1"]["role"] == "diagnostic_reference"
     text = (PROJECT / "docs/protocol_amendments.md").read_text(encoding="utf-8")
-    assert "AM-01" in text and "PROPOSED / PENDING USER APPROVAL" in text
-    assert "FROZEN" not in re.findall(r"Status:\s*\**([A-Z /_]+)", text)[0]
+    assert "PROPOSED / PENDING USER APPROVAL" in text            # the 2026-10-12 record is preserved
+    assert "AM-01 APPROVED" in text and "SUPERSEDED_BY_AM-01" in text
     assert AM01_PROPOSED_YARD_POLICY_ID == "yard_occupancy_balance_v1"
 
 
