@@ -171,8 +171,10 @@ class FrozenPpoBerthPolicy(BerthPolicy):
         if not 0 <= action < mask.shape[0] or not mask[action]:
             raise AdapterContractError("G19", f"PPO returned masked action {action}")
         end_feature = observation["placement_features"][:, 2]
+        occupying = observation["status_features"][:, 2] == 1
         return action, {"encode_seconds": t1 - t0, "mask_check_seconds": t2 - t1, "inference_seconds": t3 - t2,
                         "mask_true_count": int(mask.sum()),
+                        "occupancy_features": [float(x) for x in end_feature[occupying]],
                         "max_remaining_occupancy_feature": float(end_feature.max(initial=0.0)),
                         "occupancy_feature_above_training_max": bool(
                             end_feature.max(initial=0.0) > TRAINING_MAX_REMAINING_OCCUPANCY_FEATURE)}

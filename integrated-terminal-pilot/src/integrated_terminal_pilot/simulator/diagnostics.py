@@ -31,7 +31,8 @@ from integrated_terminal_pilot.simulator.errors import UnsupportedScenario
 
 REFERENCE_CRANE_COUNT = 4
 REFERENCE_EFFICIENCY_BASIS = "assigned"
-REFERENCE_YARD_POLICY_ID = "yard_first_fit_v1"        # frozen P_y (protocol §3); AM-01 is PROPOSED only
+REFERENCE_YARD_POLICY_ID = "yard_first_fit_v1"        # Step 4 closure reference condition (historical v1 P_y);
+# AM-01 was approved on 2026-10-13: the primary research P_y is selected via benchmark.profiles, not here.
 AM01_PROPOSED_YARD_POLICY_ID = "yard_occupancy_balance_v1"
 YARD_POLICY_LABELS = {"yard_first_fit_v1": "first_fit", "yard_occupancy_balance_v1": "balanced"}
 BERTH_DRIVER_ID = "fixture_p03_online_fcfs"
