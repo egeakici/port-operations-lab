@@ -34,8 +34,7 @@ Current status:
   balanced yard baseline) is **PROPOSED**, not approved
   ([docs/protocol_amendments.md](docs/protocol_amendments.md)); the Step 5 reference yard policy is
   not finalized.
-- Step 5 — Independent Integrated Benchmark: **technically complete, awaiting user review**
-  (uncommitted). Project 03 online FCFS (A1), berth-only Online Rollout (A2) and the frozen
+- Step 5 — Independent Integrated Benchmark: **complete** (commit `6cdd959`). Project 03 online FCFS (A1), berth-only Online Rollout (A2) and the frozen
   Dynamic Maskable PPO checkpoints of training seeds 11/23/37 (A3, medium/heavy) act through one
   `BerthView` adapter and the same Step 4 validator and kernel; gates G01–G21 are implemented and
   PASS for A1, A2 and A3-11/23/37 (tiny checkpoints BLOCK: no eligible family)
@@ -44,6 +43,22 @@ Current status:
   development-only smoke runs exist; **`SCIENTIFIC_PROTOCOL_LOCK = BLOCKED`** until the pending
   approvals are recorded ([docs/step5_protocol_readiness.md](docs/step5_protocol_readiness.md)).
   No validation or test scenario has been generated or run.
+- Pre-Step 6 protocol decisions (2026-10-13): **approved design decisions recorded**, subject to the
+  remaining parameter audit. They comprise:
+  - AM-01: common balanced yard primitive.
+  - AM-02: versioned eight-crane primary research profile `itp_primary_balanced_qc8_v1`. The
+    four-crane v1 reference is unchanged; 4 and 6 cranes are sensitivity levels.
+  - D15/D17 (S2-075), R5 and the assigned efficiency basis.
+  - The CARGO-NI rule.
+  - Cargo-first B2 and the matched B2-T, both pre-registered.
+  - PREFIX exact scope.
+
+  Development-only characterization tooling exists
+  ([docs/pre_step6_design_decisions.md](docs/pre_step6_design_decisions.md),
+  [docs/pre_step6_development_characterization.md](docs/pre_step6_development_characterization.md)).
+  28 synthetic parameter records remain pending
+  ([docs/pre_step6_synthetic_parameter_approval_matrix.md](docs/pre_step6_synthetic_parameter_approval_matrix.md)).
+  **Step 7 validation stays BLOCKED.**
 - Next: Step 6 — Integrated Coordination Policies (not started; not authorized).
 
 Packages: `integrated_terminal_pilot.scenarios` (Step 2), `integrated_terminal_pilot.policies`
@@ -63,6 +78,16 @@ python scripts/run_step5_independent_benchmark.py --smoke --policy A1 --progress
 python scripts/run_step5_independent_benchmark.py --report
 python scripts/run_step5_independent_benchmark.py --exact-gate --progress
 python -m pytest -q tests/unit/test_step5_adapters.py tests/integration/test_step5_benchmark.py
+```
+
+## Pre-Step 6 characterization quick start
+
+```powershell
+python scripts/run_pre_step6_characterization.py --dry-run
+python scripts/run_pre_step6_characterization.py --plan
+python scripts/run_pre_step6_characterization.py --run --progress
+python scripts/run_pre_step6_characterization.py --report
+python -m pytest -q tests/unit/test_pre_step6.py tests/integration/test_pre_step6_profile.py
 ```
 
 ## Step 4 quick start
@@ -147,7 +172,10 @@ Read in this order:
 | [docs/step4_physics_approval_audit.md](docs/step4_physics_approval_audit.md) | Step 4: user-approved values, remaining provisional parameters, execution rules needing review |
 | [docs/step5_independent_benchmark.md](docs/step5_independent_benchmark.md) | Step 5: A1/A2/A3 adapter architecture, information boundary, nominal vs realized service, metrics, commands, development-only results |
 | [docs/step5_bap_compatibility_report.md](docs/step5_bap_compatibility_report.md) | Step 5: Project 03 source audit, checkpoint hashes, PASS/BLOCK matrix, observation/action semantics |
-| [docs/step5_protocol_readiness.md](docs/step5_protocol_readiness.md) | Step 5: approved vs pending items, lock checklist, proposed cargo-compliance rule, Step 6/7 readiness |
+| [docs/step5_protocol_readiness.md](docs/step5_protocol_readiness.md) | Step 5 and pre-Step 6: approved vs pending items, machine lock semantics, Step 6/7 readiness |
+| [docs/pre_step6_design_decisions.md](docs/pre_step6_design_decisions.md) | Pre-Step 6: approved decision matrix, four safeguards, fleet history, B2/B2-T pre-registration |
+| [docs/pre_step6_synthetic_parameter_approval_matrix.md](docs/pre_step6_synthetic_parameter_approval_matrix.md) | Pre-Step 6: row-by-row audit of the 28 still-pending parameter records |
+| [docs/pre_step6_development_characterization.md](docs/pre_step6_development_characterization.md) | Pre-Step 6: development-only eight-crane characterization (plan, coverage, cargo, PPO shift, runtime) |
 
 ## Status vocabulary used in every document
 

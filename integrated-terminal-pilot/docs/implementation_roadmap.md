@@ -174,6 +174,29 @@ reference yard policy is **not** finalized. See
   S1 pipeline end-to-end on development data.
 - **Excluded:** test split; coordination arms.
 
+## Pre-Step 6 protocol decisions (2026-10-13)
+
+The status is:
+
+- **Steps 1-5:** complete.
+- **Pre-Step 6 design decisions:** approved by the owner
+  ([pre_step6_design_decisions.md](pre_step6_design_decisions.md); AM-01 ... AM-09 in
+  [protocol_amendments.md](protocol_amendments.md)). The remaining parameter audit
+  ([pre_step6_synthetic_parameter_approval_matrix.md](pre_step6_synthetic_parameter_approval_matrix.md))
+  is still pending.
+- **Step 6:** not started.
+- **Step 7 validation:** BLOCKED.
+
+The amendments change the Step 6 inputs below:
+
+- **B2's score** becomes cargo-first lexicographic (AM-07). This supersedes the visible-cohort
+  turnaround-only score in the original Step 6 text below.
+- **B2-T**, the matched turnaround-only ablation (AM-08), is added.
+- **The common P_y** of every arm is the balanced primitive (AM-01).
+- **The primary physics** is the eight-crane research profile `itp_primary_balanced_qc8_v1` (AM-02).
+- **Step 6 timing** must record B2/B2-T compute, and the per-decision pivotal-cargo diagnostic
+  (safeguard S4), before a fixed budget is set.
+
 ## Step 6 — Integrated Coordination Policies
 
 - **Inputs:** Steps 4–5; protocol §§3–5.

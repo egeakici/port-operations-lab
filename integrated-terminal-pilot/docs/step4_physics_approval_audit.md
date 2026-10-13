@@ -148,3 +148,13 @@ or code behaviour (the kernel already executes exactly these rules).
 D15/D16 labels were audited (closure §5): no Project I file attributes the batch-size rule to D16;
 four imprecise "batches dispatched by D16" phrasings were clarified (batches are formed under D15
 and sequenced under D16). No dispatch behaviour changed.
+
+## 8. Pre-Step 6 update (2026-10-13) - pointer
+
+The owner approved D15 = 10 and D17 = 240 min (S2-075 FROZEN, AM-03), the R5 execution rule (AM-04)
+and the `assigned` efficiency basis (AM-05). The four-crane fleet (S2-019) remains the approved
+historical v1 reference. The primary synthetic research profile is the derived eight-crane
+`itp_primary_balanced_qc8_v1` (AM-02). Sections 1-7 above are unchanged history. The remaining
+provisional parameters are audited row by row in
+[pre_step6_synthetic_parameter_approval_matrix.md](pre_step6_synthetic_parameter_approval_matrix.md)
+and are still pending.

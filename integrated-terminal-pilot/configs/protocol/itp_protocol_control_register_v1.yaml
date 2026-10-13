@@ -1,0 +1,101 @@
+# Project I protocol control register (itp_protocol_control_register_v1).
+#
+# Machine-readable, append-only companion of docs/protocol_amendments.md for approvals that are NOT
+# generator parameter values (those live in configs/generator/itp_generator_v1_decisions.yaml).
+# Loaded and validated by integrated_terminal_pilot.benchmark.protocol_records; unknown fields or
+# statuses are rejected. Records are never deleted or rewritten: a later record supersedes an earlier
+# one through `supersedes`.
+#
+# status vocabulary (closed):
+#   APPROVED_IN_EFFECT                      - approved design/configuration, in effect for development
+#                                             and for the future pre-validation setup
+#   APPROVED_FOR_STEP6_DESIGN_NOT_VALIDATION_LOCKED
+#                                           - approved pre-registration for Step 6/7 design; binding,
+#                                             but not part of any validation lock until Step 7 writes it
+#   SUPERSEDED                              - kept for history; replaced by `superseded_by`
+#
+# None of these statuses is a scientific lock. protocol_lock_v1.json is written only at Step 7.
+register_version: 1
+records:
+  - record_id: P3-PY-FF
+    title: "Protocol section 3 common yard primitive P_y = yard_first_fit_v1 (original frozen v1 rule)"
+    status: SUPERSEDED
+    superseded_by: AM-01
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "Primary experimental P_y only. yard_first_fit_v1 stays registered, unchanged, as diagnostic reference P_y_ff and as the historical v1 four-crane reproduction default."
+    value: {yard_policy_id: yard_first_fit_v1}
+    affects: [docs/scientific_experiment_protocol.md#3, itp_v1_reference_qc4_first_fit]
+  - record_id: AM-01
+    title: "Common balanced yard primitive for every A and B arm"
+    status: APPROVED_IN_EFFECT
+    supersedes: P3-PY-FF
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "yard_occupancy_balance_v1 is the common P_y of A1, A2, A3, B1, B2, B2-T and optional B3, including B2/B2-T internal forward models. No policy reads berth, crane, transport or future information through P_y. Step 3 algorithms unchanged."
+    value: {yard_policy_id: yard_occupancy_balance_v1, diagnostic_reference: yard_first_fit_v1}
+    affects: [itp_primary_balanced_qc8_v1, itp_sensitivity_balanced_qc4_v1, itp_sensitivity_balanced_qc6_v1]
+  - record_id: AM-02
+    title: "FLEET-8: versioned eight-quay-crane primary synthetic research profile"
+    status: APPROVED_IN_EFFECT
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "Primary synthetic RESEARCH profile itp_primary_balanced_qc8_v1 for forthcoming S1/S2 comparisons: 8 cranes derived in memory from the unchanged four-crane v1 source (S2-019 stays FROZEN at 4 as the historical v1 reference), max_cranes_per_vessel unchanged (2), assigned efficiency basis, common P_y per AM-01. 4 and 6 cranes are predeclared capacity SENSITIVITY levels with distinct physics fingerprints. Safeguard S3: final for this protocol stage; reopening requires a recorded physical invalidity and a new owner decision, never a policy ranking or PPO generalization result. Synthetic research design, not an equipment recommendation."
+    value: {research_profile_id: itp_primary_balanced_qc8_v1, quay_crane_count: 8, max_cranes_per_vessel: 2, efficiency_basis: assigned, yard_policy_id: yard_occupancy_balance_v1, source_fleet_record: S2-019, sensitivity_crane_counts: [4, 6]}
+    affects: [itp_primary_balanced_qc8_v1]
+  - record_id: AM-03
+    title: "D15 batch size 10 and D17 rollover wait 240 min"
+    status: APPROVED_IN_EFFECT
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "Recorded in the decision register as S2-075 (FROZEN with approval block). D16 sequencing and dispatch unchanged. D17 120 and 480 min are pre-registered sensitivity levels, never a tuned winner. Cargo-failure KPIs are mandatory."
+    value: {decision_record: S2-075, batch_size_containers: 10, max_load_wait_min: 240.0, d17_sensitivity_min: [120.0, 480.0]}
+    affects: [all profiles]
+  - record_id: AM-04
+    title: "R5 execution rule: at most one concurrent GATE_OUT batch per YardBlock, FIFO"
+    status: APPROVED_IN_EFFECT
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "Kernel execution rule (no generator parameter exists). Receipts keep their atomic TEU admission. Source: simulator kernel landside release admission; invariant INV15. Physical inventory and reservation invariants preserved."
+    value: {rule: R5, max_concurrent_gate_out_batches_per_block: 1, order: FIFO, invariant: INV15}
+    affects: [all profiles]
+  - record_id: AM-05
+    title: "R1: assigned crane-count efficiency basis is the reference"
+    status: APPROVED_IN_EFFECT
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "efficiency_basis = assigned for every profile; working remains a Step 4 closure diagnostic. No other efficiency coefficient is approved by this record (S2-071 stays pending; S2-071A two-crane 0.92 was approved earlier)."
+    value: {efficiency_basis: assigned}
+    affects: [all profiles]
+  - record_id: AM-06
+    title: "CARGO-NI: paired one-sided 95% upper-bound non-inferiority, margin 1 percentage point"
+    status: APPROVED_FOR_STEP6_DESIGN_NOT_VALIDATION_LOCKED
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "Outbound-obligation loss rate R = U / N_out per scenario (ledger-grounded load completion by T_end). Comparator map and nested A3 aggregation per safeguard S1 (benchmark.cargo_ni.COMPARATOR_MAP). Paired scenario-level bootstrap, 10000 resamples, seed 20261013, one-sided 95% upper bound <= +0.01. Margin 0.00 is a stricter sensitivity analysis only. No weighted scalar; D24 unchanged."
+    value: {margin: 0.01, confidence: 0.95, resamples: 10000, bootstrap_seed: 20261013, sensitivity_margin: 0.0, metric_schema: itp_outbound_obligation_v1}
+    affects: [Step 7 analysis plan]
+  - record_id: AM-07
+    title: "B2-OBJECTIVE: cargo-first lexicographic B2 decision objective"
+    status: APPROVED_FOR_STEP6_DESIGN_NOT_VALIDATION_LOCKED
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "Step 6 implementation only. Lexicographic: (1) predicted unfulfilled outbound obligations, (2) predicted turnaround; deterministic tie-break. Safeguard S4: log pivotal cargo decisions in Step 6 development profiling; any tolerance needs a new owner decision before validation."
+    value: {objective: [predicted_unfulfilled_outbound_obligations, predicted_turnaround], ordering: lexicographic, tolerance: none}
+    affects: [Step 6 B2]
+  - record_id: AM-08
+    title: "B2-T: matched turnaround-only B2 ablation"
+    status: APPROVED_FOR_STEP6_DESIGN_NOT_VALIDATION_LOCKED
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "Step 6 implementation only. Identical to B2 in visible information, forward model, candidates, horizon, cloning, continuation, event rules, compute budget and tie-break; only the score differs (turnaround only). Safeguard S2: A2 vs B2 is a coordination-package contrast, not a pure information effect."
+    value: {matched_to: B2, score: predicted_turnaround, contrasts: ["A2 vs B2 (package)", "A2 vs B2-T (ablation)", "B2-T vs B2 (objective given matched model)"]}
+    affects: [Step 6 B2-T]
+  - record_id: AM-09
+    title: "EXACT-SCOPE: 17 PREFIX-scoped degenerate equality cases accepted as physical-model divergence"
+    status: APPROVED_IN_EFFECT
+    approval_date: "2026-10-13"
+    approval_source: "explicit project-owner approval in the 2026-10-13 project conversation"
+    scope: "Step 5 PASS-EXACT gate: 383 FULL and 17 PREFIX cases (of 400). PREFIX validates only decisions strictly before the first nominal-semantics divergence; it is never described as whole-episode equality. Evidence preserved."
+    value: {full: 383, prefix: 17, total: 400, gate: step5_pass_exact}
+    affects: [docs/step5_bap_compatibility_report.md#5]

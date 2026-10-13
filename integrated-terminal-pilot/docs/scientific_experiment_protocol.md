@@ -327,3 +327,24 @@ held-out results as Project I evidence.
 Proposed and approved amendments are recorded append-only in
 [protocol_amendments.md](protocol_amendments.md); the text above is not edited in place.
 AM-01 (common occupancy-balancing yard baseline) is PROPOSED / PENDING USER APPROVAL.
+
+---
+
+## Amendment pointer (append-only, 2026-10-13)
+
+The text above is the frozen v1 protocol and is not edited. Approved amendments are recorded in
+[protocol_amendments.md](protocol_amendments.md):
+
+- **AM-01:** common balanced P_y; the section 3 first-fit P_y is superseded as the primary yard primitive.
+- **AM-02:** versioned eight-crane primary research profile; four cranes stay the historical v1
+  reference, and 4/6 cranes are sensitivity levels. Safeguard S3 (fleet fixed before viewing rankings)
+  is part of AM-02.
+- **AM-03:** D15/D17.
+- **AM-04:** R5.
+- **AM-05:** assigned efficiency basis.
+- **AM-06:** CARGO-NI, with the safeguard S1 reference map and nested A3 aggregation.
+- **AM-07:** cargo-first B2 objective, with safeguard S4.
+- **AM-08:** matched B2-T ablation, with safeguard S2.
+- **AM-09:** PREFIX exact scope.
+
+The lock procedure of section 9 is unchanged; `protocol_lock_v1.json` has not been written.

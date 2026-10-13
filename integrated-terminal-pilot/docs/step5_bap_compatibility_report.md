@@ -141,3 +141,12 @@ maximum `(50 + 0.5·900)/1440 ≈ 0.347`; these describe distribution shift and 
   the mask (G19). Each fails the run with `BERTH_POLICY_GATE_<id>`; nothing is repaired or replaced
   by a fallback policy.
 - CUDA inference (contract section 10): not used.
+
+---
+
+**Cross-reference (2026-10-13).** The Step 5 results above were produced under the historical
+four-crane first-fit configuration and are kept unchanged. The pre-Step 6 decisions (AM-01 … AM-09)
+make the eight-crane balanced profile `itp_primary_balanced_qc8_v1` the primary research physics, and
+AM-09 accepts the 383 FULL / 17 PREFIX exact-gate scope. See
+[pre_step6_design_decisions.md](pre_step6_design_decisions.md) and
+[pre_step6_development_characterization.md](pre_step6_development_characterization.md).

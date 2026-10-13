@@ -17,7 +17,75 @@ The lock state is computed from the repository at run time
 (`integrated_terminal_pilot.benchmark.profiles.approval_state()`) and is written into every Step 5
 run manifest as `scientific_protocol_lock`.
 
-## 1. What is approved
+## 0. Update 2026-10-13 — pre-Step 6 decision package (current state)
+
+The owner approved AM-01 … AM-09 and S2-075 on 2026-10-13
+([protocol_amendments.md](protocol_amendments.md), [pre_step6_design_decisions.md](pre_step6_design_decisions.md)).
+Sections 1–7 below record the state at the **end of Step 5** and are kept for history. Where they
+say "pending" for AM-01, D15, D17, R5, the cargo rule or the fleet, this section supersedes them.
+
+```text
+STEP5_IMPLEMENTATION          = COMPLETE
+PRE_STEP6_IMPLEMENTATION      = COMPLETE (research profile, cargo metric, CARGO-NI helper, control register)
+POLICY_COMPATIBILITY          = unchanged (A1, A2, A3-11/23/37 PASS; tiny BLOCK)
+STEP6 TECHNICAL READINESS     = READY TO START (after owner review); Step 6 not authorized by this package
+SCIENTIFIC_PROTOCOL_LOCK      = BLOCKED
+LOCK_REVIEW_READINESS         = NOT_READY (28 register records pending)
+VALIDATION AUTHORIZED         = NO
+```
+
+### 0.1 Approved now
+
+| Item | Record | Status |
+| --- | --- | --- |
+| Common balanced P_y for all A/B arms (first fit = diagnostic `P_y_ff`) | AM-01 (+ P3-PY-FF superseded) | APPROVED_IN_EFFECT |
+| Eight-crane primary research profile `itp_primary_balanced_qc8_v1`; 4 QC stays the historical v1 reference (S2-019 unchanged); 4/6 QC sensitivity | AM-02 | APPROVED_IN_EFFECT |
+| D15 = 10, D17 = 240 min (D17 120/480 sensitivity only) | AM-03 / S2-075 FROZEN | APPROVED_IN_EFFECT |
+| R5 execution rule | AM-04 | APPROVED_IN_EFFECT |
+| `assigned` efficiency basis | AM-05 | APPROVED_IN_EFFECT |
+| CARGO-NI rule (1 pp margin, one-sided 95 % upper bound, nested A3, reference map) | AM-06 | APPROVED_FOR_STEP6_DESIGN_NOT_VALIDATION_LOCKED |
+| B2 cargo-first lexicographic objective | AM-07 | APPROVED_FOR_STEP6_DESIGN_NOT_VALIDATION_LOCKED |
+| B2-T matched ablation | AM-08 | APPROVED_FOR_STEP6_DESIGN_NOT_VALIDATION_LOCKED |
+| 17 PREFIX exact cases accepted (separate from 383 FULL) | AM-09 | APPROVED_IN_EFFECT |
+
+The decision register now holds 24 FROZEN and 28 PROPOSED_PENDING_REVIEW records. The pending
+records are listed row by row in
+[pre_step6_synthetic_parameter_approval_matrix.md](pre_step6_synthetic_parameter_approval_matrix.md).
+None of them was approved.
+
+### 0.2 Machine lock semantics
+
+`benchmark.profiles.approval_state()` computes, at run time:
+
+- the register counts and pending ids (decision register);
+- the status of every required control record AM-01 … AM-09 (`configs/protocol/itp_protocol_control_register_v1.yaml`;
+  missing or wrong-status records are reported as `control_record_gaps`);
+- whether the Step 7 formal lock `protocol_lock_v1.json` exists (it does not, and nothing before Step 7
+  writes it).
+
+`lock_review_readiness` becomes `READY_FOR_LOCK_REVIEW` only when no register record is pending and
+no control record is missing. `scientific_protocol_lock` stays `BLOCKED` while any blocker exists,
+including the absent Step 7 lock. `validation_authorized` is always `false` in code. The Step 7 lock
+event is a separate, owner-run procedure (protocol §9).
+
+### 0.3 Comparator map and B2-T (pre-registered)
+
+S1 uses A2 vs A1 and A3 vs A1, with A3 averaged over training seeds within each scenario first and
+confidence intervals over scenario seeds. S2 uses B1 vs A1, B2 vs A2, B2-T vs A2 (ablation) and B2 vs
+B2-T. Optional B3 is paired with A3 seed by seed. B2-T matches B2 in everything but the score
+(turnaround only). A2 vs B2 is a coordination-package contrast. Full text:
+[pre_step6_design_decisions.md](pre_step6_design_decisions.md) sections 2 and 4.
+
+### 0.4 Step 6 technical readiness vs Step 7 scientific lock
+
+Step 6 can technically start after owner review. It has the shared adapter, the validator, the
+eight-crane profile, the cargo metric and the pre-registered B2/B2-T contract and diagnostics.
+Step 7 is blocked by the 28 pending records, by the Step 6 arms and their measured compute budget,
+and by the formal lock.
+
+---
+
+## 1. What is approved (state at the end of Step 5)
 
 | Item | Source | Status |
 | --- | --- | --- |

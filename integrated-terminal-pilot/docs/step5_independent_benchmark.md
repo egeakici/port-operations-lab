@@ -248,3 +248,12 @@ selection, and writes every record exclusively. `--report` executes no simulatio
   equivalence with CUDA-time inference is not established.
 - The A2 search has no time cap. Heavy decisions reach about 2 s, close to the protocol's
   PROPOSED 2.0 s B2 trigger, which applies equally to A2 and B2 (protocol section 5).
+
+---
+
+**Cross-reference (2026-10-13).** The Step 5 results above were produced under the historical
+four-crane first-fit configuration and are kept unchanged. The pre-Step 6 decisions (AM-01 … AM-09)
+make the eight-crane balanced profile `itp_primary_balanced_qc8_v1` the primary research physics, and
+AM-09 accepts the 383 FULL / 17 PREFIX exact-gate scope. See
+[pre_step6_design_decisions.md](pre_step6_design_decisions.md) and
+[pre_step6_development_characterization.md](pre_step6_development_characterization.md).
