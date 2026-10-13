@@ -22,24 +22,48 @@ Current status:
   P_c (`primitive_crane_greedy_v1`) and P_y (`yard_first_fit_v1`) work over immutable
   decision-time observations and return declarative actions
   ([docs/step3_primitive_policies.md](docs/step3_primitive_policies.md)).
-- Step 4 — Cloneable Integrated Terminal Simulator: **Implemented** (uncommitted, awaiting user
-  review). One deterministic, cloneable event kernel executes berth, crane, transfer, yard and
+- Step 4 — Cloneable Integrated Terminal Simulator: **Implemented** (commit `2b6153a`). One deterministic, cloneable event kernel executes berth, crane, transfer, yard and
   landside operations on individually identified containers
   ([docs/step4_integrated_simulator.md](docs/step4_integrated_simulator.md)). Ten v1 reference
   values are user-approved; the remaining physics stays PROPOSED
   ([docs/step4_physics_approval_audit.md](docs/step4_physics_approval_audit.md)).
-- Step 4 closure (pre-Step-5 diagnostics, not a new step): **in progress, awaiting user
-  decisions**. Summary trace mode, isolated diagnostic overrides, vessel-time decomposition,
+- Step 4 closure (pre-Step-5 diagnostics, not a new step): **complete** (commits `97e76dc`,
+  `60b340d`); its approval decisions are still pending. Summary trace mode, isolated diagnostic overrides, vessel-time decomposition,
   cargo-fulfilment accounting and a development-only FCFS characterization campaign
   ([docs/step4_closure_diagnostics.md](docs/step4_closure_diagnostics.md)). Amendment AM-01 (common
   balanced yard baseline) is **PROPOSED**, not approved
   ([docs/protocol_amendments.md](docs/protocol_amendments.md)); the Step 5 reference yard policy is
   not finalized.
-- Next: Step 5 — Independent Integrated Benchmark (not started).
+- Step 5 — Independent Integrated Benchmark: **technically complete, awaiting user review**
+  (uncommitted). Project 03 online FCFS (A1), berth-only Online Rollout (A2) and the frozen
+  Dynamic Maskable PPO checkpoints of training seeds 11/23/37 (A3, medium/heavy) act through one
+  `BerthView` adapter and the same Step 4 validator and kernel; gates G01–G21 are implemented and
+  PASS for A1, A2 and A3-11/23/37 (tiny checkpoints BLOCK: no eligible family)
+  ([docs/step5_independent_benchmark.md](docs/step5_independent_benchmark.md),
+  [docs/step5_bap_compatibility_report.md](docs/step5_bap_compatibility_report.md)). Only bounded
+  development-only smoke runs exist; **`SCIENTIFIC_PROTOCOL_LOCK = BLOCKED`** until the pending
+  approvals are recorded ([docs/step5_protocol_readiness.md](docs/step5_protocol_readiness.md)).
+  No validation or test scenario has been generated or run.
+- Next: Step 6 — Integrated Coordination Policies (not started; not authorized).
 
 Packages: `integrated_terminal_pilot.scenarios` (Step 2), `integrated_terminal_pilot.policies`
-(Step 3) and `integrated_terminal_pilot.simulator` (Step 4). No policy comparison, PPO adapter,
-coordinator or RL code exists.
+(Step 3), `integrated_terminal_pilot.simulator` (Step 4) and `integrated_terminal_pilot.benchmark`
+(Step 5: berth-policy adapters, gates, development runner). No coordinator and no RL training code
+exists; frozen PPO checkpoints are only loaded read-only for CPU inference.
+
+## Step 5 quick start
+
+From this directory in PowerShell (development data only; outputs go to the Git-ignored
+`experiments/step5_development/`, never overwriting a run):
+
+```powershell
+python scripts/run_step5_independent_benchmark.py --check-compatibility
+python scripts/run_step5_independent_benchmark.py --dry-run
+python scripts/run_step5_independent_benchmark.py --smoke --policy A1 --progress
+python scripts/run_step5_independent_benchmark.py --report
+python scripts/run_step5_independent_benchmark.py --exact-gate --progress
+python -m pytest -q tests/unit/test_step5_adapters.py tests/integration/test_step5_benchmark.py
+```
 
 ## Step 4 quick start
 
@@ -121,6 +145,9 @@ Read in this order:
 | [docs/step3_primitive_policies.md](docs/step3_primitive_policies.md) | Step 3: observation and action contracts, P_c and P_y, diagnostic yard heuristic, Project 02 equivalence, visibility rules, Step 4 integration notes |
 | [docs/step4_integrated_simulator.md](docs/step4_integrated_simulator.md) | Step 4: kernel architecture, API, events, state, cloning, hidden-information boundary, physical rules, termination, invariants, trace, metrics, results |
 | [docs/step4_physics_approval_audit.md](docs/step4_physics_approval_audit.md) | Step 4: user-approved values, remaining provisional parameters, execution rules needing review |
+| [docs/step5_independent_benchmark.md](docs/step5_independent_benchmark.md) | Step 5: A1/A2/A3 adapter architecture, information boundary, nominal vs realized service, metrics, commands, development-only results |
+| [docs/step5_bap_compatibility_report.md](docs/step5_bap_compatibility_report.md) | Step 5: Project 03 source audit, checkpoint hashes, PASS/BLOCK matrix, observation/action semantics |
+| [docs/step5_protocol_readiness.md](docs/step5_protocol_readiness.md) | Step 5: approved vs pending items, lock checklist, proposed cargo-compliance rule, Step 6/7 readiness |
 
 ## Status vocabulary used in every document
 
@@ -141,7 +168,7 @@ edits their source, configurations, checkpoints or experiment artifacts.
 Project 03's frozen release and checkpoints are referenced by path and
 SHA-256 only.
 
-## Known limitations (Steps 2–4)
+## Known limitations (Steps 2–5)
 
 - Most cargo, landside and yard parameters are synthetic research assumptions, PROPOSED and
   not calibrated. They must be approved before any validation comparison. Data is never
@@ -155,8 +182,13 @@ SHA-256 only.
   discharge and that heavy and bottleneck seeds can reach the drain limit; this needs a decision
   before Step 5 (see the physics approval audit §5).
 
+- Step 5 smoke runs are development diagnostics with provisional physics and the frozen first-fit
+  P_y; they rank nothing. Frozen PPO acts under forecast-substituted occupancy (a declared
+  distribution shift) and is neither crane- nor yard-aware.
+
 ## Next step
 
-Step 5 — Independent Integrated Benchmark
-([roadmap](docs/implementation_roadmap.md#step-5--independent-integrated-benchmark)). Its
-prerequisites are listed in [docs/step4_integrated_simulator.md](docs/step4_integrated_simulator.md) §15.
+Step 6 — Integrated Coordination Policies
+([roadmap](docs/implementation_roadmap.md#step-6--integrated-coordination-policies)), after user
+review of Step 5. Scientific validation is not authorized until the lock checklist in
+[docs/step5_protocol_readiness.md](docs/step5_protocol_readiness.md) is completed.

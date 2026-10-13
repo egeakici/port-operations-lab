@@ -57,6 +57,8 @@ class EpisodeRun:
     decisions: dict = field(default_factory=lambda: {"BERTH": 0, "CRANE": 0, "YARD": 0})
     decision_seconds: dict = field(default_factory=lambda: {"BERTH": 0.0, "CRANE": 0.0, "YARD": 0.0})
     wall_seconds: float = 0.0
+    # Step 5: per berth decision, view build / policy decide / validated apply wall seconds.
+    berth_timings: list = field(default_factory=list)
 
     @property
     def status(self) -> str:
@@ -85,7 +87,13 @@ def run_episode(kernel, *, berth_policy, crane_policy, yard_policy, until_min: f
                 break
             t0 = time.perf_counter()
             if request.kind == "BERTH":
-                kernel.apply_berth_action(berth_policy.decide(kernel.berth_view()))
+                view = kernel.berth_view()
+                t1 = time.perf_counter()
+                action = berth_policy.decide(view)
+                t2 = time.perf_counter()
+                kernel.apply_berth_action(action)
+                run.berth_timings.append({"view_seconds": t1 - t0, "decide_seconds": t2 - t1,
+                                          "apply_seconds": time.perf_counter() - t2})
             elif request.kind == "CRANE":
                 kernel.apply_crane_action(crane_policy.decide(kernel.crane_observation()))
             else:
