@@ -242,7 +242,8 @@ def _step6_summary(policy) -> dict[str, Any]:
 def run_arm(doc: dict[str, Any], *, arm_id: str, training_seed: int | None = None,
             yard_profile_name: str = "protocol_v1_first_fit", research_profile: str | None = None,
             trace_mode: str = "summary", trace_dir=None, max_decisions: int | None = None,
-            keep_kernel: bool = False, b2_cycle_guard: int | None = None) -> dict[str, Any]:
+            keep_kernel: bool = False, b2_cycle_guard: int | None = None,
+            capture_decision_snapshots: bool = False) -> dict[str, Any]:
     """Run one arm on one scenario; never raises for a policy/kernel failure (status FAILED is recorded).
 
     ``research_profile`` (pre-Step 6) selects a versioned physical configuration (fleet + common P_y);
@@ -304,6 +305,31 @@ def run_arm(doc: dict[str, Any], *, arm_id: str, training_seed: int | None = Non
     policy_setup_seconds = time.perf_counter() - t_setup   # imports + (cached) checkpoint load; not run time
     started += policy_setup_seconds
     kernel = TerminalKernel.from_catalog(catalog, invariant_mode="cheap")
+    snapshots = []
+    if capture_decision_snapshots:
+        # Closure diagnostics only: retain immutable current observations, never feed
+        # diagnostic outcomes or hidden future data back into a policy.
+        from dataclasses import asdict
+        import base64
+        import pickle
+        from integrated_terminal_pilot.benchmark.coordination_view import build_coordination_view
+
+        original_observer = observer
+
+        def capture_observer(live):
+            snapshot = build_coordination_view(live, include_projection=False)
+            policy_view = live.berth_view() if original_observer is None else original_observer(live)
+            captured = asdict(snapshot)
+            # Archive the exact immutable input, including the already-sanitised
+            # SafeProjection for B2. Never pickle the live kernel or hidden catalog.
+            # Replay only locally generated, checksum-verified trusted artifacts.
+            captured['policy_observation_pickle_base64'] = base64.b64encode(
+                pickle.dumps(policy_view, protocol=pickle.HIGHEST_PROTOCOL)).decode('ascii')
+            captured['policy_observation_schema'] = getattr(policy_view, 'schema', 'BerthView')
+            snapshots.append(captured)
+            return policy_view
+
+        observer = capture_observer
     run = run_episode(kernel, berth_policy=policy, crane_policy=GreedyBerthOrderCranePolicy(),
                       yard_policy=create_policy(yard_policy_id), max_decisions=max_decisions,
                       berth_observer=observer)
@@ -358,6 +384,8 @@ def run_arm(doc: dict[str, Any], *, arm_id: str, training_seed: int | None = Non
     }
     if arm_id in B_ARMS:
         record["step6"] = _step6_summary(policy)
+    if capture_decision_snapshots:
+        record["closure_observations"] = snapshots
     if keep_kernel:
         record["_kernel"] = kernel
         record["_policy"] = policy
