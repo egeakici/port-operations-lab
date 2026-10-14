@@ -186,10 +186,63 @@ def resolve_research_profile(doc: dict[str, Any], profile_id: str) -> tuple[dict
     return derived, catalog, provenance
 
 
+B_ARMS = ("A1n", "B1", "B2", "B2-T")
+
+
+def _step6_policy(arm_id: str, yard_policy_id: str, cycle_guard: int | None):
+    from integrated_terminal_pilot.benchmark.coordination_policies import (
+        DEFAULT_INNER_CYCLE_GUARD, A1nNominalGreedyPolicy, B1IntegratedGreedyPolicy, IntegratedRolloutPolicy,
+    )
+    from integrated_terminal_pilot.benchmark.coordination_view import coordination_observer
+
+    if arm_id == "A1n":
+        return A1nNominalGreedyPolicy(), None                       # berth-only: plain BerthView
+    if arm_id == "B1":
+        return B1IntegratedGreedyPolicy(), coordination_observer(include_projection=False)
+    policy = IntegratedRolloutPolicy(arm_id, yard_policy_id, cycle_guard=cycle_guard or DEFAULT_INNER_CYCLE_GUARD)
+    return policy, coordination_observer(include_projection=True)
+
+
+def _step6_summary(policy) -> dict[str, Any]:
+    from integrated_terminal_pilot.benchmark.coordination_policies import FACTOR_LABELS
+
+    out: dict[str, Any] = {"factor_labels": FACTOR_LABELS[policy.arm_id], "development_only": True,
+                           "budget_approval_status": "STRUCTURAL_BUDGET_PROTOCOL5_FROZEN; COHORT_CAP_NOT_APPLIED; "
+                                                     "K5 fixed budget PROPOSED_NEEDS_OWNER_REVIEW"}
+    pivots = [r["pivotal"] for r in policy.records if "pivotal" in r]
+    if pivots:
+        evals = [r["evaluation"] for r in policy.records]
+        out["s4_pivotal"] = {
+            "decisions": len(pivots), "choices_differ": sum(p["choices_differ"] for p in pivots),
+            "one_container_pivotal": sum(p["one_container_pivotal"] for p in pivots),
+            "max_turnaround_sacrifice_min": max((p["predicted_turnaround_sacrifice_min"] for p in pivots
+                                                 if p["choices_differ"]), default=None),
+            "examples": [dict(p, decision_id=r["decision_id"], time_min=r["time_min"])
+                         for r, p in zip(policy.records, pivots) if p["choices_differ"]][:20]}
+        out["evaluation_seconds"] = _stats([e["timing"]["total_seconds"] for e in evals])
+        out["candidate_seconds"] = _stats([x for e in evals for x in e["timing"]["candidate_seconds"]])
+        out["projection_build_seconds"] = _stats([e["timing"]["projection_build_seconds"] for e in evals])
+        out["projection_bytes"] = _stats([e["timing"]["projection_bytes"] for e in evals])
+        out["candidates_per_decision"] = _stats([len(e["candidates"]) for e in evals])
+        out["leaf_rollouts_per_decision"] = _stats([
+            sum(1 if c["kind"] == "ASSIGN" or c["wait_terminal"] else len(c["wait_branches"])
+                for c in e["candidates"]) for e in evals])
+        out["prediction_digests"] = [e["prediction_digest"] for e in evals]
+        out["budget_fingerprint"] = evals[0]["budget_fingerprint"] if evals else None
+        out["decision_predictions"] = [{"decision_id": r["decision_id"], "time_min": r["time_min"],
+                                        "chosen": r["p03_action"], "cohort": r["evaluation"]["cohort"],
+                                        "known_outbound": r["evaluation"]["known_outbound_obligations"],
+                                        "candidates": r["evaluation"]["candidates"]} for r in policy.records]
+    if policy.arm_id == "B1":
+        out["b1_decisions"] = [{"decision_id": r["decision_id"], "time_min": r["time_min"], "chosen": r["p03_action"],
+                                "candidates": r["candidates"]} for r in policy.records]
+    return out
+
+
 def run_arm(doc: dict[str, Any], *, arm_id: str, training_seed: int | None = None,
             yard_profile_name: str = "protocol_v1_first_fit", research_profile: str | None = None,
             trace_mode: str = "summary", trace_dir=None, max_decisions: int | None = None,
-            keep_kernel: bool = False) -> dict[str, Any]:
+            keep_kernel: bool = False, b2_cycle_guard: int | None = None) -> dict[str, Any]:
     """Run one arm on one scenario; never raises for a policy/kernel failure (status FAILED is recorded).
 
     ``research_profile`` (pre-Step 6) selects a versioned physical configuration (fleet + common P_y);
@@ -237,13 +290,23 @@ def run_arm(doc: dict[str, Any], *, arm_id: str, training_seed: int | None = Non
         if gate["status"] != "PASS":
             return base | {"status": "BLOCKED", "blocked_reasons": gate["reasons"]}
     t_setup = time.perf_counter()
-    policy = create_berth_policy(arm_id, training_seed=training_seed,
-                                 host_projection=projection if arm_id == "A3" else None)
+    observer = None
+    if arm_id in B_ARMS:
+        from integrated_terminal_pilot.benchmark.profiles import PRIMARY_RESEARCH_PROFILE
+
+        if research_profile != PRIMARY_RESEARCH_PROFILE:
+            raise ValueError(f"{arm_id} runs only on the approved primary research profile "
+                             f"{PRIMARY_RESEARCH_PROFILE} (got {research_profile!r})")
+        policy, observer = _step6_policy(arm_id, yard_policy_id, b2_cycle_guard)
+    else:
+        policy = create_berth_policy(arm_id, training_seed=training_seed,
+                                     host_projection=projection if arm_id == "A3" else None)
     policy_setup_seconds = time.perf_counter() - t_setup   # imports + (cached) checkpoint load; not run time
     started += policy_setup_seconds
     kernel = TerminalKernel.from_catalog(catalog, invariant_mode="cheap")
     run = run_episode(kernel, berth_policy=policy, crane_policy=GreedyBerthOrderCranePolicy(),
-                      yard_policy=create_policy(yard_policy_id), max_decisions=max_decisions)
+                      yard_policy=create_policy(yard_policy_id), max_decisions=max_decisions,
+                      berth_observer=observer)
     run_seconds = time.perf_counter() - started
     result = kernel.result()
     t0 = time.perf_counter()
@@ -293,6 +356,8 @@ def run_arm(doc: dict[str, Any], *, arm_id: str, training_seed: int | None = Non
                         "simulated_minutes": result["end_time_min"],
                         "checkpoint_load_seconds_excluded": (policy.loaded.load_seconds if arm_id == "A3" else None)},
     }
+    if arm_id in B_ARMS:
+        record["step6"] = _step6_summary(policy)
     if keep_kernel:
         record["_kernel"] = kernel
         record["_policy"] = policy

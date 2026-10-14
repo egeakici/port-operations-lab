@@ -68,9 +68,15 @@ class EpisodeRun:
 
 
 def run_episode(kernel, *, berth_policy, crane_policy, yard_policy, until_min: float | None = None,
-                max_decisions: int | None = None, max_cycles: int | None = None) -> EpisodeRun:
+                max_decisions: int | None = None, max_cycles: int | None = None,
+                berth_observer=None) -> EpisodeRun:
     """Drive ``kernel`` with the given policies until it ends, pauses (``until_min`` / ``max_cycles``),
-    exceeds ``max_decisions``, or fails."""
+    exceeds ``max_decisions``, or fails.
+
+    ``berth_observer`` (Step 6, optional): a trusted builder ``observer(kernel) -> observation`` used
+    instead of ``kernel.berth_view()`` for the berth policy (the B arms' ``CoordinationView``). The
+    policy still receives only the observation, never the kernel. Default: unchanged Step 4/5 path.
+    """
     run = EpisodeRun(end=None)
     started = time.perf_counter()
     count = 0
@@ -87,7 +93,7 @@ def run_episode(kernel, *, berth_policy, crane_policy, yard_policy, until_min: f
                 break
             t0 = time.perf_counter()
             if request.kind == "BERTH":
-                view = kernel.berth_view()
+                view = kernel.berth_view() if berth_observer is None else berth_observer(kernel)
                 t1 = time.perf_counter()
                 action = berth_policy.decide(view)
                 t2 = time.perf_counter()

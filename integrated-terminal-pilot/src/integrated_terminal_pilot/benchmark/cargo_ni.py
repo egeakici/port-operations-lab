@@ -152,6 +152,7 @@ def noninferiority(differences: list[float], *, margin: float = MARGIN, resample
         return {"verdict": "NO_ELIGIBLE_PAIRS", "n_pairs": 0, "margin": margin}
     means = _bootstrap_means(values, np.random.default_rng(seed), resamples)
     upper = float(np.percentile(means, 100 * confidence))
+    lower = float(np.percentile(means, 100 * (1 - confidence)))
     estimate = float(values.mean())
     if upper <= margin:
         verdict = "NON_INFERIOR"
@@ -164,9 +165,28 @@ def noninferiority(differences: list[float], *, margin: float = MARGIN, resample
         diagnostics.append(f"small N ({n} < {SMALL_N}): bootstrap interval unreliable")
     if float(values.std()) == 0.0:
         diagnostics.append("zero variance: the bound equals the estimate")
-    return {"verdict": verdict, "n_pairs": n, "estimate": estimate, "upper_bound": upper, "margin": margin,
+    return {"verdict": verdict, "reporting_label": reporting_label(estimate, upper, lower, margin),
+            "n_pairs": n, "estimate": estimate, "upper_bound": upper, "lower_bound": lower, "margin": margin,
             "confidence": confidence, "resamples": resamples, "seed": seed, "method": "paired scenario bootstrap, "
             "one-sided percentile upper bound (numpy linear)", "diagnostics": diagnostics}
+
+
+def reporting_label(estimate: float, upper: float, lower: float, margin: float) -> dict[str, str]:
+    """Step 6 reporting clarification (additive; ``verdict`` above is unchanged for backward compatibility).
+
+    The historical ``verdict`` says ``INFERIOR`` when only the *point estimate* exceeds the margin, which
+    is not statistical evidence of inferiority. For reporting:
+    ``NON_INFERIOR`` (upper bound <= margin); otherwise ``NON_INFERIORITY_NOT_ESTABLISHED`` with the
+    descriptive diagnostic ``INCONCLUSIVE`` or ``POINT_ESTIMATE_ABOVE_MARGIN``; ``STATISTICALLY_INFERIOR``
+    only when the one-sided lower bound (same bootstrap, 5th percentile) itself exceeds the margin.
+    Documentation clarification only: not a protocol change and not a lock (see step6 docs).
+    """
+    if upper <= margin:
+        return {"label": "NON_INFERIOR", "diagnostic": "UPPER_BOUND_WITHIN_MARGIN"}
+    if lower > margin:
+        return {"label": "STATISTICALLY_INFERIOR", "diagnostic": "LOWER_BOUND_ABOVE_MARGIN"}
+    return {"label": "NON_INFERIORITY_NOT_ESTABLISHED",
+            "diagnostic": "POINT_ESTIMATE_ABOVE_MARGIN" if estimate > margin else "INCONCLUSIVE"}
 
 
 def stratified_noninferiority(pairs: list[dict[str, Any]], *, margin: float = MARGIN, resamples: int = RESAMPLES,
@@ -198,5 +218,5 @@ def turnaround_claim_label(turnaround_improved: bool, cargo_result: dict[str, An
 
 
 __all__ = ["ArmOutcome", "BOOTSTRAP_SEED", "COMPARATOR_MAP", "ComparisonContractError", "MARGIN", "RESAMPLES",
-           "SENSITIVITY_MARGIN", "comparison", "noninferiority", "paired_differences", "references_for",
+           "SENSITIVITY_MARGIN", "comparison", "noninferiority", "paired_differences", "references_for", "reporting_label",
            "scenario_rates", "stratified_noninferiority", "turnaround_claim_label"]
