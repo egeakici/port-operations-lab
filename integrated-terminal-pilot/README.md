@@ -59,7 +59,20 @@ Current status:
   28 synthetic parameter records remain pending
   ([docs/pre_step6_synthetic_parameter_approval_matrix.md](docs/pre_step6_synthetic_parameter_approval_matrix.md)).
   **Step 7 validation stays BLOCKED.**
-- Next: Step 6 — Integrated Coordination Policies (not started; not authorized).
+- Step 6 — Integrated Coordination Policies: **implemented, awaiting owner review** (uncommitted).
+  - **What it adds:**
+    - B1, the integrated one-step greedy rule;
+    - B2, the cargo-first integrated rollout;
+    - B2-T, the matched turnaround-only ablation;
+    - A1n, the nominal greedy control.
+
+    Each arm decides from a narrow, immutable `CoordinationView`. Its forward model runs on a
+    sanitised observable clone of the same Step 4 kernel, on the eight-crane primary profile.
+  - **Leakage:** the hidden-future gate passes.
+  - **Compute (K5):** B2 averages 15.3 s per decision on development states, so the budget needs an
+    owner decision. Owner questions Q6-1…Q6-4 are open
+    ([docs/step6_integrated_coordination.md](docs/step6_integrated_coordination.md)).
+  - **Next:** Step 7 is not authorized. The lock stays BLOCKED, with 28 records still pending.
 
 Packages: `integrated_terminal_pilot.scenarios` (Step 2), `integrated_terminal_pilot.policies`
 (Step 3), `integrated_terminal_pilot.simulator` (Step 4) and `integrated_terminal_pilot.benchmark`
@@ -78,6 +91,19 @@ python scripts/run_step5_independent_benchmark.py --smoke --policy A1 --progress
 python scripts/run_step5_independent_benchmark.py --report
 python scripts/run_step5_independent_benchmark.py --exact-gate --progress
 python -m pytest -q tests/unit/test_step5_adapters.py tests/integration/test_step5_benchmark.py
+```
+
+## Step 6 quick start
+
+```powershell
+python scripts/run_step6_coordination.py --audit
+python scripts/run_step6_coordination.py --profile-compute
+python scripts/run_step6_coordination.py --dry-run
+python scripts/run_step6_coordination.py --plan
+python scripts/run_step6_coordination.py --run --progress --max-new-runs 4
+python scripts/run_step6_coordination.py --smoke --policy B1 --family itp_low --seed 10000000
+python scripts/run_step6_coordination.py --report
+python -m pytest -q tests/unit/test_step6_coordination.py tests/integration/test_step6_development.py
 ```
 
 ## Pre-Step 6 characterization quick start
@@ -175,6 +201,10 @@ Read in this order:
 | [docs/step5_protocol_readiness.md](docs/step5_protocol_readiness.md) | Step 5 and pre-Step 6: approved vs pending items, machine lock semantics, Step 6/7 readiness |
 | [docs/pre_step6_design_decisions.md](docs/pre_step6_design_decisions.md) | Pre-Step 6: approved decision matrix, four safeguards, fleet history, B2/B2-T pre-registration |
 | [docs/pre_step6_synthetic_parameter_approval_matrix.md](docs/pre_step6_synthetic_parameter_approval_matrix.md) | Pre-Step 6: row-by-row audit of the 28 still-pending parameter records |
+| [docs/step6_integrated_coordination.md](docs/step6_integrated_coordination.md) | Step 6: B1/B2/B2-T/A1n contracts, architecture, factor labels, estimands, owner questions |
+| [docs/step6_observation_and_forecast_contract.md](docs/step6_observation_and_forecast_contract.md) | Step 6: CoordinationView allowlist, safe projection, forecast assumptions, leakage evidence |
+| [docs/step6_compute_budget_profile.md](docs/step6_compute_budget_profile.md) | Step 6: K5 protocol audit, measured costs, budget options for the owner |
+| [docs/step6_development_diagnostics.md](docs/step6_development_diagnostics.md) | Step 6: development plan, runs, cargo vs turnaround, pivotal cargo, predicted vs realized |
 | [docs/pre_step6_development_characterization.md](docs/pre_step6_development_characterization.md) | Pre-Step 6: development-only eight-crane characterization (plan, coverage, cargo, PPO shift, runtime) |
 
 ## Status vocabulary used in every document

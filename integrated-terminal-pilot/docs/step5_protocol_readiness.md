@@ -17,7 +17,30 @@ The lock state is computed from the repository at run time
 (`integrated_terminal_pilot.benchmark.profiles.approval_state()`) and is written into every Step 5
 run manifest as `scientific_protocol_lock`.
 
-## 0. Update 2026-10-13 — pre-Step 6 decision package (current state)
+## 00. Update 2026-10-14 — Step 6 implemented (current state)
+
+```text
+STEP6_IMPLEMENTATION      = COMPLETE (B1, B2, B2-T, A1n; gates G6-01..G6-17 tested)
+K5_FIXED_BUDGET           = PROPOSED_NEEDS_OWNER_REVIEW (B2 mean 15.3 s > 2.0 s PROPOSED trigger)
+SCIENTIFIC_PROTOCOL_LOCK  = BLOCKED ; VALIDATION_AUTHORIZED = NO ; STEP7_STARTED = NO
+```
+
+Step 6 status and outcomes:
+
+- **Arms.** Step 6 added the B arms (B1, B2, B2-T) and the A1n control on the primary profile
+  ([step6_integrated_coordination.md](step6_integrated_coordination.md)). It changed no approval:
+  24 FROZEN / 28 PROPOSED_PENDING_REVIEW, as before.
+- **Owner decisions needed before Step 7, in addition to the 28 records and the formal lock:**
+  - Q6-1: B1 estimator;
+  - Q6-2: forward-model landside rule;
+  - Q6-3: K5 budget or cohort cap;
+  - Q6-4: B2 inner prediction definitions.
+
+  See [step6_compute_budget_profile.md](step6_compute_budget_profile.md) and
+  [step6_development_diagnostics.md](step6_development_diagnostics.md).
+- **Step 7 readiness:** not ready.
+
+## 0. Update 2026-10-13 — pre-Step 6 decision package
 
 The owner approved AM-01 … AM-09 and S2-075 on 2026-10-13
 ([protocol_amendments.md](protocol_amendments.md), [pre_step6_design_decisions.md](pre_step6_design_decisions.md)).

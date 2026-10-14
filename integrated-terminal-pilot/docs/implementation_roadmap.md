@@ -199,6 +199,20 @@ The amendments change the Step 6 inputs below:
 
 ## Step 6 — Integrated Coordination Policies
 
+**Status (2026-10-14): implemented (development only).**
+
+- **Arms:** B1, B2 (cargo-first, AM-07), B2-T (AM-08) and the A1n control. All run on the primary
+  eight-crane profile through `run_episode(berth_observer=...)`. See
+  [step6_integrated_coordination.md](step6_integrated_coordination.md),
+  [step6_observation_and_forecast_contract.md](step6_observation_and_forecast_contract.md),
+  [step6_compute_budget_profile.md](step6_compute_budget_profile.md) and
+  [step6_development_diagnostics.md](step6_development_diagnostics.md).
+- **Gates:** the leakage gate passes.
+- **K5:** measured; the budget decision (Q6-3) and the estimator and forecast details (Q6-1, Q6-2,
+  Q6-4) await the owner.
+- **Step 7:** remains BLOCKED. The original Step 6 text below is kept unchanged.
+
+
 - **Inputs:** Steps 4–5; protocol §§3–5.
 - **Outputs:** A1n and B1 (shared greedy rule; nominal vs integrated one-step
   estimator); B2 (integrated rollout on `observable_clone()`, FCFS
