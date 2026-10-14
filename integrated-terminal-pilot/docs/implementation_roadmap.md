@@ -264,3 +264,23 @@ Project 04 and Project 05 remain separate future projects. The Project I
 container and yard contracts are designed so that Project 05 can add slot
 placements and relocation optimization without breaking them
 ([container_yard_foundation.md §10](container_yard_foundation.md#10-project-05-extension-points)).
+
+## Step 6 Closure approval update — 2026-10-14
+
+The owner explicitly approved Q6-1 through Q6-4 and K5-A; see
+[step6_closure_owner_decisions.md](step6_closure_owner_decisions.md) and AM-10.
+F3 is paused at preflight because the approved revision-bound plan predates the
+Phase A commits. The new linked plan requires review before its 12 bounded
+development runs. No policy or physics change occurred; no F3 run or Step 7
+start occurred. All 28 pending parameter decisions and the formal protocol-lock
+procedure remain separate prerequisites for validation.
+
+The owner then explicitly approved replacement plan `6401af0e2a01...`; F3 is now
+executing within the unchanged bounded development scope. This supersedes the
+preflight review stop above. See the owner-decision and compute documents for
+immutable approval/preflight/progress evidence. Step 7 remains unstarted.
+
+Step 6 Closure's authorized F3 extension is now 12/12 COMPLETE, with immutable
+per-decision/ledger diagnostics and [one final owner report](step6_closure_final_report.md).
+This closes development characterization for owner review; it does not satisfy
+the 28 pending parameter decisions or create/authorize the Step 7 lock.

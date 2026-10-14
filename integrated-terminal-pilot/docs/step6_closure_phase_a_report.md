@@ -304,3 +304,54 @@ STEP7_STARTED                   = NO
 
 No owner approval, validation access, training, source-policy modification,
 protocol lock or commit was performed. Owner follow-up remains section 11.
+
+## Subsequent owner decision and preflight stop — 2026-10-14
+
+The owner has now explicitly approved Q6-1–Q6-4 and the bounded F3 scope for
+plan `1c97b83d5d55...`, reviewed gate `7cb84b87c78f...`. This supersedes the
+earlier Q6-pending status only; Phase A outcomes and artifacts are unchanged.
+Verbatim append-only approval:
+`configs/protocol/step6_closure_approval_history/owner_20261014_plan_1c97b83d5d55.json`
+(canonical SHA `fe19cfbc5e3e0447fff930e63e434ca94d0e186d6bac915742e5a44464e72976`).
+
+Between Phase A and this approval, the owner created commits `dac52fd` and
+`38a4f5c`; this agent made no commit. Preflight therefore rejects the approved
+old revision-bound plan. Only `git_head` differs in the replacement plan; all
+137 source/config hashes, scenarios, physics, packages, resources and gate match.
+The current checkpoint and scientific-boundary audit passes. The new linked
+plan is **pending review**, not silently approved:
+`6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20`.
+Evidence: `experiments/step6_closure/6401af0e2a01/review_b63512293001.json`.
+
+No F3 episode has started; all 12 cells are blocked for revision review. The
+existing execution-approval path is deliberately unpopulated until an approval
+matching the current plan is available. Earlier reports and plans are retained
+unaltered. Documentation pointers and AM-10 record the real approval without
+changing algorithms, policies, configuration YAML or scientific boundaries.
+
+```text
+OWNER_Q6_DECISIONS        = APPROVED (explicit, archived)
+K5_FIXED_BUDGET           = APPROVED_FULL_COHORT (recorded scope)
+APPROVED_PLAN            = 1c97b83d5d55... (old HEAD)
+REPLACEMENT_PLAN         = 6401af0e2a01... (PENDING_EXPLICIT_OWNER_REVIEW)
+F3_DEVELOPMENT           = BLOCKED_REVISION_REVIEW (0/12)
+PENDING_PARAMETER_RECORDS = 28
+SCIENTIFIC_PROTOCOL_LOCK = BLOCKED
+VALIDATION_AUTHORIZED    = NO
+STEP7_STARTED            = NO
+```
+
+## Authorized F3 extension completed — 2026-10-14
+
+The owner subsequently approved replacement plan `6401af0e2a01...`; the previous
+revision-review stop was resolved explicitly. All **12/12 F3 runs** and required
+post-run diagnostics are complete. This supersedes only the earlier current-state
+F3-blocked statements; every Phase A observation and artifact remains preserved.
+
+The consolidated [final report](step6_closure_final_report.md) contains the 320
+decision / 68 WAIT audit, 11 pivotal inputs, per-run cargo/turnaround outcomes,
+same-cohort forecast errors, compute costs, retained regression evidence and
+remaining scientific blockers. Eight new F3 input probes passed; no Phase A
+campaign or completed outer run was repeated. No policy or physical assumption
+changed, no pending parameter was approved, no validation/Step 7 began and no
+automatic commit occurred.

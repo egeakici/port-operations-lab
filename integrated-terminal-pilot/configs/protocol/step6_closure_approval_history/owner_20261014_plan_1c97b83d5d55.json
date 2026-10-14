@@ -1,0 +1,34 @@
+{
+  "approval_date": "2026-10-14T11:26:23.904342+00:00",
+  "approval_source": "explicit project-owner approval in this Step 6 Closure conversation",
+  "approval_status": "APPROVED",
+  "approved_plan_head": "76ced62b94e5419fea98933b3cb17debf1bd8a62",
+  "current_head": "38a4f5c67b3e8c5dfa9cff7a0ce10ff6b8a55c9b",
+  "decision_statuses": {
+    "Q6-1": "APPROVED",
+    "Q6-2": "APPROVED",
+    "Q6-3": "APPROVED",
+    "Q6-4": "APPROVED"
+  },
+  "decisions": {
+    "Q6-1": "Existing B1_ESTIMATOR v1, sequential flows, release/FCFS tie-break; unavailable cargo is not an objective",
+    "Q6-2": "Future gate-in/pickup requests NOT_SIMULATED; observed requests continue; UNCALIBRATED_SYNTHETIC_FORECAST",
+    "Q6-3": "K5-A full visible cohort, all legal plus WAIT, no cap or fallback; proposed 2-second trigger becomes warning",
+    "Q6-4": "Visible nondeparted cohort; inner last-visible-arrival plus drain extension; censored turnaround; status-based U; selector-specific WAIT branches"
+  },
+  "degenerate_gate_sha256": "7cb84b87c78f3b2a6628a59ce4a2013b90ba8d66c347230eab24d6095f18c5c2",
+  "execution_readiness": "BLOCKED_HEAD_CHANGED_REPLACEMENT_PLAN_REQUIRES_REVIEW",
+  "gate_review": "PASS_WITH_SCOPED_CLAIMS",
+  "max_wall_minutes": 180,
+  "owner_response_verbatim": "I have reviewed the Step 6 Closure Phase A results, the scoped A2/B2-T contract gate, the Q6 owner-decision document, and the proposed F3 development plan.\n\nAs the project owner, I explicitly approve:\n\n- **Q6-1:** Accept the existing documented B1 v1 integrated one-step release estimator, including its known cargo-availability limitations.\n- **Q6-2:** Accept the v1 forward-model rule that future landside gate-in and pickup requests are not simulated, while already observed requests continue. Preserve the `UNCALIBRATED_SYNTHETIC_FORECAST` label.\n- **Q6-3:** Approve **K5-A: uncapped full visible-cohort evaluation**, preserving all legal candidates and WAIT, with no cohort cap, timeout-based fallback, or policy substitution. Supersede the proposed 2-second reduction trigger with a reported compute warning for Step 6 and Step 7 research.\n- **Q6-4:** Accept the documented visible-cohort definition, inner horizon, censoring, predicted outbound obligations, FCFS continuation and selector-specific WAIT semantics.\n\nI also explicitly authorize the bounded **F3 development campaign**:\n\n- Heavy and Yard Bottleneck families only.\n- Scenario seeds `10000000` and `10000001`.\n- Arms A2, B2-T and B2.\n- Exactly 12 planned development runs.\n- **One worker**, **180-minute cumulative admission budget**, and **4 GiB RSS admission check**.\n- Preserve healthy running episodes; do not forcibly interrupt an episode to satisfy the admission limit.\n- Stop admitting new runs if resource conditions are exceeded and request further approval.\n\nApproved proposed plan SHA-256:\n\n`1c97b83d5d5537bc95b6285795a521ffd01cbfdae580fcbbcd4701c811bd43bf`\n\nReviewed degenerate contract gate SHA-256:\n\n`7cb84b87c78f3b2a6628a59ce4a2013b90ba8d66c347230eab24d6095f18c5c2`\n\nBefore execution, record these explicit approvals append-only with their provenance and verify that the current source, plan, gate evidence and approval records match. If any required hash has changed, stop and present a newly linked plan for review rather than silently replacing the approved plan.\n\nExecute the authorized development-only F3 campaign with immutable results, safe resume handling, progress reporting and complete WAIT, cargo-pivotal, rollover, forecast-error and compute-cost diagnostics.\n\nDo not modify policy scoring to improve observed performance. Do not approve the 28 pending synthetic parameter records, run validation or held-out experiments, retrain PPO, create the formal Step 7 lock, or start Step 7.\n\nWhen F3 completes, provide the final Step 6 Closure report for my review. Do not commit automatically.",
+  "pending_parameter_records": 28,
+  "plan_sha256": "1c97b83d5d5537bc95b6285795a521ffd01cbfdae580fcbbcd4701c811bd43bf",
+  "provenance_note": "Explicit user message repeated after interruption; one approval event, no inferred approval transfer",
+  "replacement_plan_approval_status": "PENDING_EXPLICIT_OWNER_REVIEW",
+  "replacement_plan_sha256": "6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20",
+  "rss_admission_limit_mb": 4096,
+  "scientific_protocol_lock": "BLOCKED",
+  "step7_started": false,
+  "validation_authorized": false,
+  "workers": 1
+}

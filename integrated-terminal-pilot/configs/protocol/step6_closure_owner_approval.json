@@ -1,0 +1,31 @@
+{
+  "administrative_head_updates_without_source_config_changes": "AUTHORIZED_BY_OWNER",
+  "approval_date": "2026-10-14T12:42:39.161893+00:00",
+  "approval_source": "explicit project-owner approval in this Step 6 Closure conversation",
+  "approval_status": "APPROVED",
+  "decision_statuses": {
+    "Q6-1": "APPROVED",
+    "Q6-2": "APPROVED",
+    "Q6-3": "APPROVED",
+    "Q6-4": "APPROVED"
+  },
+  "decisions": {
+    "Q6-1": "Existing B1_ESTIMATOR v1, sequential flows, release/FCFS tie-break; unavailable cargo is not an objective",
+    "Q6-2": "Future gate-in/pickup requests NOT_SIMULATED; observed requests continue; UNCALIBRATED_SYNTHETIC_FORECAST",
+    "Q6-3": "K5-A full visible cohort, all legal plus WAIT, no cap or fallback; proposed 2-second trigger becomes warning",
+    "Q6-4": "Visible nondeparted cohort; inner last-visible-arrival plus drain extension; censored turnaround; status-based U; selector-specific WAIT branches"
+  },
+  "degenerate_gate_sha256": "7cb84b87c78f3b2a6628a59ce4a2013b90ba8d66c347230eab24d6095f18c5c2",
+  "gate_review": "PASS_WITH_SCOPED_CLAIMS",
+  "max_wall_minutes": 180,
+  "owner_response_verbatim": "Complete the entire Step 6 Closure now, following the original closure specification and my previously approved Q6-1\u2013Q6-4 decisions.\nI confirm approval of the replacement F3 plan SHA-256:`6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20`\nDo not request further approval for administrative changes, Git HEAD updates that leave the verified source/configuration unchanged, or routine execution steps already covered by my approval.\nRecord the existing approvals, verify the experiment inputs, and execute the planned 12 F3 development runs. Complete all required WAIT, cargo-pivotal, rollover, forecast-error, compute-cost, and regression diagnostics.\nUse the previously approved one-worker, 180-minute cumulative admission budget and 4-GiB RSS admission check. If that budget is reached, preserve all completed results and report the remaining work; do not silently exceed the approved resource limits.\nDo not repeat Phase A or previously completed tests unless necessary to investigate a demonstrated failure. Do not modify policies or physical assumptions to improve results.\nWork autonomously until Step 6 Closure is completed, and provide one consolidated final report rather than repeatedly stopping for routine confirmations.\nOnly stop if there is a substantive source/scenario mismatch, a genuine technical blocker, or a required change outside the approved scientific scope.\nDo not start Step 7, access held-out data, approve the 28 pending parameters, retrain PPO, or commit automatically.",
+  "pending_parameter_records": 28,
+  "plan_sha256": "6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20",
+  "previous_approval_canonical_sha256": "fe19cfbc5e3e0447fff930e63e434ca94d0e186d6bac915742e5a44464e72976",
+  "previous_approved_plan_sha256": "1c97b83d5d5537bc95b6285795a521ffd01cbfdae580fcbbcd4701c811bd43bf",
+  "rss_admission_limit_mb": 4096,
+  "scientific_protocol_lock": "BLOCKED",
+  "step7_started": false,
+  "validation_authorized": false,
+  "workers": 1
+}

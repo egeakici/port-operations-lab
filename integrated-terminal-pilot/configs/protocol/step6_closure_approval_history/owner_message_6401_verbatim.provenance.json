@@ -1,0 +1,7 @@
+{
+  "approval_canonical_sha256": "ef4dc4463d108c31e3013e6361388aabc89e7e5c7b94b9ffaef89bad01af9118",
+  "approval_unchanged": true,
+  "exact_owner_message_file": "configs\\protocol\\step6_closure_approval_history\\owner_message_6401_verbatim.txt",
+  "exact_owner_message_sha256": "95a83c957616e3d42e97c793346eeffad99e0bf885ff73586a6cb8c737241b9c",
+  "formatting_note": "The initial JSON string normalized the backslash/newline after SHA-256. This append-only text preserves that literal formatting; authorization and all words are unchanged."
+}

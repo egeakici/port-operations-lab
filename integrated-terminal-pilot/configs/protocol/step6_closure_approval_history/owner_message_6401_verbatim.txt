@@ -1,0 +1,10 @@
+Complete the entire Step 6 Closure now, following the original closure specification and my previously approved Q6-1–Q6-4 decisions.
+I confirm approval of the replacement F3 plan SHA-256:\
+`6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20`
+Do not request further approval for administrative changes, Git HEAD updates that leave the verified source/configuration unchanged, or routine execution steps already covered by my approval.
+Record the existing approvals, verify the experiment inputs, and execute the planned 12 F3 development runs. Complete all required WAIT, cargo-pivotal, rollover, forecast-error, compute-cost, and regression diagnostics.
+Use the previously approved one-worker, 180-minute cumulative admission budget and 4-GiB RSS admission check. If that budget is reached, preserve all completed results and report the remaining work; do not silently exceed the approved resource limits.
+Do not repeat Phase A or previously completed tests unless necessary to investigate a demonstrated failure. Do not modify policies or physical assumptions to improve results.
+Work autonomously until Step 6 Closure is completed, and provide one consolidated final report rather than repeatedly stopping for routine confirmations.
+Only stop if there is a substantive source/scenario mismatch, a genuine technical blocker, or a required change outside the approved scientific scope.
+Do not start Step 7, access held-out data, approve the 28 pending parameters, retrain PPO, or commit automatically.

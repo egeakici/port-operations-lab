@@ -153,3 +153,62 @@ gates. All affected non-slow nodes pass in the separate normal-access retry.
 The main Phase A report documents this limitation and recovery; the original
 command is not called a clean full-suite pass. These costs are regression costs,
 not F3 campaign execution. F3 remains 0/12 with zero campaign runtime.
+
+## Explicit owner approval and revision preflight — 2026-10-14
+
+The owner has explicitly approved all four Q6 decisions, K5-A and the stated
+12-run/one-worker/180-minute/4-GiB admission scope. This supersedes earlier
+Q6-pending statements. Verbatim immutable provenance and AM-10 are linked from
+`step6_closure_owner_decisions.md`.
+
+Execution stopped before admission because the approved plan hash
+`1c97b83d5d5537bc95b6285795a521ffd01cbfdae580fcbbcd4701c811bd43bf`
+binds HEAD `76ced62`, while current HEAD is `38a4f5c` after the owner's Phase A
+commits. The only changed plan field is `git_head`; all 137 source/config hashes,
+scenario and physics fingerprints, packages, resources and gate evidence match.
+The read-only checkpoint/boundary audit passes with 28 pending parameters.
+
+Replacement plan SHA-256, **not yet approved**:
+`6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20`.
+Plan: `experiments/step6_closure/6401af0e2a01/plan.json`.
+Linked comparison: `experiments/step6_closure/6401af0e2a01/review_b63512293001.json`.
+No automatic approval transfer, run/resume, episode admission or new F3
+diagnostic computation occurred. Current status is `F3_BLOCKED_REVISION_REVIEW`,
+0/12 started or completed, zero campaign runtime. Only approval of the replacement
+SHA is requested; the recorded Q6 decisions and resource scope need not be repeated.
+
+## Replacement-plan execution update — 2026-10-14
+
+The owner explicitly approved `6401af0e2a01...`; the earlier revision-review
+block is superseded. Active approval canonical SHA is
+`ef4dc4463d108c31e3013e6361388aabc89e7e5c7b94b9ffaef89bad01af9118`.
+Preflight passed all source/config/scenario/gate/checkpoint and scientific
+boundary checks. F3 is RUNNING, one worker, 180-minute admission budget, 4096 MiB
+RSS admission check. Live checkpoints, exclusive run records and roughly
+45-second process-RSS telemetry are under
+`experiments/step6_closure/6401af0e2a01/`. Telemetry is sampled memory, not peak RSS.
+No completed outer run or Phase A test will be repeated without a demonstrated
+failure. New reporter arithmetic tests (5 passed) and real-record integrity
+checks are separate from the preserved Phase A regression campaign.
+
+## F3 completed — final resource accounting, 2026-10-14
+
+**12/12 completed; 0 failed, reused, missing or duplicated outer episodes.**
+Campaign elapsed at the final checkpoint: **67.848 min**. Episode wrapper-wall
+sum: 63.307 min; CPU sum: 61.089 min. Result serialization/checksum overhead
+accounts for the distinction from the admission clock. Post-run diagnostic
+analysis took 475.105 s (7.918 min), including eight new selected-input probes.
+Both phases remained within the approved allowance; no budget extension,
+healthy-episode interruption, cohort cap, timeout fallback or policy substitution.
+
+Maximum episode-boundary RSS was 675.277 MiB; maximum roughly 45-second telemetry
+sample was 729.203 MiB. These are not peak-memory measurements. One worker was
+used; the outer worker finished before any private-model diagnostic replay.
+No worker lock or started-without-result attempt remains. All records and sidecars
+verify; resume would skip verified completions rather than rerun them.
+
+Authoritative owner report: [step6_closure_final_report.md](step6_closure_final_report.md).
+Machine report canonical SHA:
+`b745793420a7f48db7a9ebec1100ee7e1a401e24811451c1021b3ae8f1a5a9b9`.
+Final review provenance: `experiments/step6_closure/6401af0e2a01/reports/final_review_manifest.json`.
+The prior F1/F2 campaign, drafts, approvals and Phase A results remain unchanged.

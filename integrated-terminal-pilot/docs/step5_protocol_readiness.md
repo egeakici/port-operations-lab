@@ -202,3 +202,24 @@ If the user prefers a different rule, it must be recorded before validation is g
   checkpoint sidecars (2.14.1+cu130, CUDA). Deterministic CPU inference is repeatable and matches
   Project 03's own `DynamicBAPEnv` inference in this environment bit for bit (PASS-EXACT), but
   equality with the original CUDA training-time inference is not established.
+
+## Step 6 Closure owner approval update — 2026-10-14
+
+Q6-1–Q6-4 and uncapped K5-A are now explicitly approved for the documented
+research semantics (AM-10). Provenance and the owner's bounded F3 authorization:
+[step6_closure_owner_decisions.md](step6_closure_owner_decisions.md).
+F3 has not started: the plan approved at HEAD `76ced62` must be explicitly
+relinked to current HEAD `38a4f5c` after review. Source/config and gate hashes
+match; no approval transfer is inferred. This resolves the four Q6 owner
+questions, not the 28 pending parameter records or formal lock. Validation,
+held-out experiments, training and Step 7 remain unauthorized.
+
+The replacement plan `6401af0e2a01...` was subsequently explicitly approved and
+F3 started after exact preflight verification. No additional owner confirmation
+is needed for unchanged-source administrative steps. The 28 pending parameters,
+formal lock, validation and Step 7 boundaries above are unchanged.
+
+The authorized F3 extension completed 12/12 within its resource scope. See
+[Step 6 Closure final report](step6_closure_final_report.md) for mixed descriptive
+results and all remaining scientific blockers. No validation readiness, primary
+CARGO-NI conclusion or Step 7 authorization is inferred from this completion.

@@ -250,3 +250,23 @@ Step 6 — Integrated Coordination Policies
 ([roadmap](docs/implementation_roadmap.md#step-6--integrated-coordination-policies)), after user
 review of Step 5. Scientific validation is not authorized until the lock checklist in
 [docs/step5_protocol_readiness.md](docs/step5_protocol_readiness.md) is completed.
+
+## Step 6 Closure owner update — 2026-10-14
+
+Q6-1 through Q6-4, including uncapped K5-A, have explicit owner approval
+([approval provenance and AM-10](docs/step6_closure_owner_decisions.md)). The
+bounded 12-run development campaign is **blocked for replacement-plan review**:
+only the Git HEAD changed after the Phase A commits. No F3 episode has started.
+The 28 pending parameters, formal protocol lock and validation remain blocked;
+Step 7 has not started. Historical reports and policies are preserved.
+
+The owner subsequently approved the replacement plan `6401af0e2a01...` and
+F3 execution started after verified preflight. This supersedes the review block
+above. Progress/resource evidence is linked from
+[Step 6 Closure compute status](docs/step6_closure_compute_and_f3.md).
+This remains development-only; Step 7 and validation are unauthorized.
+
+F3 and Step 6 Closure development diagnostics are now **12/12 COMPLETE**.
+Review the [single consolidated final report](docs/step6_closure_final_report.md).
+The approved full-cohort campaign finished within budget; all scientific lock,
+pending-parameter, held-out and Step 7 restrictions remain in force.

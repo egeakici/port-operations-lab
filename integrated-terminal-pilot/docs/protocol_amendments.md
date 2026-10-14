@@ -217,3 +217,47 @@ code. `SCIENTIFIC_PROTOCOL_LOCK` stays **BLOCKED**.
   cargo was available: `CARGO_UNAVAILABLE`, rollover). It is never described as whole-episode
   equality. Evidence: [step5_bap_compatibility_report.md](step5_bap_compatibility_report.md) section 5
   and the `exact_gate_*` report.
+
+## AM-10 — Explicit Step 6 Closure Q6 decisions and K5-A
+
+- **Status:** APPROVED_FOR_STEP6_AND_STEP7_RESEARCH, NOT_VALIDATION_AUTHORIZATION
+  (2026-10-14). Source: explicit project-owner approval in the Step 6 Closure
+  conversation; verbatim immutable evidence is linked from
+  [step6_closure_owner_decisions.md](step6_closure_owner_decisions.md#explicit-owner-approval-recorded--2026-10-14).
+- **Q6-1:** accept the documented existing B1 v1 one-step integrated release
+  estimator, including cargo-availability limitations. No estimator change.
+- **Q6-2:** future landside gate-in/pickup requests remain NOT_SIMULATED; observed
+  requests continue. Preserve `UNCALIBRATED_SYNTHETIC_FORECAST`.
+- **Q6-3 / supersession lineage:** protocol section 5's **proposed** 2-second
+  reduction trigger is superseded by a reported compute warning. K5-A keeps the
+  full visible cohort, every legal candidate and WAIT, no cap, timeout-based
+  fallback or policy substitution. The fail-closed engineering guard remains.
+  Original protocol text and prior proposals are preserved as history.
+- **Q6-4:** accept the documented cohort, inner horizon/censoring, predicted
+  outbound obligations, FCFS continuation and selector-specific WAIT semantics.
+- **Campaign scope:** 12 development runs only, two approved families and two
+  seeds, A2/B2-T/B2, one worker, 180-minute cumulative admission budget and 4 GiB
+  RSS admission check. Finish healthy episodes; stop subsequent admission on
+  overrun. No algorithm or scoring change is authorized.
+- **Execution constraint:** owner approval names plan `1c97b83d5d55...`; current
+  HEAD differs. The replacement plan `6401af0e2a01...` needs explicit owner review
+  before execution. No approval transfer or F3 run has occurred.
+- **Scientific boundary:** 28 synthetic parameter records remain pending; no
+  formal lock, validation/held-out experiment, PPO retraining or Step 7 start.
+
+### AM-10 execution linkage update — 2026-10-14
+
+The owner subsequently explicitly approved replacement plan
+`6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20`.
+This supersedes the revision-review block in the historical AM-10 entry above.
+Q6 semantics and the one-worker/12-run/180-minute/4-GiB admission scope are
+unchanged. Verbatim approval and execution-preflight provenance are linked from
+the owner-decision document. The development-only F3 campaign has started;
+no validation or Step 7 authorization follows.
+
+### AM-10 development closure evidence — 2026-10-14
+
+The approved 12-run F3 development extension completed within the approved
+one-worker admission envelope. Evidence and negative/null/mixed findings are in
+[step6_closure_final_report.md](step6_closure_final_report.md). No policy rescue,
+parameter approval, protocol lock, validation experiment or Step 7 start followed.

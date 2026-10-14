@@ -71,3 +71,37 @@ the rollovers. No future information enters a policy from this ex-post reporter.
 
 No forecast calibration, cargo tolerance, policy ranking, CARGO-NI conclusion,
 training, validation, profile adjustment or algorithm retuning was performed.
+
+## F3 completed diagnostics — 2026-10-14
+
+The earlier Heavy/Bottleneck NOT_RUN statements describe Phase A and are now
+superseded by the authorized F3 extension: **12/12 completed, 320 berth decisions,
+68 selected WAITs**. See the single consolidated
+[final owner report](step6_closure_final_report.md) and its immutable machine
+evidence `experiments/step6_closure/6401af0e2a01/reports/f3_b745793420a7.json`.
+
+There are 226 integrated decisions / 222 distinct complete canonical inputs;
+87 inputs contain predicted cargo variation and 11 are cargo-pivotal. There is
+no observed one-container pivotal case. Maximum predicted turnaround sacrifice
+at a pivotal input is 2665.945 minutes. Only four complete cross-arm inputs
+match exactly after excluding construction wall time; entire outer trajectories
+are not treated as shared evaluation sequences. Eight fixed F3 input-replay
+probes reproduce every candidate prediction byte; no new outer episode ran.
+
+B2 has U=0 in all four scenarios; B2-T has U=84 in Bottleneck seed 10000000 and
+zero elsewhere. A2's Heavy U values are 119/70 and Bottleneck values 180/130.
+Every observed shortfall is a D17 rollover with transshipment cargo still
+ABOARD_ARRIVED_VESSEL at its causally ordered timeout. This supports the
+availability-stage diagnosis, while upstream attribution remains
+UNKNOWN_OR_MULTIPLE_CONSTRAINTS. All cargo/status/TEU/move invariants reconcile.
+
+Mean signed same-cohort turnaround errors (prediction minus realized) are
+Heavy B2 -484.392, Heavy B2-T -370.826, Bottleneck B2 -1249.460, Bottleneck B2-T
+-1367.906 vessel-min. A2 future-queue scores are analyzed separately. Exact
+archived projection horizons and explicit cargo denominators are used. All
+predictions retain UNCALIBRATED_SYNTHETIC_FORECAST; no calibration or tuning.
+
+WAIT branch/epoch/event reconstructions, actual resource changes, hidden-arrival
+time windows and full per-decision evidence are retained. The four historical
+Medium autopsies remain unchanged and are reproduced in the final report.
+No causal WAIT-only performance decomposition or inferential ranking is claimed.

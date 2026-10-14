@@ -49,3 +49,93 @@ The reviewed gate to bind in a future approval record is canonical SHA-256
 `7cb84b87c78f3b2a6628a59ce4a2013b90ba8d66c347230eab24d6095f18c5c2`.
 The gate and controller are ready for owner review; the successful tests do not
 substitute for that approval.
+
+## Explicit owner approval recorded — 2026-10-14
+
+This append-only entry supersedes the earlier proposed statuses. **Q6-1, Q6-2,
+Q6-3 (K5-A full cohort) and Q6-4 are APPROVED** by the project owner's explicit
+message in this Step 6 Closure conversation. The repeated message after an
+interruption is recorded as one approval event, not a second authorization.
+
+Immutable verbatim response and exact UTC recording time:
+`configs/protocol/step6_closure_approval_history/owner_20261014_plan_1c97b83d5d55.json`.
+Canonical approval SHA-256:
+`fe19cfbc5e3e0447fff930e63e434ca94d0e186d6bac915742e5a44464e72976`.
+Its file/canonical hash sidecar is retained alongside it. Approved resources are
+exactly 12 development runs, Heavy/Yard Bottleneck, seeds 10000000/10000001,
+A2/B2-T/B2, one worker, 180-minute cumulative admission budget, 4096 MiB RSS
+admission check. Healthy running episodes must finish. No policy substitution,
+cohort cap, candidate timeout/fallback or scoring adjustment is approved.
+
+The explicit campaign approval binds plan
+`1c97b83d5d5537bc95b6285795a521ffd01cbfdae580fcbbcd4701c811bd43bf`
+and reviewed gate
+`7cb84b87c78f3b2a6628a59ce4a2013b90ba8d66c347230eab24d6095f18c5c2`.
+Q6-3 supersedes protocol section 5's proposed 2-second reduction trigger with a
+reported compute warning for Step 6 and Step 7 research (AM-10); this does not
+authorize starting Step 7 or validation.
+
+### Execution preflight stopped: Git revision changed
+
+The owner subsequently committed the Phase A files as `dac52fd` and `38a4f5c`.
+The approved plan's HEAD is `76ced62b94e5419fea98933b3cb17debf1bd8a62`;
+current HEAD is `38a4f5c67b3e8c5dfa9cff7a0ce10ff6b8a55c9b`.
+Exact old/new plan comparison finds **only `git_head` changed**. All 137 source
+and configuration hashes, scenarios, physics, packages, resources, candidate
+budget and reviewed gate match. Checkpoints and the 28 pending records pass the
+read-only preflight audit.
+
+As explicitly instructed by the owner, approval was **not transferred** to the
+replacement plan. New linked proposal, pending explicit review:
+`6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20`.
+Plan: `experiments/step6_closure/6401af0e2a01/plan.json`.
+Comparison: `experiments/step6_closure/6401af0e2a01/review_b63512293001.json`.
+The old plan and approval remain immutable. The active execution-approval file
+is deliberately absent until the current revision-bound plan is approved.
+
+Current status: Q6 decisions APPROVED; F3 `BLOCKED_REVISION_REVIEW`; 0 runs
+started/completed/failed/reused. Existing resource approval remains recorded;
+only approval of the newly linked plan SHA is requested. Parameter records remain
+28 pending, formal lock BLOCKED, validation/held-out/training/Step 7 unauthorized.
+
+## Replacement plan explicitly approved; execution started — 2026-10-14
+
+The owner explicitly approved replacement SHA
+`6401af0e2a01f875d3d5d24b0db1ed25a7f2955ae8ed92645081dc1366c97f20`
+and directed autonomous execution within the previously approved scope. This
+supersedes the revision-review block above. Q6-1–Q6-4 remain APPROVED. The owner
+also explicitly allowed administrative changes and Git HEAD updates that do not
+alter verified source/configuration, without repeated confirmation.
+
+Append-only replacement approval:
+`configs/protocol/step6_closure_approval_history/owner_20261014_plan_6401af0e2a01.json`.
+Active execution record: `configs/protocol/step6_closure_owner_approval.json`.
+Canonical approval SHA:
+`ef4dc4463d108c31e3013e6361388aabc89e7e5c7b94b9ffaef89bad01af9118`.
+The exact literal message is retained in
+`configs/protocol/step6_closure_approval_history/owner_message_6401_verbatim.txt`.
+Its append-only provenance documents that the initial JSON string normalized one
+escaped line break after SHA-256; all authorization content remains unchanged.
+Earlier records and hash sidecars were not replaced.
+
+Execution preflight verified the exact plan/source/config/scenario/gate hashes,
+checkpoint hashes and scientific boundaries. Evidence:
+`experiments/step6_closure/6401af0e2a01/execution_preflight.json`.
+The one-worker F3 campaign started with 180-minute cumulative admission budget
+and 4096 MiB RSS admission check. Healthy episodes finish; new admissions stop
+on resource exhaustion. No scoring, physics, cohort cap or fallback change.
+The 28 pending parameters, formal lock, validation and Step 7 remain blocked.
+
+## Closure execution complete — 2026-10-14
+
+The explicitly approved replacement plan completed **12/12** development runs
+within its one-worker resource envelope. All four Q6 decisions and K5-A remain
+APPROVED. No further approval was requested for routine administration. Source,
+scenario, gate and approval records match; all 137 source/config and six
+checkpoint hashes verify unchanged. The final source/report provenance links
+all immutable results and both approval events.
+
+Owner review artifact: [step6_closure_final_report.md](step6_closure_final_report.md).
+No new policy/physics amendment or performance-oriented repair was required.
+The 28 parameter records remain pending, protocol lock BLOCKED, validation and
+held-out use unauthorized, PPO unchanged and Step 7 unstarted. No agent commit.
