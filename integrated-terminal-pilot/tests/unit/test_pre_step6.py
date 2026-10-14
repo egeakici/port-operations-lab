@@ -261,7 +261,7 @@ def test_mismatched_denominators_are_not_a_paired_case():
 
 
 # 10 / 11 ---------------------------------------------------------- B2 / B2-T pre-registration only
-def test_b2_and_b2t_are_preregistered_but_not_implemented():
+def test_b2_and_b2t_are_preregistered_and_confined_to_step6_modules():
     control = protocol_records.load_control_register()
     for record_id in ("AM-06", "AM-07", "AM-08"):
         assert control[record_id]["status"] == "APPROVED_FOR_STEP6_DESIGN_NOT_VALIDATION_LOCKED"
@@ -269,9 +269,15 @@ def test_b2_and_b2t_are_preregistered_but_not_implemented():
     for phrase in ("coordination-package", "same visible information", "turnaround only", "pivotal",
                    "B2-T vs B2", "A2 vs B2-T", "violation"):
         assert phrase in design, phrase
-    source = "\n".join(p.read_text(encoding="utf-8") for p in (PROJECT / "src").rglob("*.py"))
-    for forbidden in ("class B2", "def b2_", "class Coordinator", "def rollout_integrated"):
-        assert forbidden not in source
+    # Pre-Step 6 asserted that no B2 code existed. Step 6 (owner-authorized) adds it, confined to the
+    # Step 6 modules; the Step 5 A-arm registry below still refuses every B arm.
+    step6_modules = {"coordination_policies.py", "coordination_view.py", "step6.py"}
+    for path in (PROJECT / "src").rglob("*.py"):
+        if path.name in step6_modules:
+            continue
+        text = path.read_text(encoding="utf-8")
+        for forbidden in ("class B2", "def b2_", "class Coordinator", "def rollout_integrated"):
+            assert forbidden not in text, (path.name, forbidden)
     for arm in ("B1", "B2", "B2-T", "B3"):
         with pytest.raises(KeyError):
             create_berth_policy(arm)
