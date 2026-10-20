@@ -11,6 +11,12 @@ Operating System, a commercial product, or a new RL training project.
 
 Current status:
 
+**Step 7 execution update (2026-10-20):** code is prepared on the development
+laptop; the owner runs the complete foreground workflow on the stationary
+computer. See [the one-command remote runbook](docs/step7_remote_execution.md)
+for setup, progress, resume and copying verified results back. Campaign results
+are not claimed before execution and the independent return audit.
+
 - Step 1 — Integration Specification and Compatibility Contracts: **Complete** (commit `48b9f80`).
 - Step 2 — Unified Synthetic Scenario Generator: **Implemented** (commit `032bc23`) and
   **stabilized** (commit `c42d64c`). The 12-block reference yard and the rebuilt

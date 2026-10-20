@@ -261,3 +261,43 @@ The approved 12-run F3 development extension completed within the approved
 one-worker admission envelope. Evidence and negative/null/mixed findings are in
 [step6_closure_final_report.md](step6_closure_final_report.md). No policy rescue,
 parameter approval, protocol lock, validation experiment or Step 7 start followed.
+
+
+## OP-STEP7-REMOTE-20261020 - owner-started portable execution
+
+Authority: owner's 2026-10-20 two-computer workflow instruction in the development
+conversation. This is an operational portability amendment, not a new scientific
+parameter or policy approval. Preserve all earlier protocol text and amendments.
+
+The owner commits/pushes reviewed code and starts `scripts/Start-Step7Remote.ps1`
+in a foreground terminal on the stationary computer. That explicit launch may
+sequence both mandatory regressions, recording the already received 28-value
+approval, readiness, the exclusive lock, validation, test and descriptive export.
+The coding agent must not execute those stages. No background scheduler,
+automatic Git commit, training or Step8 is authorized by this procedure.
+
+The source-defined formal lock for this controller is the exclusive
+`experiments/step7_remote/<run_name>/protocol_lock_v1.json` plus its `.json.sha256`.
+It binds the clean owner-committed source byte inventory/revision, copied approved
+register checksum, actual owner provenance, unchanged numeric values, matching
+full regressions, readiness/checkpoints, dependencies and exact plan. Lock creation
+and verification retain the scientific gates of section9. Runtime files are
+ignored evidence, so creating a real lock does not require an automatic commit.
+The original canonical register and historical readiness labels stay unchanged;
+the effective register is a schema-validated copy with all52 FROZEN records only
+after the exact approved28 are recorded. No boolean authorizes sensitive access.
+
+Owner approval was actually received on 2026-10-14: answer `1` to the displayed
+option approving all28 exact packet values as uncalibrated synthetic v1. Packet
+canonical SHA `823c39239b289571da0047d87fe2d80863fe6840323bd34d8c7ad6fec99d0636`.
+The transport archive preserves the exact reply and displayed-option context.
+Recording is pending the source-matching clean remote regressions; no new owner
+signature is needed for that already granted scope. Numeric parameters, roles,
+policies, authentic Project03 A2/checkpoints, QC8, K5-A and split order do not change.
+
+A single copyable bundle retains raw logs, source, prerequisites, all1960 planned
+row records, traces/inputs, diagnostics, costs and final manifest. On return an
+AUDIT-ONLY verifier checks archived evidence without model loading or evaluation;
+CRLF/LF-only checkout differences are disclosed, not mistaken for changed content.
+Execution itself requires exact raw source and dependency equality. Full procedure:
+[step7_remote_execution.md](step7_remote_execution.md).

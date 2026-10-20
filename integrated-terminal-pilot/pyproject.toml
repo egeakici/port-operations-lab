@@ -13,6 +13,8 @@ dependencies = [
     "terminal-core==0.1.0",
     "mini-port-sim==0.1.0",
     "berth-allocation-lab==0.1.0",
+    "tqdm>=4.66,<5",
+    "psutil>=5.9,<8",
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,6 @@
+# Sealed JSON and transport bytes must survive Windows Git checkout unchanged.
+configs/protocol/step7_pending_values_packet.json -text
+configs/protocol/step7_pending_values_packet.json.sha256.json -text
+configs/protocol/step7_remote_inputs.json -text
+configs/protocol/step7_remote_inputs.json.sha256.json -text
+assets/step7_remote_inputs.zip -text

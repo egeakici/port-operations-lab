@@ -348,3 +348,16 @@ The text above is the frozen v1 protocol and is not edited. Approved amendments 
 - **AM-09:** PREFIX exact scope.
 
 The lock procedure of section 9 is unchanged; `protocol_lock_v1.json` has not been written.
+
+
+## Operational execution pointer (append-only, 2026-10-20)
+
+The original scientific design and section9 gates remain frozen. For the owner's
+two-computer manual workflow, OP-STEP7-REMOTE-20261020 in
+[protocol_amendments.md](protocol_amendments.md) specifies the actual portable lock
+location and approved-register copy. It supersedes only the earlier operational
+requirement to write/commit the generated lock in the source checkout. The owner
+starts the foreground command; clean full regressions, genuine owner provenance,
+exclusive lock, input/source integrity and validation-before-test remain required.
+No runtime lock has been created or scientific scenario evaluated by this coding
+change. See [step7_remote_execution.md](step7_remote_execution.md).

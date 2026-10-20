@@ -1,0 +1,21 @@
+{
+  "version": "itp_step7_analysis_v1",
+  "scope": "SYNTHETIC_UNCALIBRATED_MEDIUM_HEAVY_QC8",
+  "primary_kpi": "D24 sum over all vessels of min(departure,T_end)-arrival; missing departure=T_end",
+  "T_end": "last arrival plus 10080 minutes; common across arms",
+  "primary_turnaround_contrasts_holm_family": ["B1-A1n", "B2-A2"],
+  "secondary_contrasts": ["B1-A1", "A1n-A1", "A2-A1", "A3-A1", "A3-A2", "B2-A1", "B2-T-A2", "B2-B2-T", "(B2-A2)-(B1-A1n)"],
+  "s1_difference_in_differences": ["(A2-A1)_integrated-(A2-A1)_reference", "(A3-A1)_integrated-(A3-A1)_reference"],
+  "s1_reference": "actual unchanged P03 DynamicBAPEnv on corresponding Project I nominal projection; per-vessel evidence retained",
+  "bootstrap": {"resamples": 10000, "seed": 120001, "interval": "percentile 95%", "unit": "traffic scenario", "strata": "family", "overall_weights": {"itp_medium": 0.5, "itp_heavy": 0.5}},
+  "bootstrap_seed_status": "protocol section 10 existing proposed value retained for pre-lock review; no result-based selection",
+  "A3_nesting": "all training seeds 11/23/37 averaged within traffic scenario before resampling; missing seed makes aggregate missing",
+  "cargo": {"metric": "itp_outbound_obligation_v1", "N_out": "original unique export and outbound transshipment obligations", "U": "without authoritative LOAD_COMPLETED by common T_end", "d": "R(policy)-R(comparator)", "resamples": 10000, "seed": 20261013, "upper_percentile": 95, "margin": 0.01, "sensitivity_margin": 0.0, "per_family": "primary", "overall": "equal-family stratified", "point_estimate_is_not_inferiority_proof": true},
+  "cargo_comparators": ["A2-A1", "A3-A1", "B1-A1", "B2-A2", "B2-T-A2", "B2-B2-T"],
+  "failure": "FAILED arms excluded only from contrasts involving them; IDs and reasons retained; exogenous drift quarantines whole scenario; BLOCK never imputed",
+  "censoring": "DEADLOCK and TRUNCATED_DRAIN_LIMIT included with D24/common cutoff; completion rates always beside KPIs",
+  "validation_gate": "all rows accounted; no FAILED; deadlock strictly below 5% for each family/arm/checkpoint; no internal policy options remain to select",
+  "step8_ranges_only_not_executed": {"cranes": [4,6,8], "crane_moves_per_hour": [25,30,35], "efficiency": ["Project02 table","ideal all 1.0"], "transport_units": [3,4,6], "transport_speed_m_per_min": [150,250,400], "yard_capacity_multiplier": [0.5,1,2], "g_min": [1.0,0.5,0.3], "initial_occupancy": [0.3,0.5,0.7], "D17_wait_min": [120,480], "note": "heavy 0.3 occupancy unsupported; exact scoped none-ablation gate required; diagnostic split13M inaccessible to Step7"},
+  "step7_reporting": "descriptive per-run/per-scenario/per-family; no final inference or winner claims",
+  "step8_started": false
+}
