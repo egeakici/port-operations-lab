@@ -48,7 +48,8 @@ def child(args,root,name,stop):
     d=root/'pipeline/logs'/(name+'_'+uuid.uuid4().hex[:12]);d.mkdir(parents=True)
     command=[sys.executable,*map(str,args)]
     s.seal(d/'command.json',dict(command=command,cwd=str(s.REPO),utc=s.now()))
-    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',PYTHONUTF8='1',ITP_TQDM_POSITION='1')
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',PYTHONUTF8='1',
+             ITP_TQDM_COLUMNS=str(shutil.get_terminal_size().columns))
     process=subprocess.Popen(command,cwd=s.REPO,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     def tee(pipe,path,terminal):
         with path.open('xb') as log:
@@ -212,60 +213,60 @@ def run(root):
         names=['hardware-diagnostic','project-i-full','project03-fast','regression-evidence','owner-approval','readiness','plan-lock',
                'validation','test','descriptive-report','detailed-diagnostics']
         values={}
-        with progress_bar(len(names),description='Step 7 stages',unit='stage') as bar:
-            for name in names:
-                if stop.is_set():raise Interrupted('stopped before next stage')
-                verify_session(root)
-                receipt=root/'pipeline/stages'/(name+'.json')
-                if receipt.exists():
-                    values[name]=s.unseal(receipt)['value'];bar.update(1);continue
-                state(root,'RUNNING',stage=name)
-                started=time.perf_counter()
-                try:
-                    if name=='hardware-diagnostic':
-                        from integrated_terminal_pilot.benchmark.device_benchmark import benchmark
-                        value=benchmark(output_root=root/'hardware')
-                        value['result']=Path(value['result']).relative_to(root).as_posix()
-                    elif name in ('project-i-full','project03-fast'):value=regression(root,name,stop)
-                    elif name=='regression-evidence':
-                        value=script_module('assemble_step7_regressions').assemble(
-                            s.PROJECT_ROOT/values['project-i-full']['result'],s.PROJECT_ROOT/values['project03-fast']['result'])
-                        # Keep all generated evidence inside the copyable bundle (s.ROOT is configured).
-                        value={'evidence':Path(value['evidence']).relative_to(s.PROJECT_ROOT).as_posix(),
-                               'canonical_sha256':value['canonical_sha256']}
-                    elif name=='owner-approval':value=record_existing_owner(root)
-                    elif name=='readiness':
-                        audit=historical_audit(root);s.seal(root/'readiness_manifest.json',audit)
-                        costs=s.unseal(root/'inputs/prerequisites/evidence/cost_model.json')
-                        print(json.dumps({'stage':'pre-lock resource estimate','measured_development_proxy':costs,
-                            'current_free_disk_bytes':shutil.disk_usage(root).free,
-                            'limits':'No guaranteed runtime/disk bound; new lossless observation/trace layout; '
-                                     'report reconstruction and other arms add real costs; no admission deadline.'}),flush=True)
-                        value={'sha256':s.digest(audit)}
-                    elif name=='plan-lock':
-                        plan_path=s.write_plan()
-                        if not s.FORMAL_LOCK_PATH.exists():s.create_lock(plan_path,s.PROJECT_ROOT/values['regression-evidence']['evidence'])
-                        s.verify_lock(plan_path)
-                        value=dict(plan=plan_path.relative_to(root).as_posix(),lock_sha256=s.file_hash(s.FORMAL_LOCK_PATH))
-                    elif name in ('validation','test'):
-                        value=profiled_split(root,root/values['plan-lock']['plan'],name,stop)
-                    elif name=='descriptive-report':
-                        from integrated_terminal_pilot.benchmark.step7_report import report
-                        value=report(root/values['plan-lock']['plan'],stop_requested=stop)
-                        value['report']=Path(value['report']).relative_to(root).as_posix()
-                    else:
-                        from integrated_terminal_pilot.benchmark.step7_diagnostics import report
-                        value=report(root/values['plan-lock']['plan'],stop_requested=stop);value['report']=Path(value['report']).relative_to(root).as_posix()
-                    if stop.is_set():raise Interrupted('stopped after current stage')
-                    s.seal(receipt,dict(value=value,wall_seconds=time.perf_counter()-started,utc=s.now()))
-                    values[name]=value
-                except Interrupted:
-                    state(root,'INTERRUPTED_PRESERVED',stage=name);raise
-                except BaseException as exc:
-                    s.seal(root/'pipeline/FAILED.json',dict(stage=name,reason=f'{type(exc).__name__}: {exc}',
-                        traceback=traceback.format_exc(),utc=s.now()))
-                    state(root,'BLOCKED_PRESERVED',stage=name,reason=str(exc));raise
-                bar.update(1)
+        for stage_index,name in enumerate(names,1):
+            print(f'\n[Step 7 {stage_index}/{len(names)}] {name}',flush=True)
+            if stop.is_set():raise Interrupted('stopped before next stage')
+            verify_session(root)
+            receipt=root/'pipeline/stages'/(name+'.json')
+            if receipt.exists():
+                values[name]=s.unseal(receipt)['value'];print('Verified completed stage; skipped.',flush=True);continue
+            state(root,'RUNNING',stage=name)
+            started=time.perf_counter()
+            try:
+                if name=='hardware-diagnostic':
+                    from integrated_terminal_pilot.benchmark.device_benchmark import benchmark
+                    value=benchmark(output_root=root/'hardware')
+                    value['result']=Path(value['result']).relative_to(root).as_posix()
+                elif name in ('project-i-full','project03-fast'):value=regression(root,name,stop)
+                elif name=='regression-evidence':
+                    value=script_module('assemble_step7_regressions').assemble(
+                        s.PROJECT_ROOT/values['project-i-full']['result'],s.PROJECT_ROOT/values['project03-fast']['result'])
+                    # Keep all generated evidence inside the copyable bundle (s.ROOT is configured).
+                    value={'evidence':Path(value['evidence']).relative_to(s.PROJECT_ROOT).as_posix(),
+                           'canonical_sha256':value['canonical_sha256']}
+                elif name=='owner-approval':value=record_existing_owner(root)
+                elif name=='readiness':
+                    audit=historical_audit(root);s.seal(root/'readiness_manifest.json',audit)
+                    costs=s.unseal(root/'inputs/prerequisites/evidence/cost_model.json')
+                    print(json.dumps({'stage':'pre-lock resource estimate','measured_development_proxy':costs,
+                        'current_free_disk_bytes':shutil.disk_usage(root).free,
+                        'limits':'No guaranteed runtime/disk bound; new lossless observation/trace layout; '
+                                 'report reconstruction and other arms add real costs; no admission deadline.'}),flush=True)
+                    value={'sha256':s.digest(audit)}
+                elif name=='plan-lock':
+                    plan_path=s.write_plan()
+                    if not s.FORMAL_LOCK_PATH.exists():s.create_lock(plan_path,s.PROJECT_ROOT/values['regression-evidence']['evidence'])
+                    s.verify_lock(plan_path)
+                    value=dict(plan=plan_path.relative_to(root).as_posix(),lock_sha256=s.file_hash(s.FORMAL_LOCK_PATH))
+                elif name in ('validation','test'):
+                    value=profiled_split(root,root/values['plan-lock']['plan'],name,stop)
+                elif name=='descriptive-report':
+                    from integrated_terminal_pilot.benchmark.step7_report import report
+                    value=report(root/values['plan-lock']['plan'],stop_requested=stop)
+                    value['report']=Path(value['report']).relative_to(root).as_posix()
+                else:
+                    from integrated_terminal_pilot.benchmark.step7_diagnostics import report
+                    value=report(root/values['plan-lock']['plan'],stop_requested=stop);value['report']=Path(value['report']).relative_to(root).as_posix()
+                if stop.is_set():raise Interrupted('stopped after current stage')
+                s.seal(receipt,dict(value=value,wall_seconds=time.perf_counter()-started,utc=s.now()))
+                values[name]=value
+            except Interrupted:
+                state(root,'INTERRUPTED_PRESERVED',stage=name);raise
+            except BaseException as exc:
+                s.seal(root/'pipeline/FAILED.json',dict(stage=name,reason=f'{type(exc).__name__}: {exc}',
+                    traceback=traceback.format_exc(),utc=s.now()))
+                state(root,'BLOCKED_PRESERVED',stage=name,reason=str(exc));raise
+            print(f'[Step 7 {stage_index}/{len(names)}] {name}: completed',flush=True)
         plan_path=root/values['plan-lock']['plan']
         s.verify_lock(plan_path)
         from integrated_terminal_pilot.benchmark.step7_export import finalize

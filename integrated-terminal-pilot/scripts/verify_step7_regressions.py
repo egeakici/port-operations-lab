@@ -73,6 +73,7 @@ def main():
     t=time.perf_counter()
     from integrated_terminal_pilot.benchmark.execution import progress_bar
     observed=0
+    last_refresh=time.monotonic()
     pending=''
     cursor=0
     with (directory/'stdout.log').open('xb') as log:
@@ -91,8 +92,12 @@ def main():
                             if event['kind']=='test':
                                 if event['phase']=='teardown':observed+=1
                                 bar.set_postfix(model='cpu',sim='CPU',phase=event['phase'],
-                                                test=event['nodeid'].split('::')[-1],refresh=False)
-                        bar.update(observed-bar.n);bar.refresh()
+                                                refresh=False)
+                        bar.update(observed-bar.n)
+                        # Keep elapsed time visible during a slow test, without
+                        # forcing four redraws/second or wrapping long node IDs.
+                        if time.monotonic()-last_refresh>=2:
+                            bar.refresh();last_refresh=time.monotonic()
                     if completed.poll() is not None:break
                     time.sleep(.25)
             except KeyboardInterrupt:

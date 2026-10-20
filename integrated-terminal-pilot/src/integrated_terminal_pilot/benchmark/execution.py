@@ -5,6 +5,7 @@ import signal
 import sys
 import threading
 import os
+import shutil
 
 
 class ManualStop(RuntimeError):
@@ -34,10 +35,14 @@ def require_torch_device(requested):
 
 def progress_bar(total, *, initial=0, description, unit='episode', device='cpu', enabled=True):
     from tqdm import tqdm
+    # Children write through logged pipes. Use the real console width supplied
+    # by their foreground parent, and CR-only position0 (no cursor-up escapes).
+    columns=int(os.environ.get('ITP_TQDM_COLUMNS') or shutil.get_terminal_size().columns)
     return tqdm(total=total, initial=initial, desc=description, unit=unit, disable=not enabled,
-                dynamic_ncols=True, mininterval=0.5,
+                ncols=max(10,min(columns-1,160)), dynamic_ncols=False,
+                ascii=True, mininterval=1.0,
                 postfix={'model': device, 'sim': 'CPU'}, file=sys.stderr,
-                position=int(os.environ.get('ITP_TQDM_POSITION','0')))
+                position=0)
 
 
 @contextmanager
