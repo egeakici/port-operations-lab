@@ -1,5 +1,10 @@
 # Step 7 pre-lock repair and single-command execution - 2026-10-21
 
+Subsequent actual remote evidence and the current v2 launcher procedure are in
+[the2026-10-22 Project03 scope repair](step7_project03_scope_repair_20261022.md).
+The four prerequisites and554/554 full Project I tests passed remotely; a separate
+Project03 archive-consumer classification error blocked the old v1 session.
+
 Owner evidence: campaign_final_v3 / project-i-full_90ca488c6ca7 completed545
 tests:541 passed,4 failed,0 errors/skips/deselections, all9 slow gates passed.
 The owner supplied the actual failure tracebacks on2026-10-21. This is failed

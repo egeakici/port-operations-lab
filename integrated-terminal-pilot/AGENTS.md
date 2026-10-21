@@ -31,3 +31,12 @@ PSF standalone3.13.2 x64 NuGet package via Step7PythonBootstrap.ps1, with pinned
 SHA512/length, safe staged extraction, runtime postconditions and an immutable
 receipt. Keep old installer caches/logs; never bypass scientific session/failure
 guards. Bootstrap tests are owner-run only. No runtime pass is claimed locally.
+
+2026-10-22 owner output: prerequisites4/4 and full Project I554/554 (9 slow) passed
+remotely. Project03 failed6/426 because replay_records/replay_frontend consume old
+held-out archives. Never transport/read those archives to fix this. The eligible
+fast scope excludes these two modules before collection while retaining synthetic
+replay tests. Source-only classification blocks unknown modules; the fast gate
+precedes full Project I. Complete-Step7 defaults to step7_cpu3132_v2, linking the
+specific reviewed failed v1 evidence without deleting or retrying it. New source
+needs matching regressions; no current-snapshot runtime PASS is claimed locally.

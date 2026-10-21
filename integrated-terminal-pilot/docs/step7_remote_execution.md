@@ -1,5 +1,11 @@
 # Step 7: development computer, remote execution computer, returned evidence
 
+**Current repair (2026-10-22):** follow [the Project03 eligibility correction](step7_project03_scope_repair_20261022.md).
+Complete-Step7.ps1 now defaults to `step7_cpu3132_v2`, preserving the failed v1
+session. The corrected fast gate excludes historical held-out replay consumers,
+retains synthetic replay tests and runs before the long Project I gate. The
+standalone reference environment is reused. Earlier folder names below are history.
+
 **Current launcher (2026-10-21):** use `scripts/Complete-Step7.ps1` as specified in
 [the demonstrated pre-lock repair](step7_prelock_repair_20261021.md). It installs
 the recorded Python3.13.2/numeric reference environment and supplies the missing

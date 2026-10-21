@@ -1,6 +1,6 @@
 param(
     [ValidateSet('Run','Status','VerifyReturn','Diagnose')][string]$Action = 'Run',
-    [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$RunName = 'step7_cpu3132_v1'
+    [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$RunName = 'step7_cpu3132_v2'
 )
 $ErrorActionPreference = 'Stop'
 $step7Project = Split-Path $PSScriptRoot -Parent

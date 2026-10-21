@@ -247,6 +247,11 @@ def verify_regressions(path):
             raise CampaignError(f'incomplete eligible regression scope: {key}; no missing-input/dependency skips allowed')
     if not evidence['project_i_full']['slow_passed'] == 9:
         raise CampaignError('all nine opt-in slow gates required')
+    from integrated_terminal_pilot.benchmark import step7_regression_scope as scope
+    eligible=evidence['project03_eligible_fast']
+    if (eligible.get('scope_audit_sha256') != digest(scope.audit(REPO/'03-berth-allocation-lab')) or
+        eligible.get('excluded_modules') != scope.UNSAFE_MODULES or eligible.get('excluded_nodes') != scope.MIXED):
+        raise CampaignError('Project03 regression eligibility receipt differs from reviewed source scope')
     return evidence
 
 

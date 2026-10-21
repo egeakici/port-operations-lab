@@ -109,23 +109,42 @@ def verify_session(root):
 
 def retain_prelock_failure(root):
     """Link the demonstrated failed pre-lock attempt; never hide or retry it."""
-    original=s.PROJECT_ROOT/'experiments/step7_remote/campaign_final_v3'
-    if root==original or not (original/'pipeline/FAILED.json').exists():return
-    if (original/'protocol_lock_v1.json').exists():
-        raise s.CampaignError('prior campaign reached a scientific lock; preserve it for deviation review')
-    audit=[]
-    for pattern in ('pipeline/FAILED.json','regressions/*/result.json','regressions/*/junit.xml','regressions/*/stdout.log'):
-        for path in sorted(original.glob(pattern)):
-            rel=path.relative_to(original);target=root/'prelock_repair/prior_campaign_final_v3'/rel
-            target.parent.mkdir(parents=True,exist_ok=True)
-            sha=s.file_hash(path)
-            if target.exists():
-                if s.file_hash(target)!=sha:raise s.CampaignError('prior failure evidence differs; never overwrite')
-            else:
-                with target.open('xb') as stream:stream.write(path.read_bytes())
-            audit.append(dict(path=rel.as_posix(),sha256=sha))
-    s.seal(root/'prelock_repair/prior_failure_link.json',dict(source=original.relative_to(s.PROJECT_ROOT).as_posix(),
-        files=audit,scope='pre-lock correction of missing fixtures and reference numerical environment; same scientific inventory'))
+    for prior_name in ('campaign_final_v3','step7_cpu3132_v1'):
+        original=s.PROJECT_ROOT/'experiments/step7_remote'/prior_name
+        if root==original:continue
+        if (original/'protocol_lock_v1.json').exists():
+            raise s.CampaignError('prior campaign reached a scientific lock; preserve it for deviation review')
+        if not (original/'pipeline/FAILED.json').exists():continue
+        if prior_name=='step7_cpu3132_v1':
+            failure=s.unseal(original/'pipeline/FAILED.json')
+            results=list((original/'regressions').glob('project03-fast_*/result.json'))
+            if failure.get('stage')!='project03-fast' or len(results)!=1:
+                raise s.CampaignError('prior failure differs from the reviewed Project03 eligibility defect')
+            result=s.unseal(results[0]);details=result.get('failure_details',[])
+            classes=[row.get('classname') for row in details]
+            if (any(result.get(key)!=value for key,value in
+                    dict(exit_code=1,collected=426,passed=420,failed=6,errors=0).items()) or
+                classes.count('tests.integration.test_replay_frontend')!=1 or
+                classes.count('tests.integration.test_replay_records')!=5 or len(classes)!=6):
+                raise s.CampaignError('prior Project03 failure is outside the reviewed six archive-consumer failures')
+        audit=[]
+        patterns=('pipeline/FAILED.json*','pipeline/stages/*.json*','session.json*',
+                  'requirements_execution.txt','numerical_environment.json*','source_snapshot/**/*',
+                  'regressions/*/result.json*','regressions/*/junit.xml','regressions/*/stdout.log')
+        for pattern in patterns:
+            for path in sorted(original.glob(pattern)):
+                if not path.is_file():continue
+                rel=path.relative_to(original);target=root/'prelock_repair'/('prior_'+prior_name)/rel
+                target.parent.mkdir(parents=True,exist_ok=True)
+                sha=s.file_hash(path)
+                if target.exists():
+                    if s.file_hash(target)!=sha:raise s.CampaignError('prior failure evidence differs; never overwrite')
+                else:
+                    with target.open('xb') as stream:stream.write(path.read_bytes())
+                audit.append(dict(path=rel.as_posix(),sha256=sha))
+        s.seal(root/'prelock_repair'/('prior_'+prior_name+'_link.json'),dict(
+            source=original.relative_to(s.PROJECT_ROOT).as_posix(),files=audit,
+            scope='pre-lock implementation/eligibility repair; prior results retained, not reused as current-source PASS; same scientific inventory'))
 
 
 def regression(root,suite,stop):
@@ -228,13 +247,15 @@ def run(root):
         s.assert_clean()
         from integrated_terminal_pilot.benchmark.step7_environment import verify as verify_environment
         environment=verify_environment();install(root);retain_prelock_failure(root)
+        from integrated_terminal_pilot.benchmark.step7_regression_scope import audit as scope_audit
+        s.seal(root/'regression_scope.json',scope_audit(s.REPO/'03-berth-allocation-lab'))
         s.seal(root/'numerical_environment.json',environment)
         if (root/'session.json').exists():verify_session(root)
         else:snapshot(root)
         print(json.dumps({'execution_hardware':s.unseal(root/'session.json')['hardware'],
             'scientific_device':'CPU; one outer worker and one Torch inference thread',
             'progress':'tqdm stages, tests and accounted episodes; elapsed/ETA/throughput; heartbeat every15s'}),flush=True)
-        names=['prerequisites','workflow','hardware-diagnostic','project-i-full','project03-fast','regression-evidence','owner-approval','readiness','plan-lock',
+        names=['prerequisites','workflow','hardware-diagnostic','project03-fast','project-i-full','regression-evidence','owner-approval','readiness','plan-lock',
                'validation','test','descriptive-report','detailed-diagnostics']
         values={}
         for stage_index,name in enumerate(names,1):

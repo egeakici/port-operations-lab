@@ -14,20 +14,8 @@ import time
 import uuid
 import xml.etree.ElementTree as ET
 from integrated_terminal_pilot.benchmark import step7 as s
-
-UNSAFE_MODULES = {
- 'tests/integration/test_dynamic_ppo_integration.py':'real PPO training',
- 'tests/integration/test_static_ppo_integration.py':'training fixtures or direct training in every fast test',
- 'tests/integration/test_project03_results_release.py':'reads historical held-out warehouse and writes Project03 experiment directories',
- 'tests/integration/test_scientific_benchmark_integration.py':'reads real historical held-out campaign records in all fixtures',
-}
-MIXED = {
- 'tests/integration/test_static_ppo_v2_integration.py': ['test_v2_short_training_and_adapter'],
- 'tests/unit/test_project03_results.py':['test_frozen_ingest_coverage_and_reconciliation','test_query_guide_sql_runs_as_written','test_source_hash_failure_is_blocking'],
- 'tests/integration/test_benchmark_diagnostics_integration.py':['test_step12a_outputs_complete_and_hashed','test_wait_and_agreement_from_locked_records',
-     'test_tails_traces_and_static_separation','test_fixture_plan_fixed_and_disjoint_from_test',
-     'test_completed_outputs_are_immutable_and_sources_unchanged','test_tiny_bounded_latency_smoke'],
-}
+from integrated_terminal_pilot.benchmark import step7_regression_scope as scope
+from integrated_terminal_pilot.benchmark.step7_regression_scope import UNSAFE_MODULES, MIXED
 
 
 def main():
@@ -65,6 +53,7 @@ def main():
               'integrated-terminal-pilot/tests/unit/test_progress_display.py',
               'integrated-terminal-pilot/tests/unit/test_step7_environment.py',
               'integrated-terminal-pilot/tests/unit/test_step7_python_bootstrap.py',
+              'integrated-terminal-pilot/tests/unit/test_step7_regression_scope.py',
               'integrated-terminal-pilot/tests/unit/test_step7_failure.py'] if a.suite=='workflow' else
              ['tests' if project03 else
           'integrated-terminal-pilot/tests/unit/test_step7_campaign.py' if a.suite=='focused' else
@@ -72,13 +61,12 @@ def main():
     args=[sys.executable,'-m','pytest',*targets,
           '-q','-p','no:cacheprovider','-p','integrated_terminal_pilot.benchmark.step7_pytest',
           '--basetemp='+str(temp),'--junitxml='+str(directory/'junit.xml')]
-    if project03:
-        args+=['-m','not slow']
-        args+=['--ignore='+x for x in UNSAFE_MODULES]
-        args+=['--deselect='+path+'::'+name for path,names in MIXED.items() for name in names]
+    scope_audit=scope.audit(cwd) if project03 else None
+    if project03:args+=scope.pytest_arguments()
     start={'utc':s.now(),'command':args,'cwd':str(cwd),'implementation_digest':s.implementation_digest(),
            'parameter_values_sha256':s.load_generator_config().parameters_fingerprint,'suite':a.suite,
            'excluded_modules':UNSAFE_MODULES if project03 else {},'excluded_nodes':MIXED if project03 else {},
+           'scope_audit_sha256':s.digest(scope_audit) if project03 else None,
            'scope_note':'all eligible fast tests; no learning or real held-out data access; fake unit-test records allowed'}
     s.seal(directory/'started.json',start)
     print(json.dumps({'log':str(directory/'stdout.log'),'started':start['utc']}),file=sys.stderr,flush=True)
