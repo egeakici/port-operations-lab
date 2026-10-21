@@ -1,5 +1,12 @@
 # Step 7: development computer, remote execution computer, returned evidence
 
+**Current launcher (2026-10-21):** use `scripts/Complete-Step7.ps1` as specified in
+[the demonstrated pre-lock repair](step7_prelock_repair_20261021.md). It installs
+the recorded Python3.13.2/numeric reference environment and supplies the missing
+historical manifest metadata. The generic Python3.11+ setup and transport v1
+instructions below are preserved as history; use the corrected launcher for new
+execution. Its stable return folder is `step7_cpu3132_v1`.
+
 Owner workflow instruction: 2026-10-20. This is the primary Step 7 execution
 procedure. Code is prepared on the development laptop. The owner pushes it,
 pulls on the stationary computer, and explicitly starts ONE foreground command.

@@ -1,0 +1,513 @@
+{
+  "archive_sha256": "15bf9e58258b54f2a46ab0923115cc1f3d8b3f7353fd6bd078c4b8fb110a8244",
+  "checkpoints": {
+    "checkpoints": [
+      {
+        "expected": "3373e06060a6f14cae422d7041d863cf18001bed285d1b896bffbe4dfae32018",
+        "ok": true,
+        "regime": "medium_heavy",
+        "sha256": "3373e06060a6f14cae422d7041d863cf18001bed285d1b896bffbe4dfae32018",
+        "training_seed": 11
+      },
+      {
+        "expected": "a2a105108d9b030cec8e26538012cbe1c2c2bc872f992e1a11ac0cd428ffd625",
+        "ok": true,
+        "regime": "medium_heavy",
+        "sha256": "a2a105108d9b030cec8e26538012cbe1c2c2bc872f992e1a11ac0cd428ffd625",
+        "training_seed": 23
+      },
+      {
+        "expected": "8318b49712fbbd04c6adbf1b357e2c5916fae539306b50272ded7464d002a3a6",
+        "ok": true,
+        "regime": "medium_heavy",
+        "sha256": "8318b49712fbbd04c6adbf1b357e2c5916fae539306b50272ded7464d002a3a6",
+        "training_seed": 37
+      },
+      {
+        "expected": "35a1a0ba0b8d231fb26b2aa2ecfebad49e9b3ab9a949c2ea306054dbe1a7f46d",
+        "ok": true,
+        "regime": "tiny",
+        "sha256": "35a1a0ba0b8d231fb26b2aa2ecfebad49e9b3ab9a949c2ea306054dbe1a7f46d",
+        "training_seed": 11
+      },
+      {
+        "expected": "4773a36832f02179e27bd00e4308829ae9a4eb00612ad8528b6975b88628c874",
+        "ok": true,
+        "regime": "tiny",
+        "sha256": "4773a36832f02179e27bd00e4308829ae9a4eb00612ad8528b6975b88628c874",
+        "training_seed": 23
+      },
+      {
+        "expected": "7a3138ce37f3ef18c7c1b74df7e20f7a977f552a2e69e21dea828c79a9cd956a",
+        "ok": true,
+        "regime": "tiny",
+        "sha256": "7a3138ce37f3ef18c7c1b74df7e20f7a977f552a2e69e21dea828c79a9cd956a",
+        "training_seed": 37
+      }
+    ],
+    "decision_file_ok": true,
+    "decision_file_sha256": "f2f912346e4a9260bf7752874fa1343fea63e0b7f2594f8083bf05c60c3e3423",
+    "ok": true
+  },
+  "files": {
+    "evidence/cost_model.json": {
+      "bytes": 1211,
+      "sha256": "a5167dcb1fc1ed3c76fd4df1979ee81828564b3cae4b3a30ad6e90ce1de2ddf9"
+    },
+    "evidence/cost_model.json.sha256.json": {
+      "bytes": 177,
+      "sha256": "6e15c343f470a54e7b7bc1afe89a382f860195ecb9ad100cd9e35a408cfa95da"
+    },
+    "evidence/historical_readiness.json": {
+      "bytes": 93216,
+      "sha256": "9946cd6aab55f82f5ac265acc3533002bed207bfbecd6779b5fbce118b392c70"
+    },
+    "evidence/historical_readiness.json.sha256.json": {
+      "bytes": 171,
+      "sha256": "fff50210de1156557d2fe0241bab7fabb84509901e5e36d9c3014d5c821b56d4"
+    },
+    "evidence/owner_context.json": {
+      "bytes": 930,
+      "sha256": "829ca47627a62fb99ca3a83249a9133ee4e34f1de9d0a59066cfdffc32dc85b3"
+    },
+    "evidence/owner_reply.txt": {
+      "bytes": 800,
+      "sha256": "b6b64b77b85874b13f6d9523c836ccb16354db552fd1466d8d0036ccee5866f2"
+    },
+    "evidence/step4_report.json": {
+      "bytes": 106067,
+      "sha256": "ce689bb897fe6beb085f4ec4738be9eb85f52d16e08f0faa50bd53892db9d118"
+    },
+    "evidence/step5_report.json": {
+      "bytes": 376275,
+      "sha256": "98a497609ce416359e641d560dc31b1eabf2a678a8b34340447e1d87f56a1ebb"
+    },
+    "evidence/step5_smoke_manifest.json": {
+      "bytes": 21268,
+      "sha256": "d009377b31cc4268a5e67f3d693d7921c965edc56ba685749106cdef5245f43e"
+    },
+    "evidence/step6_final_review.json": {
+      "bytes": 7016,
+      "sha256": "5594a2a026c4a416a38e1acc3c3e28704fe3dff11466321c49d517a37b02d744"
+    },
+    "evidence/step6_gate.json": {
+      "bytes": 136181,
+      "sha256": "d2632a5049ce943d18ac87ccc9751e0b92e4be0da86385cc6ae9ea314f7673a3"
+    },
+    "evidence/step6_owner_report.md": {
+      "bytes": 19090,
+      "sha256": "82a6ce533ed2f769b232707e2e8538a467f66e7b431782cbdd0c897494d64e99"
+    },
+    "evidence/step6_plan.json": {
+      "bytes": 28294,
+      "sha256": "9dc4fd9f375576779e2b7d4f47e1c2d6bf2c3430acac6ff8cda10c62951447db"
+    },
+    "evidence/step6_report.json": {
+      "bytes": 2372142,
+      "sha256": "9351627c59555adbcce54df478b8fe28211808a191f21153342d28689ca541c8"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_11/best_validation_model.metadata.json": {
+      "bytes": 1766,
+      "sha256": "dac76f2dd3d2503413cf4a7c42ecd770e8a32314be3c36cd9e09bff0ba45bddc"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_11/best_validation_model.zip": {
+      "bytes": 1931211,
+      "sha256": "3373e06060a6f14cae422d7041d863cf18001bed285d1b896bffbe4dfae32018"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_23/best_validation_model.metadata.json": {
+      "bytes": 1766,
+      "sha256": "6a346b4d7beed3d760f3dfff56737587eecbb74b5327db95c603adb8d5d40867"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_23/best_validation_model.zip": {
+      "bytes": 1931210,
+      "sha256": "a2a105108d9b030cec8e26538012cbe1c2c2bc872f992e1a11ac0cd428ffd625"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_37/best_validation_model.metadata.json": {
+      "bytes": 1766,
+      "sha256": "cb6ceb0639e637ed1eb6eb7d9cb29db94386d3306503a5e5092be298d3e3e2f9"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_37/best_validation_model.zip": {
+      "bytes": 1931222,
+      "sha256": "8318b49712fbbd04c6adbf1b357e2c5916fae539306b50272ded7464d002a3a6"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_tiny_v1_extended_cuda/seed_11/best_validation_model.metadata.json": {
+      "bytes": 1764,
+      "sha256": "79777ab67cb8e81749e3688ad7c1e9042336e8fbd0338c2aac54d4100e7f783d"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_tiny_v1_extended_cuda/seed_11/best_validation_model.zip": {
+      "bytes": 1787514,
+      "sha256": "35a1a0ba0b8d231fb26b2aa2ecfebad49e9b3ab9a949c2ea306054dbe1a7f46d"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_tiny_v1_extended_cuda/seed_23/best_validation_model.metadata.json": {
+      "bytes": 1764,
+      "sha256": "3e95d4f133f26a8ee50fea4e6a9b05d0f51c67ce4af8206dede6cc59e1ae123c"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_tiny_v1_extended_cuda/seed_23/best_validation_model.zip": {
+      "bytes": 1787226,
+      "sha256": "4773a36832f02179e27bd00e4308829ae9a4eb00612ad8528b6975b88628c874"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_tiny_v1_extended_cuda/seed_37/best_validation_model.metadata.json": {
+      "bytes": 1763,
+      "sha256": "20420ca975b58e23356be496d9f7835d8a084914b31a53a2cef0cfed47b9194f"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_tiny_v1_extended_cuda/seed_37/best_validation_model.zip": {
+      "bytes": 1786935,
+      "sha256": "7a3138ce37f3ef18c7c1b74df7e20f7a977f552a2e69e21dea828c79a9cd956a"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/validation_decision.json": {
+      "bytes": 29477,
+      "sha256": "f2f912346e4a9260bf7752874fa1343fea63e0b7f2594f8083bf05c60c3e3423"
+    },
+    "restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/validation_decision.json.sha256": {
+      "bytes": 92,
+      "sha256": "aa52f0b0f95d3f96497d3b6a0263376f3361a3752db922415d3aafd5ab9e0422"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/decisions.json": {
+      "bytes": 48498,
+      "sha256": "ebb6ceb79bd6fb1010b094a4a093c29ece3be037069305e08408b9218fe7e5f6"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/fingerprint_audit.json": {
+      "bytes": 5507,
+      "sha256": "e3e887ceac8ea123db721b8943338fdf10238b4923a5ce13db674c911042d104"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/generation_config.json": {
+      "bytes": 9048,
+      "sha256": "9e0b37eba2376e34e53dc2c25aa210d84bc1c33d247198d3417a7af74bc93957"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/generation_diagnostics.json": {
+      "bytes": 8330,
+      "sha256": "39074105a9758eb91fcc15fb79af191d730881b6475cc915f7a0867e681e08a4"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/manifest.json": {
+      "bytes": 5202,
+      "sha256": "3a12da33f304d9d6322486a0834ae90730107100b2386a7ba36e73e847659352"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/manifest.json.sha256": {
+      "bytes": 80,
+      "sha256": "55d1a9ab926fa85e56f99b82353a80edc7bb2325fcdb8d16e1f45145230a6f47"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/quality_report.json": {
+      "bytes": 7476,
+      "sha256": "1650a656a182b898840864152595f4738a8ba9d1ec4096983b192bfcddee1701"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/quality_report.md": {
+      "bytes": 787,
+      "sha256": "fd3734ddc12b598f49d87dcb94b0d2ae563c149a8192dd882f831115c4637e44"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenario_index.csv": {
+      "bytes": 9398,
+      "sha256": "79517f807225c04389130d42b1c253b27dc1f4b4f82139174a3a549ffd7b7d42"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_heavy_development_seed10000001.scenario.json": {
+      "bytes": 11809136,
+      "sha256": "1926f73bbb9f2c4f480c44f6556b6596116b6423523f91f9ced75913d61102ed"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_heavy_development_seed10000002.scenario.json": {
+      "bytes": 11189821,
+      "sha256": "c74a454d7279f2e301d66cc5b527860b98ccd0a95b321639a0fe00c51e6f81cb"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_heavy_development_seed10000003.scenario.json": {
+      "bytes": 11651112,
+      "sha256": "c9d610ffd44e6fb084afcd264b2e2a3750c5c4f3c9798b7de6656574179156e7"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_heavy_development_seed10000004.scenario.json": {
+      "bytes": 12340745,
+      "sha256": "b8ea0aa520a3e655ed0cbbbc33237fb558e5bffcd4f3906004bb3dcbc94a72d7"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_low_development_seed10000000.scenario.json": {
+      "bytes": 5056374,
+      "sha256": "96dd9e5f73b45b2302b930326eba7d9674d23c38f1c74e6a9b19feccdfe01677"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_low_development_seed10000001.scenario.json": {
+      "bytes": 4918806,
+      "sha256": "9ff2d871dfd2aa8a39cee80f76586d2e76f0093be23189930d817d18bd0d7072"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_low_development_seed10000002.scenario.json": {
+      "bytes": 5285229,
+      "sha256": "9369804a0c14e3a93d4a91be12e2e9dc600fd26fd18f7bba515809a379bf1272"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_low_development_seed10000003.scenario.json": {
+      "bytes": 5196410,
+      "sha256": "7a93d1299fe593931e8337d3eab19bb10d1780144058cf1881efc817b24b9856"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_low_development_seed10000004.scenario.json": {
+      "bytes": 5154195,
+      "sha256": "6ce4e5ade603ca061a05f72f7c6134fc4e1bfefa91a403f1e898ffd411ae97f3"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_medium_development_seed10000000.scenario.json": {
+      "bytes": 7638964,
+      "sha256": "17f9768d277c69ed2510bc37ff9bbe63d7a7c74f84c1e6a055ffe946d08b8153"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_medium_development_seed10000001.scenario.json": {
+      "bytes": 8313887,
+      "sha256": "86827b893e3a9d5ba43e089d9a94cad97d699ecf1c0a722545a02571434687b7"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_medium_development_seed10000002.scenario.json": {
+      "bytes": 8188157,
+      "sha256": "889f9099a6ae106d852d510de76f8c198c3edaff24059599a76d5edf106c0f32"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_medium_development_seed10000003.scenario.json": {
+      "bytes": 8305190,
+      "sha256": "ae5f18cf38e4cad4412b67fce688647de9332454cb8f7ac4d40406beefce9bbd"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/scenarios/itp_medium_development_seed10000004.scenario.json": {
+      "bytes": 8263567,
+      "sha256": "4bc61eced44981e31e58a203c2cd566496498f025545fc0485d4051b5b8275d2"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_3f1f0d9335_3e15947a/validation_report.json": {
+      "bytes": 6033,
+      "sha256": "a125fd16764b6df018f594128261339240863aeb999f96e0c66225272cb0f79b"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/decisions.json": {
+      "bytes": 52908,
+      "sha256": "23b8fc08c4f675e8e54ccee6718baeef8e499a75aa6f6ad011792e4262b4ea70"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/fingerprint_audit.json": {
+      "bytes": 27632,
+      "sha256": "3eba3c84e55cb68424c87ae755168f4e65be0f22cc28c2fccecc4e62adfee74b"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/generation_config.json": {
+      "bytes": 10737,
+      "sha256": "38e2ad082fe261dad6247f70875d794ae055e834a25b37180c46fe7b3fbe376a"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/generation_diagnostics.json": {
+      "bytes": 100599,
+      "sha256": "352c8a5a9bdca93707b7acac96bd6efd20c2580baaf1d8a84d4d0eef9669e075"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/manifest.json": {
+      "bytes": 15056,
+      "sha256": "13b65aa593aa865db166a22435c94e723370e79fa4e9fe17d97340bc2326af59"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/manifest.json.sha256": {
+      "bytes": 80,
+      "sha256": "4a4514a81416c3920db6805a22aa6b31d765a7e1c42a12563b5d40446947bb97"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/quality_report.json": {
+      "bytes": 20468,
+      "sha256": "af4149cdbee89e87d076c5e15973233b07923da2ef642f81b5fb81c6a9b1cd05"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/quality_report.md": {
+      "bytes": 1763,
+      "sha256": "bd53479b4e90ea63ea7fa4171f0a34178f74bb24c90eb6b7f56d81858f7df568"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenario_index.csv": {
+      "bytes": 46870,
+      "sha256": "3249fbd4f75f9f43c27e735e5281ae251925a78f9ef6f6632b2e256d78b6c05d"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_heavy_development_seed10000000.scenario.json": {
+      "bytes": 15332731,
+      "sha256": "cb5d5613494e3c69ff3369404c4d2270fe45920469a0c67436ceab74e15f0b09"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_heavy_development_seed10000001.scenario.json": {
+      "bytes": 16523463,
+      "sha256": "e7a9c95d3e166efbf6f9fe22e77d3023b5683cf86a633085d3672ee284417261"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_heavy_development_seed10000002.scenario.json": {
+      "bytes": 14812964,
+      "sha256": "69d03d83f0063e590722945e23077b65e9c492eb70737fc0d7f6bbfb6539597f"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_low_development_seed10000000.scenario.json": {
+      "bytes": 10213799,
+      "sha256": "96591a7aab93a92f85b5cad98c3c495ae7ba0b7f850786d853ab47f2e22ba7b6"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_low_development_seed10000001.scenario.json": {
+      "bytes": 10088505,
+      "sha256": "6dae31e91dcabe8b2f024affc5f37403ed8b2f85520a44637fa8b1d8d58e99d2"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_low_development_seed10000002.scenario.json": {
+      "bytes": 10479266,
+      "sha256": "5d7129eebcb3d48b006cec07bffadc539e44d8892200872930632802cf20050a"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_medium_development_seed10000000.scenario.json": {
+      "bytes": 12829812,
+      "sha256": "b8bb8bc820914b11c5e5919dce75a4a383ad89d855e8774955dbd472417166a5"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_medium_development_seed10000001.scenario.json": {
+      "bytes": 13497212,
+      "sha256": "fad83f2f7e77d750ec54adfcbcc67ac7b6d82832b784a4de890ae4869aa825aa"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_medium_development_seed10000002.scenario.json": {
+      "bytes": 13372430,
+      "sha256": "56d33724d077db3295541a95be26f74e1ec6ef0add61dcb59b4389ea4b8f5440"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_yard_bottleneck_development_seed10000000.scenario.json": {
+      "bytes": 16378627,
+      "sha256": "b1496d5bd8a4d4f815377a7b7ae5a8a014960fc5f444dcdec6878effb65f4cb0"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_yard_bottleneck_development_seed10000001.scenario.json": {
+      "bytes": 18402995,
+      "sha256": "0c2b4ad2101dec502a324ab637dce8ebe4db74c7c0723492261b9745122a62db"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/scenarios/itp_yard_bottleneck_development_seed10000002.scenario.json": {
+      "bytes": 18869180,
+      "sha256": "2c37af45f55e8f560579ba4ce0c26af574aa6f12363b995253c819451dab1ffc"
+    },
+    "restore/integrated-terminal-pilot/experiments/scenarios/development/dev_f5789d8c91_1ee66026/validation_report.json": {
+      "bytes": 24018,
+      "sha256": "43596df2f036c47170349c731bab440743eaded3bf88520b963dd5d4aa9e3a43"
+    },
+    "restore/integrated-terminal-pilot/experiments/step5_development/s5dev_smoke_v1/runs/protocol_v1_first_fit/A1/itp_low_development_seed10000000.json": {
+      "bytes": 17771,
+      "sha256": "8043fadb7cf376c0253f7eee940cdc950cc99d52c10277f8867c19beeed5a012"
+    },
+    "restore/integrated-terminal-pilot/experiments/step5_development/s5dev_smoke_v1/runs/protocol_v1_first_fit/A3-train11/itp_low_development_seed10000000.json": {
+      "bytes": 19562,
+      "sha256": "3b549d6475ed7d84fd25f966af91b71079cb409b43d2844278afa8ec17013cb2"
+    }
+  },
+  "frozen_source_canonical_sha256": {
+    "03-berth-allocation-lab/src/berth_allocation_lab/__init__.py": "af1620e8832852f8c174a03fa1e87a6917a452e9f482203301aa82d8976fce45",
+    "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/__init__.py": "1aeda6cc16339a46c4dc1a31ad0b161dd7117e8c4d9caf82aa88aa094c22adc2",
+    "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/config.py": "19ec18c94147394a5b2cb668364de8e3881f2a2a8ae63e2bed25923a0f620939",
+    "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/diagnostics.py": "11317f9282356b259d7d23b0c3c0f67ab526d70251d148064a0a7fda9c0f2081",
+    "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/inputs.py": "4af4015c9f7da06ff14a52b94daf56ba9c912bed4492e7eee44ed8c0edda7b2a",
+    "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/latency.py": "e53c5279b6420aca660e57fdb387d1d8cb2cbf859e0f9b36e7a7f8512892f4ad",
+    "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/runner.py": "7b9bacb770a572fc1d9e3590fd80bf9e4623f1e4a8c89ca9c5c5710dc28020c5",
+    "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/stats.py": "7d06bb14213f5abb212662a9caaa2d90d003aa005a1e10ad2a9559b268892bb5",
+    "03-berth-allocation-lab/src/berth_allocation_lab/cli.py": "0228a9114ff1f9098012b5b53aeb588496a12c87de7e315dfd511278f68f428d",
+    "03-berth-allocation-lab/src/berth_allocation_lab/config/__init__.py": "eaa5c1008f99065c3ec8e7d384382cc93ec18c6223510ab744cfba9490c50ad9",
+    "03-berth-allocation-lab/src/berth_allocation_lab/config/loader.py": "19a5e9496760ad2aa80fffe0de5df36983590cd9fdf9c93e09724db2369f6292",
+    "03-berth-allocation-lab/src/berth_allocation_lab/config/metadata.py": "28f53011d16c3ac162f2eee11616c37959c7f293f4cb46e6967c16ad079f5171",
+    "03-berth-allocation-lab/src/berth_allocation_lab/core/__init__.py": "9901ea8088305a8bf214322ab7d115d3de07891820f5ba220feb9775d5631677",
+    "03-berth-allocation-lab/src/berth_allocation_lab/core/candidates.py": "70c14eb225805f9903a4858c1c5f6d76448938e12c0867a249f840da2225cbdd",
+    "03-berth-allocation-lab/src/berth_allocation_lab/core/feasibility.py": "94776f9b7f32b00ba34910e7e506c35c5c9cf0ab27fa6c516e08117339e10311",
+    "03-berth-allocation-lab/src/berth_allocation_lab/core/geometry.py": "87f6c4fff7fa6f307bbf4b60ce95dfc23d6ac7cd14f3b0524ffbda3609031ae4",
+    "03-berth-allocation-lab/src/berth_allocation_lab/core/numerics.py": "bde9ca92e636110a028238b2da35ea95714b69b4d4f749d9778ae48bb75bc7c6",
+    "03-berth-allocation-lab/src/berth_allocation_lab/core/objectives.py": "bce89e3f104dfb03f34671a9e0597a8ae4afb15216e50bbe812ff23fbcd100b4",
+    "03-berth-allocation-lab/src/berth_allocation_lab/core/scheduling.py": "3b88e5a79b1e1c08685e6e4173df5a8f14dfc391063f73d7aa99636238f9a2d7",
+    "03-berth-allocation-lab/src/berth_allocation_lab/core/types.py": "0123f561fe1b91b71b22ac77db096f7d6c6dc13789bf6ff37ae080a392ced82e",
+    "03-berth-allocation-lab/src/berth_allocation_lab/data/__init__.py": "dbd5931c40711b96e9d22294a1683936e16e51e1422eead73b37836a1a92a9a7",
+    "03-berth-allocation-lab/src/berth_allocation_lab/data/schemas.py": "534aebd0ea291d9fd7cde993b5ce5e70f707b3711c1f0d93de0e74a683c5e4e4",
+    "03-berth-allocation-lab/src/berth_allocation_lab/envs/__init__.py": "86bc13d78d8c1bef5259cbcde1346b6635943972fdb18c3dd1ff2e6c7d1f89db",
+    "03-berth-allocation-lab/src/berth_allocation_lab/envs/dynamic_bap_env.py": "e2673b89b2d2db32e968b0bfe2ba82103f76ba9e08472b05e14df0bf1cad6924",
+    "03-berth-allocation-lab/src/berth_allocation_lab/envs/dynamic_observation.py": "59f53b683005e61defea87fbf3246eee801529a0659189c12a454986a4b9521b",
+    "03-berth-allocation-lab/src/berth_allocation_lab/envs/dynamic_scenario_provider.py": "0f687edade7133354317eadaedd8f666679af7e75116271ca834837a061c1d7f",
+    "03-berth-allocation-lab/src/berth_allocation_lab/envs/dynamic_visible_state.py": "c7934532c1a12ed7a4d7eaaf01485288cd2f0d44139f0d6511f15def9395566a",
+    "03-berth-allocation-lab/src/berth_allocation_lab/envs/static_bap_env.py": "96efb8f3ddf8197d0fcf9ac524b2709be075f14a670a1cb5683608dc7b0154d9",
+    "03-berth-allocation-lab/src/berth_allocation_lab/envs/static_observation.py": "006b3b65d07ffc15f05e7afdee8e7ba93779bbed127738dca623203d86ab4be7",
+    "03-berth-allocation-lab/src/berth_allocation_lab/envs/static_scenario_provider.py": "387915e0c131c4bbc32ca13e471d9af6ed9ec1d46ca1f932175bfd37891b259b",
+    "03-berth-allocation-lab/src/berth_allocation_lab/evaluation/__init__.py": "cadafb115666a8c3887dabff6c012791bb635d2ec693cdecfdb49c3d9d049c1f",
+    "03-berth-allocation-lab/src/berth_allocation_lab/evaluation/comparison.py": "5c89a6ef9ee0d2b2f02bbb5dba11273a9ed20e28da19814be9a6ecb8a982a1c0",
+    "03-berth-allocation-lab/src/berth_allocation_lab/evaluation/metrics.py": "171cdd3abc460465e7fca0543f1644e4ce16c0e7da61ed9e287d6f4a947811b6",
+    "03-berth-allocation-lab/src/berth_allocation_lab/evaluation/runner.py": "7d3fd6f0cfbd4a2014960cfc8177973c80168cc7705c1f43d51443ad0761b50a",
+    "03-berth-allocation-lab/src/berth_allocation_lab/integration/__init__.py": "57db5f8c27291755f7a11fbf59336855b69e140c584ebe12b926f6e928c10fd0",
+    "03-berth-allocation-lab/src/berth_allocation_lab/policies/__init__.py": "a464c0cdd2a97394f46154a2076897bcb6b158d4ca7d2480fb857b45a4293ccb",
+    "03-berth-allocation-lab/src/berth_allocation_lab/policies/base.py": "b3cf41b0b3b94445750bb78a00a75bbaef3711f4f19f0580ad37cc5dfd4410a8",
+    "03-berth-allocation-lab/src/berth_allocation_lab/policies/dynamic_fcfs.py": "6d163553df810f62b6ca8cb39435932b43337fa9e8731172c5f110c1472093b8",
+    "03-berth-allocation-lab/src/berth_allocation_lab/policies/dynamic_online_rollout.py": "b372a023acd6ed60636e4918e067907314d9c055df1e924fbaf68640f4328755",
+    "03-berth-allocation-lab/src/berth_allocation_lab/policies/fcfs.py": "1fe94b37201c6fb86eb3c34672d1d4eaf608b9cbcca969651af8031aff199abd",
+    "03-berth-allocation-lab/src/berth_allocation_lab/policies/greedy.py": "300be7940f7e7f4d337b7f90c02446557cf095562e55715ee9ff4d6250891b2b",
+    "03-berth-allocation-lab/src/berth_allocation_lab/replay/__init__.py": "897e357df235312b77e35b041f901cce00a75d03e0ad0f94aad7d1f4b90560e7",
+    "03-berth-allocation-lab/src/berth_allocation_lab/replay/records.py": "068810d90259082b7019fc3fdcda67dda9d3728258150cfe769d5b3cdb541425",
+    "03-berth-allocation-lab/src/berth_allocation_lab/replay/timeline.py": "ba69f61d4561431e4b339070146a3aba1a93acd135fcf55fc5aa2c3a5683fb82",
+    "03-berth-allocation-lab/src/berth_allocation_lab/replay/visuals.py": "e0771c037b73f671dc502262eb2c466e12cc6e0b45731b9478814a6a3b27e1b4",
+    "03-berth-allocation-lab/src/berth_allocation_lab/results/__init__.py": "94d2dc466fccaf2dbea3abbb35ddef6c908152ccd5451aa57722f7aec91efe9b",
+    "03-berth-allocation-lab/src/berth_allocation_lab/results/ingest.py": "f9ad8837794f0b46124f3ea2dc8b2d005cfca7d17bdf0fc0b3691f2aba014aaa",
+    "03-berth-allocation-lab/src/berth_allocation_lab/results/queries.py": "3936674c8691fb567c4fe1bdc9758a3bdf49eb037794ef1bfdaac70f630abc4f",
+    "03-berth-allocation-lab/src/berth_allocation_lab/results/release.py": "235b88ea50fe9f85d87f3e0c1e3efd798fcbf6d69816ee9bb2bcceefb18df980",
+    "03-berth-allocation-lab/src/berth_allocation_lab/results/reporting.py": "b9cdfa53d861d898fde71c9f68ac871fba2eeb25bee606fd38c581cc7a38cf7f",
+    "03-berth-allocation-lab/src/berth_allocation_lab/results/schema.py": "d94d0bcc8a954016be29035440ec86beb6ffafe36cc0277bd35ff1331e29c6c8",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/__init__.py": "81e10156748cb31d2f713fd5342edc469cb01f5276b34976817cf6c35df00566",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/candidate_scoring.py": "e8b5c74aa5320174028860970cc7217910616bc37c197dea2485882ce90c04e7",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/config.py": "24d5908ce1d4d7c45ae9da023e274894c630b1418e1da9c50953fc7ccc571386",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/decision.py": "d31bc5021899d04e2ba59db91684e4874be38406a5b42080b5a62cd32aeea20b",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_checkpoint.py": "d91d512d5dbb3fc05d0a293fd39f95b321e0b9ef3e0a0c0c5dddf723eada2914",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_config.py": "a9ac519cd829048adf4499470f3c53b02b05d8da18670b43ae0213e4891b990d",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_decision.py": "fdcac1887b154216934100d3dc475193bc9e03b0df3e39d88f70c8162565d564",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_evaluation.py": "3f3dc49839a919ba9402b6024cf54e7cedfaf51181aabf9d70f04eec6c94315a",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_joint_scoring.py": "c076842aaa5f5bca54298a4b3017208efcbfaa5fb4b26414ad9aceaad90ba665",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_suites.py": "961c76c5d32fd46b06aa2d2a97421649c5aab1f4578c1b6a904e6260b1e123d6",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_training.py": "d7584b72e4eaeca7c8599418b101639a927e4839f725537c03fa6aae6e5353ab",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_wrappers.py": "e6412a7fe0872c04f890b5651fab294ed98acbb08e5a4007c2e669b5dd62ec7c",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/evaluation.py": "08248462e8807f7acfcbe7fec78dce334e8b06250da3d118925779fe069c9578",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/policy.py": "98643b16ed83e885b6a2081f69df7332b519b9e200c83de6fa3832ca1f97e919",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/progress.py": "08dd7f5b571e3c0c135d860f494cdb0bb26d638b724881763ca613cfad83ffbb",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/suites.py": "0c71e89d0156b8f0a30d1711a7ead4d2fa78c69aac8316ed6a7978805162ee8d",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/training.py": "f4792990d1a5850551ed7c05e1a2a2a7bb3129a3fd6d81d28762d5c533afb7a0",
+    "03-berth-allocation-lab/src/berth_allocation_lab/rl/wrappers.py": "e289e45de2a6697ea920856607406e03af4f1cf07c66de7b5d4dad22cd838a29",
+    "03-berth-allocation-lab/src/berth_allocation_lab/scenarios/__init__.py": "ed6f56837fb8bca914e9eb223cf180922c30f0baab65757ea8ac72579f6aa614",
+    "03-berth-allocation-lab/src/berth_allocation_lab/scenarios/synthetic.py": "a69977ed910306fb5df19df41c817f442cc76775fdf9a668b68bb8ee46c06428",
+    "03-berth-allocation-lab/src/berth_allocation_lab/solvers/__init__.py": "eb2e201747f63395a41f0f6512aebd57d72e72c6b9b4c635c5bedf636786c3e1",
+    "03-berth-allocation-lab/src/berth_allocation_lab/solvers/candidate_enumeration.py": "34f04596ae4924cffea83f2f82b90f4be852cc32b930859a0dabfa544930ff36",
+    "03-berth-allocation-lab/src/berth_allocation_lab/solvers/reference_types.py": "59b1b48020d4ffb7c1ca2fd58520dd08f853a80fc73279c86ff954ab7d2ed3f5",
+    "03-berth-allocation-lab/src/berth_allocation_lab/tracking/__init__.py": "0c0ab62b42910c1150e277d3efdd2a23b41f9a53d67810465788a580494dc610",
+    "03-berth-allocation-lab/src/berth_allocation_lab/tracking/git_metadata.py": "75d6d47a90c14cd948ebb69da406ca3fc7661dc725c10fb82096aacc7e080dbb",
+    "03-berth-allocation-lab/src/berth_allocation_lab/tracking/recorder.py": "1498c9be6ddefb8f612c500bacd655e1004be2042a6e6b7d4131a6f696810fba",
+    "03-berth-allocation-lab/src/berth_allocation_lab/tracking/records.py": "e7c17c4721cebb5fcfe19ba1dcff0306e8ec59e4914903e61b05946de18a290f",
+    "integrated-terminal-pilot/configs/generator/itp_generator_v1.yaml": "47c9126f155db169b3f3c8d7915953637ddeddc3ff33426826d0ff3c730546ce",
+    "integrated-terminal-pilot/configs/generator/itp_generator_v1_decisions.yaml": "4175173c892997ac462a31f0d6715374b05acea4c56b031256c0a9ddfeb1a409",
+    "integrated-terminal-pilot/configs/protocol/itp_protocol_control_register_v1.yaml": "9e4b9cfe226d5c8997e6c04a9f051b04d6c19db14b85a08bdbfb58e864eefb46",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/__init__.py": "1cc38cffc917d140d7e1f09e8e3462dfd2a7389f524e1fbc50767bdc81ece76e",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/__init__.py": "bf28cba8bee3b37d87a40cc0afc15310c48c657c17756b65c9f81282e8507dd3",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/adapter.py": "7220048f3a7654db7714900ac2ca8779ac03a4163edee767d09e04ccc9fc99fb",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/cargo.py": "8ab986b94056a9f0df8653b1d337c54bda9f50bd8d20e6c6c196d7d30e09d8f3",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/cargo_ni.py": "2b39a1cdfcec674d37b6dca16a840ef8bc24406a60dc4d1cae8e7f0f8ea31b00",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/checkpoints.py": "e276abc3e0b7b1aa7c8eb6aec855929ce206b80983c2b6ca44f044d86dc5bf2c",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/closure_gate.py": "4337adae55f01c21f06a00e6dc613fb4933cb7664747d384dca1b03447b83174",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/coordination_policies.py": "6e49ee5459927d64a0e94860c01c2cf5678c20bbd4c8d7431f9577d554a33870",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/coordination_view.py": "68527cd00b3fe48309e7f7eba620ccc798cd6382236eb3c6eecf7ae57c63da1a",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/development.py": "ad3b2baf93ca3c6b7629e5e12a0e3949f8a3c852958c32a7561d24c3c2d2336c",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/exact_gate.py": "197a661a7247bad54fae093aa551b83926605a30a70f855eb4751575e4d4b4f4",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/policies.py": "9494f137ac3f64f56e00d7c7ba904813f8a1dec2f650238f8bb2848f3b7aede4",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/pre_step6.py": "51d639c5a22c01bec4ffc8849a8c455099120e1e4db3beb9efb2e74726531f3b",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/profiles.py": "7245d141d11b035c1e54ad0bce352ca508b6729d60e4d5786c5f9147378d6409",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/protocol_records.py": "a4b77ccbc4c4b6f3d4c58dc8f08dab309f77ebf05aa179f54c46eafa1c647263",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/runner.py": "86de69a932de8cfc6731771cbeeb473f69089b4a0c54f52be33f9e4892bb58c0",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/step6.py": "91d45f73c4d0b38c0af38606599c1275ad48ccfb0902ec807d5d5483c9970dd0",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/step6_closure.py": "42f07eb387add83eca00e5d23eb4266cc07974414c45e8b757e2d8bd5a9b5e66",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/__init__.py": "362c0da38f70f5440913271e4eac7a2d6af611255c1a45841107159009260c71",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/actions.py": "c0ae60c179d760cf693cb129440919ab8d3b3959ba28b2c452c747a03c676f9a",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/crane.py": "fc21df92aebd79a77e011f9a34414ba9badb599470a5b779ae08aa3e54cda743",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/observations.py": "d960796a3568213668656da0fc6a874d4ae440b1e4a86451a94c23fbb75535c2",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/registry.py": "e6044243a513560a715d634ce773002c1e2ddefa3a00e730ae30a67174c76aa3",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/yard.py": "c3d27e64bb7020db0dbc506df6fe4a52cf24c78def7ed8bcda88245e30467324",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/__init__.py": "b65b00cd210e103a882f4a7925d3cf832db2f6fc53b683294a78eb570327e224",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/audit.py": "599be53ff4f975d39a4af8d4c6a9fd5cfdf9d0d995f25b41f380116dcd4a7229",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/berth_projection.py": "404e8c2ef6ac2ba3b33ec38406e2ea9533b0f5860d614297f25495b5cef918c6",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/cli.py": "c40b2ea8163c967e9c6983d7984276d2d33e29ec5c4289a27bf856caf41140e4",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/config.py": "cd526a14139096d6e4d98cbcb278bcd3d756364bd7d19dabf569338304290608",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/fingerprints.py": "64647a3d29bb76b9ccf54476c916bce4366447c8d7c780b3ddf08f5d2e518ca2",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/generator.py": "3a976d5487f9f88cb09b8f06abd43d75fb93e7d070becc48f1186837155c204c",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/models.py": "b6dbe2c36b72051028a4429f09e24272c020ed96063e0381a40deb87447b2b34",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/outputs.py": "fe0ff0e7db6aa3c2c8fbb833642b7ce0f87c989da5d7102a60d73279f973284f",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/random_streams.py": "e93acd28195725e5af7b7d2f9a6d56c41b15fea7a7f9c37f7171fdfa851183c1",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/serialization.py": "d35bd51d3fdb51ac0fd7ed6ee0992192632e9573609854d1d242bdeeb4920445",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/validation.py": "b30e43e69209eef66270533ecb091a5cb1ac4843fb3547963ed31e0484092d9e",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/__init__.py": "fde3698069e61ea4facbc668fa7906b657838d1d48a6242e7ed65eb6c0a93ce7",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/audit.py": "d547a1e2179a4562bbbee51f691e760403b62a4ddbbc142049c0ee238447122c",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/catalog.py": "162be82b6da01a7c0c5d1d1e53f3860332610630b75e20a422e8c31bef78ce24",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/cli.py": "e9d46aec7cbb8740a17e01bf6813c60fef24f96b9562a06c3cf6bc2c09e85f02",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/closure.py": "b3587ed6c36b3510cd4234dbdeff24c575cddb1889891afdfca10b6153298448",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/diagnostics.py": "95d508aa9d714915bd8de33a7e42918f467aff49d52cdac48fb1e709532dc3bf",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/drivers.py": "f8946eea0c0f8f9a24bf2abe861c2999e0f5d41aed4ac27fa43c1a1c76d22770",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/equivalence.py": "f5128ff2e61ae89f5b489e1f3680de9a7da8278075929cbad06e7c40f2fcab3f",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/errors.py": "7678933a6a85fc3c6c3150e2e7cf053d41bd21db5251a8a40ac7573e6b34fc33",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/events.py": "852d59380d4d612baf001fcbfd7b559850553d333cbddffa744c22bba09d5a46",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/invariants.py": "0fb99119952c6339edf85f24e05c4fd875087bce68784a37487a9182f7367108",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/kernel.py": "38430e9c15695df405055afe7352b62d358ebdc5bcd175789d4278e92b721b51",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/ledger.py": "ef2430774fa96afd4d93c79d359188ef21f77364d8f6d20cd0eb9d24d6fb317b",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/metrics.py": "333beb84449061161aa7b132885dc06dd1c816c6624335607529dc44e678898e",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/observable.py": "298bfc2e26ca5bb537e0d637fa34d1f3c27b1626afa942a68d7bdb606a07e769",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/observations.py": "b6225f911debb5d0cdcf3933f7c87c7b727517162165cdade9f2329d9c78ecaa",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/physics.py": "9ffb235462f48653fa5c7ba9c6ab5a32b81d91e080df34a882009140acf856bb",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/state.py": "6f150eb3c52b52dfa078fa36aa2eba9207c65ff3954e0261c252de79a656e429",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/trace.py": "667de38b46f285269add90b2207893933ffe31bea86a1441af9d8ea2a6dc9b61",
+    "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/validator.py": "02ad8a1a7ea5f51e7df13ec4a155ff64b0d4ace7da1c5fa860fefe891bcf3f26"
+  },
+  "historical_scope": "Prior verified F3 receipt and original report/index; raw F3 outer files stay on origin. Remote does not claim to rehash or rerun those historical outer files.",
+  "numerical_reference": {
+    "berth-allocation-lab": "0.1.0",
+    "gymnasium": "1.2.3",
+    "integrated-terminal-pilot": "0.1.0",
+    "numpy": "2.2.3",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "sb3-contrib": "2.8.0",
+    "stable-baselines3": "2.8.0",
+    "torch": "2.6.0"
+  },
+  "packet_sha256": "823c39239b289571da0047d87fe2d80863fe6840323bd34d8c7ad6fec99d0636",
+  "prior_transport_canonical_sha256": "91371485481282eb8441f61838e54edb6e9cf3413fc1b0e26e36c35b8a44b885",
+  "schema": "step7_remote_inputs_v1",
+  "transport_revision": 2
+}

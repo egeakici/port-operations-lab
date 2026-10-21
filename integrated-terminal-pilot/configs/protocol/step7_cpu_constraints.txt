@@ -1,0 +1,7 @@
+# Numerical reference environment, not policy/physics tuning.
+numpy==2.2.3
+torch==2.6.0
+gymnasium==1.2.3
+stable-baselines3==2.8.0
+sb3-contrib==2.8.0
+pytest==8.4.2

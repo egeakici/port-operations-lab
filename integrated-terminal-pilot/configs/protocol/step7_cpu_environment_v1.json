@@ -1,0 +1,17 @@
+{
+  "schema": "step7_cpu_environment_v1",
+  "python": "3.13.2",
+  "packages": {
+    "numpy": "2.2.3",
+    "torch": "2.6.0",
+    "gymnasium": "1.2.3",
+    "stable-baselines3": "2.8.0",
+    "sb3-contrib": "2.8.0"
+  },
+  "provenance": "Original Step5 smoke manifest and approved Step6 F3 plan packages; preserve historical exact digests without changing algorithms or expected hashes.",
+  "python_installer": {
+    "url": "https://www.python.org/ftp/python/3.13.2/python-3.13.2-amd64.exe",
+    "sha256": "9aaa1075d0bd3e8abd0623d2d05de692ff00780579e1b232f259028bac19bb51",
+    "digest_source": "https://www.python.org/ftp/python/3.13.2/python-3.13.2-amd64.exe.sigstore"
+  }
+}

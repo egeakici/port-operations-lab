@@ -131,6 +131,7 @@ def source_manifest():
     paths.update(p for p in (PROJECT_ROOT / 'docs').glob('*.md') if not p.name.startswith('step7_'))
     paths.add(PROJECT_ROOT / 'pyproject.toml')
     if (PROJECT_ROOT/'.gitattributes').exists():paths.add(PROJECT_ROOT/'.gitattributes')
+    paths.add(PROJECT_ROOT/'configs/protocol/step7_cpu_constraints.txt')
     return {p.relative_to(REPO).as_posix(): file_hash(p) for p in sorted(paths)}
 
 

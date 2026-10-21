@@ -107,6 +107,27 @@ def verify_session(root):
     return meta
 
 
+def retain_prelock_failure(root):
+    """Link the demonstrated failed pre-lock attempt; never hide or retry it."""
+    original=s.PROJECT_ROOT/'experiments/step7_remote/campaign_final_v3'
+    if root==original or not (original/'pipeline/FAILED.json').exists():return
+    if (original/'protocol_lock_v1.json').exists():
+        raise s.CampaignError('prior campaign reached a scientific lock; preserve it for deviation review')
+    audit=[]
+    for pattern in ('pipeline/FAILED.json','regressions/*/result.json','regressions/*/junit.xml','regressions/*/stdout.log'):
+        for path in sorted(original.glob(pattern)):
+            rel=path.relative_to(original);target=root/'prelock_repair/prior_campaign_final_v3'/rel
+            target.parent.mkdir(parents=True,exist_ok=True)
+            sha=s.file_hash(path)
+            if target.exists():
+                if s.file_hash(target)!=sha:raise s.CampaignError('prior failure evidence differs; never overwrite')
+            else:
+                with target.open('xb') as stream:stream.write(path.read_bytes())
+            audit.append(dict(path=rel.as_posix(),sha256=sha))
+    s.seal(root/'prelock_repair/prior_failure_link.json',dict(source=original.relative_to(s.PROJECT_ROOT).as_posix(),
+        files=audit,scope='pre-lock correction of missing fixtures and reference numerical environment; same scientific inventory'))
+
+
 def regression(root,suite,stop):
     # Recover a sealed success when the terminal died after pytest finished but
     # before the stage receipt was installed. Never rerun completed verification.
@@ -204,13 +225,16 @@ def run(root):
     (root/'driver').mkdir(exist_ok=True)
     with s.worker_lock(root/'driver'),finish_current_episode_on_interrupt() as stop:
         if (root/'pipeline/FAILED.json').exists():raise s.CampaignError('prior failure preserved; scientific review required')
-        s.assert_clean();install(root)
+        s.assert_clean()
+        from integrated_terminal_pilot.benchmark.step7_environment import verify as verify_environment
+        environment=verify_environment();install(root);retain_prelock_failure(root)
+        s.seal(root/'numerical_environment.json',environment)
         if (root/'session.json').exists():verify_session(root)
         else:snapshot(root)
         print(json.dumps({'execution_hardware':s.unseal(root/'session.json')['hardware'],
             'scientific_device':'CPU; one outer worker and one Torch inference thread',
             'progress':'tqdm stages, tests and accounted episodes; elapsed/ETA/throughput; heartbeat every15s'}),flush=True)
-        names=['hardware-diagnostic','project-i-full','project03-fast','regression-evidence','owner-approval','readiness','plan-lock',
+        names=['prerequisites','workflow','hardware-diagnostic','project-i-full','project03-fast','regression-evidence','owner-approval','readiness','plan-lock',
                'validation','test','descriptive-report','detailed-diagnostics']
         values={}
         for stage_index,name in enumerate(names,1):
@@ -227,7 +251,7 @@ def run(root):
                     from integrated_terminal_pilot.benchmark.device_benchmark import benchmark
                     value=benchmark(output_root=root/'hardware')
                     value['result']=Path(value['result']).relative_to(root).as_posix()
-                elif name in ('project-i-full','project03-fast'):value=regression(root,name,stop)
+                elif name in ('prerequisites','workflow','project-i-full','project03-fast'):value=regression(root,name,stop)
                 elif name=='regression-evidence':
                     value=script_module('assemble_step7_regressions').assemble(
                         s.PROJECT_ROOT/values['project-i-full']['result'],s.PROJECT_ROOT/values['project03-fast']['result'])

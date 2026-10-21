@@ -11,6 +11,11 @@ Operating System, a commercial product, or a new RL training project.
 
 Current status:
 
+**Step 7 repair (2026-10-21):** the remote command is now
+`scripts/Complete-Step7.ps1`. See [the four-failure repair and one-command instructions](docs/step7_prelock_repair_20261021.md).
+It preserves failed evidence, restores missing development metadata and pins the
+actual historical numerical runtime before exact replay and mandatory regressions.
+
 **Step 7 execution update (2026-10-20):** code is prepared on the development
 laptop; the owner runs the complete foreground workflow on the stationary
 computer. See [the one-command remote runbook](docs/step7_remote_execution.md)

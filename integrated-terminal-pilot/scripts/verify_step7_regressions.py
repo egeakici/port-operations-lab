@@ -32,7 +32,7 @@ MIXED = {
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--suite',required=True,choices=('unit','focused','project-i-full','project03-fast'))
+    p.add_argument('--suite',required=True,choices=('unit','focused','prerequisites','workflow','project-i-full','project03-fast'))
     p.add_argument('--no-progress', action='store_true')
     p.add_argument('--output-root',type=Path,help='ignored portable bundle; source and test selection stay unchanged')
     a=p.parse_args()
@@ -55,9 +55,20 @@ def main():
              ITP_STEP7_TEST_EVENT_LOG=str(directory/'events.jsonl'))
     project03=a.suite=='project03-fast'
     cwd=s.REPO/'03-berth-allocation-lab' if project03 else s.REPO
-    args=[sys.executable,'-m','pytest','tests' if project03 else
+    targets=(['integrated-terminal-pilot/tests/integration/test_pre_step6_profile.py::test_historical_four_crane_first_fit_runs_still_reproduce_their_step5_digests',
+              'integrated-terminal-pilot/tests/unit/test_step4_closure.py::test_plan_hash_is_stable_and_counts_380_unique_runs',
+              'integrated-terminal-pilot/tests/unit/test_step4_closure.py::test_resume_rejects_incompatible_outputs_and_never_overwrites',
+              'integrated-terminal-pilot/tests/unit/test_step4_closure.py::test_repeated_condition_runs_are_identical'] if a.suite=='prerequisites' else
+             ['integrated-terminal-pilot/tests/unit/test_step7_campaign.py',
+              'integrated-terminal-pilot/tests/unit/test_step7_remote.py',
+              'integrated-terminal-pilot/tests/unit/test_manual_execution.py',
+              'integrated-terminal-pilot/tests/unit/test_progress_display.py',
+              'integrated-terminal-pilot/tests/unit/test_step7_environment.py',
+              'integrated-terminal-pilot/tests/unit/test_step7_failure.py'] if a.suite=='workflow' else
+             ['tests' if project03 else
           'integrated-terminal-pilot/tests/unit/test_step7_campaign.py' if a.suite=='focused' else
-          'integrated-terminal-pilot/tests/unit' if a.suite=='unit' else 'integrated-terminal-pilot/tests',
+          'integrated-terminal-pilot/tests/unit' if a.suite=='unit' else 'integrated-terminal-pilot/tests'])
+    args=[sys.executable,'-m','pytest',*targets,
           '-q','-p','no:cacheprovider','-p','integrated_terminal_pilot.benchmark.step7_pytest',
           '--basetemp='+str(temp),'--junitxml='+str(directory/'junit.xml')]
     if project03:
@@ -129,9 +140,14 @@ def main():
                          for ev in events if 'nodeid' in ev)
     e['deselected']=sum(len(ev['nodeids']) for ev in events if ev['kind']=='deselected')
     e['event_log_sha256']=s.file_hash(events_path) if events_path.exists() else None
+    from integrated_terminal_pilot.benchmark.step7_failure import junit_failures,show_failures,support_report
+    e['failure_details']=junit_failures(junit)
     s.seal(directory/'result.json',e)
     print(json.dumps({'result':str(directory/'result.json'),**{k:e.get(k) for k in
         ('exit_code','collected','passed','failed','errors','skipped','deselected','slow_passed','wall_seconds')}}),flush=True)
+    if e['exit_code']:
+        show_failures(e['failure_details'],sys.stderr)
+        print(json.dumps({'support_report':support_report(root,'Regression '+a.suite+' failed')}),file=sys.stderr,flush=True)
     return e['exit_code']
 
 

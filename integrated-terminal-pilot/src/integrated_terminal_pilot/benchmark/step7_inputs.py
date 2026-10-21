@@ -7,8 +7,8 @@ import csv
 
 from integrated_terminal_pilot.benchmark import step7 as s
 
-MANIFEST = s.PROJECT_ROOT/'configs/protocol/step7_remote_inputs.json'
-ARCHIVE = s.PROJECT_ROOT/'assets/step7_remote_inputs.zip'
+MANIFEST = s.PROJECT_ROOT/'configs/protocol/step7_remote_inputs_v2.json'
+ARCHIVE = s.PROJECT_ROOT/'assets/step7_remote_inputs_v2.zip'
 ORIGIN = s.PROJECT_ROOT/'experiments/step7_paired_v1'
 
 
@@ -48,6 +48,9 @@ def prepare():
     # Keep the complete eligible regression scope on a fresh clone (no missing-fixture skips).
     source=s.PROJECT_ROOT/'experiments/scenarios/development/dev_f5789d8c91_1ee66026'
     index=source/'scenario_index.csv';files.append(index)
+    # Closure's three failing tests consume the original manifest sidecar.
+    # Preserve all small batch metadata as well as the selected scenario files.
+    files.extend(p for p in sorted(source.iterdir()) if p.is_file() and p!=index)
     with index.open(encoding='utf-8') as stream:index_rows={r['scenario_id']:r for r in csv.DictReader(stream)}
     for family in ('itp_low','itp_medium','itp_heavy','itp_yard_bottleneck'):
         for seed in (10000000,10000001,10000002):
@@ -78,15 +81,25 @@ def prepare():
         'step6_gate.json':s.PROJECT_ROOT/'experiments/step6_closure/gates'/(GATE_SHA+'.json'),
         'step4_report.json':s.PROJECT_ROOT/'experiments/step4_equivalence/eq_20261013T213721Z/report.json',
         'step5_report.json':s.PROJECT_ROOT/'experiments/step5_development/exact_gate_20261013T224141Z/report.json',
+        'step5_smoke_manifest.json':s.PROJECT_ROOT/'experiments/step5_development/s5dev_smoke_v1/manifest.json',
     }
     members={'restore/'+p.relative_to(s.REPO).as_posix():p for p in files}
     members.update({'evidence/'+name:p for name,p in metadata.items()})
-    manifest=dict(schema='step7_remote_inputs_v1',
+    original=s.unseal(s.PROJECT_ROOT/'configs/protocol/step7_remote_inputs.json')
+    reference=s.read_json(metadata['step5_smoke_manifest.json'])['packages']
+    environment=s.read_json(s.PROJECT_ROOT/'configs/protocol/step7_cpu_environment_v1.json')
+    if reference['python']!=environment['python'] or any(reference[k]!=v for k,v in environment['packages'].items()):
+        raise s.CampaignError('numerical environment is not the actual historical reference')
+    manifest=dict(schema='step7_remote_inputs_v1',transport_revision=2,
+        prior_transport_canonical_sha256=s.digest(original),
+        numerical_reference=reference,
         files={name:{'sha256':s.file_hash(p),'bytes':p.stat().st_size} for name,p in sorted(members.items())},
         frozen_source_canonical_sha256={p:normalized_sha(s.REPO/p) for p in p6['source_sha256']},
         historical_scope='Prior verified F3 receipt and original report/index; raw F3 outer files stay on origin. '
                          'Remote does not claim to rehash or rerun those historical outer files.',
         packet_sha256=s.digest(s.unseal(s.PACKET)),checkpoints=checks)
+    for name,meta in original['files'].items():
+        if manifest['files'].get(name)!=meta:raise s.CampaignError('original transport evidence changed: '+name)
     if ARCHIVE.exists() or MANIFEST.exists():
         raise s.CampaignError('prepared transport already exists; preserve it, inspect before rebuilding')
     ARCHIVE.parent.mkdir(parents=True,exist_ok=True)

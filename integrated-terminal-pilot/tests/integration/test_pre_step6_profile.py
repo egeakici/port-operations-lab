@@ -62,5 +62,10 @@ def test_historical_four_crane_first_fit_runs_still_reproduce_their_step5_digest
         stored = json.loads((STEP5_SMOKE / "runs" / "protocol_v1_first_fit" / label /
                              "itp_low_development_seed10000000.json").read_text(encoding="utf-8"))
         again = run_arm(doc, arm_id=arm, training_seed=seed)
-        assert again["digests"]["trace_sha256"] == stored["digests"]["trace_sha256"], label
+        differences={name:{'expected':expected,'actual':again['digests']['files'].get(name)}
+                     for name,expected in stored['digests']['files'].items()
+                     if again['digests']['files'].get(name)!=expected}
+        assert again["digests"]["trace_sha256"] == stored["digests"]["trace_sha256"], json.dumps({
+            'arm':label,'differing_canonical_streams':differences,
+            'expected_kpi':stored['kpi'],'actual_kpi':again['kpi']},indent=2)
         assert again["comparison_fingerprint"] == stored["comparison_fingerprint"], label

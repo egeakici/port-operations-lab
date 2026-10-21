@@ -2,6 +2,7 @@ param(
     [ValidateSet('Run','VerifyReturn','Status')][string]$Action = 'Run',
     [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$RunName = 'campaign_v1',
     [string]$Python = 'python',
+    [string]$Interpreter,
     [switch]$SkipInstall
 )
 $ErrorActionPreference = 'Stop'
@@ -9,6 +10,10 @@ $step7Project = Split-Path $PSScriptRoot -Parent
 $step7Repo = Split-Path $step7Project -Parent
 $step7Bundle = Join-Path $step7Project ('experiments\step7_remote\' + $RunName)
 $step7Interpreter = Join-Path $step7Repo '.venv\Scripts\python.exe'
+if ($Interpreter) {
+    $step7Interpreter = (Resolve-Path -LiteralPath $Interpreter).Path
+    if (!$SkipInstall -and $Action -eq 'Run') { throw 'An explicit interpreter requires -SkipInstall; prepare its pinned environment first.' }
+}
 Push-Location -LiteralPath $step7Repo
 try {
     $env:PYTHONDONTWRITEBYTECODE = '1'

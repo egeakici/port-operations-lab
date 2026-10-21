@@ -18,3 +18,9 @@ validation, test and export. This is not permission for the coding agent to run
 it. No scheduled/background continuation or automatic Git commits. Keep the
 source checkout clean; generated approval overlays/locks/results live in the
 portable result bundle. Return verification must not evaluate policies.
+
+2026-10-21 repair: fresh remote runs use Complete-Step7.ps1 and the actual
+historical CPython3.13.2 / NumPy2.2.3 / Torch2.6 reference environment. Keep the
+original v1 transport and every failed run. V2 adds missing original batch
+metadata. Strict historical replay must pass before long regressions; do not
+replace expected hashes or claim the remote four failures pass without execution.
