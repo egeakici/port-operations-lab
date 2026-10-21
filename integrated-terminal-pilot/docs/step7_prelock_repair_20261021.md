@@ -59,12 +59,54 @@ After the owner reviews, commits and pushes these Project I changes, on HP paste
 }
 ```
 
-The launcher downloads the official Python3.13.2 installer only if absent,
-verifies SHA256 against its official Sigstore metadata, installs a separate
-reference runtime without modifying PATH, and creates .venv/step7-cpu3132.
+The launcher downloads the PSF standalone Python3.13.2 x64 NuGet archive only if
+absent, verifies its pinned SHA512 and size, then extracts it to a fresh staging
+directory. It checks the interpreter version, architecture, standard GIL build
+and venv/ensurepip imports before promoting that directory into place. It creates
+.venv/step7-cpu3132 without using the Windows installer or modifying PATH.
 Original .venv/Python3.11 and GPU benchmark environments are retained. Numeric
 versions are pinned; no environment update is made once a session exists.
 Initial setup may need network access. No driver or CUDA installation is needed.
+
+### Subsequent bootstrap failure and repair
+
+The owner subsequently supplied a new pre-session failure: the full Windows
+installer returned without a reported nonzero exit, but the requested
+.venv/step7-bootstrap/python3132/python.exe was absent. The launcher attempted
+that nonexistent executable. This was a launcher postcondition defect, not a
+scientific episode failure. The exact installer-internal reason is not known
+from the supplied output; existing-install maintenance behavior is a possible
+explanation, not an established diagnosis.
+
+The corrected launcher no longer invokes that installer. It uses the
+[PSF build-system package documented by Python](https://docs.python.org/3.13/using/windows.html#the-nuget-org-packages),
+with explicit version3.13.2 (standard x64, not free-threaded or embeddable).
+The14,297,314-byte archive's SHA512 was checked against NuGet's official catalog.
+Static archive inspection confirmed python.exe, python313.dll, venv, ensurepip
+and the bundled pip wheel are present. Both core binaries are byte-identical
+to this development computer's existing historical Python3.13.2 installation:
+
+| Binary | SHA256 (archive and existing historical installation) |
+| --- | --- |
+| python.exe | 7d96a4ed35d6e596cd9dd8933feafc66349cc21f75be3b15c89fd336e50140c1 |
+| python313.dll | bf68cf819a1e865170430c10e91c18b427aef88db1da1742020443864aa2b749 |
+
+New bootstrap specification: configs/protocol/step7_python_bootstrap_v1.json.
+Final runtime directory: .venv/step7-bootstrap/cpython3132-nuget/tools/.
+An interruption leaves a uniquely named staging/download file; a retry uses a
+fresh stage and never overwrites prior files. No Python binary is executed before
+the archive's integrity and required members are checked. Runtime binary hashes
+and the specification hash are retained in the bundle's bootstrap receipt.
+The old installer, old installation directory and setup transcripts are preserved.
+The same run name remains appropriate because the supplied failure preceded
+session creation. Existing scientific-session and FAILED.json guards remain.
+
+Prepared owner-run bootstrap tests cover a same-size corrupt archive, path
+traversal, valid extraction into a path with spaces, and refusal to overwrite an
+existing destination. They are included in the workflow regression gate. The
+coding agent performed static checks only, including read-only archive/core
+binary hashing; no new Python runtime, test or scientific work was executed.
+The changed launcher/tests need fresh matching regressions before the lock.
 
 Default stable result folder:
 experiments/step7_remote/step7_cpu3132_v1/. Use the SAME command to resume; no

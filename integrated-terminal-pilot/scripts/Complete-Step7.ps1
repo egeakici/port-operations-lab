@@ -9,8 +9,7 @@ $step7Bundle = Join-Path $step7Project ('experiments\step7_remote\' + $RunName)
 $step7EnvSpec = Join-Path $step7Project 'configs\protocol\step7_cpu_environment_v1.json'
 $step7Constraints = Join-Path $step7Project 'configs\protocol\step7_cpu_constraints.txt'
 $step7Bootstrap = Join-Path $step7Repo '.venv\step7-bootstrap'
-$step7Runtime = Join-Path $step7Bootstrap 'python3132'
-$step7RuntimePython = Join-Path $step7Runtime 'python.exe'
+$step7BootstrapSpec = Join-Path $step7Project 'configs\protocol\step7_python_bootstrap_v1.json'
 $step7Environment = Join-Path $step7Repo '.venv\step7-cpu3132'
 $step7Python = Join-Path $step7Environment 'Scripts\python.exe'
 $step7Ready = Join-Path $step7Environment 'step7_environment_ready.json'
@@ -54,45 +53,31 @@ try {
         $step7TranscriptPath = Join-Path $step7Bundle ('bootstrap\setup_' + [guid]::NewGuid().ToString('N') + '.log')
         Start-Transcript -LiteralPath $step7TranscriptPath | Out-Null
         $step7Transcript = $true
-        $step7Spec = Get-Content -LiteralPath $step7EnvSpec -Raw | ConvertFrom-Json
         $step7SpecHash = (Get-FileHash -LiteralPath $step7EnvSpec -Algorithm SHA256).Hash.ToLowerInvariant()
         $step7ConstraintsHash = (Get-FileHash -LiteralPath $step7Constraints -Algorithm SHA256).Hash.ToLowerInvariant()
         if (!(Test-Path -LiteralPath $step7Ready)) {
             if (Test-Path -LiteralPath (Join-Path $step7Bundle 'session.json')) {
                 throw 'Recorded execution environment is missing. Restore it; do not reinstall under an existing scientific session.'
             }
-            if (!(Test-Path -LiteralPath $step7RuntimePython)) {
-                New-Item -ItemType Directory -Path $step7Bootstrap -Force | Out-Null
-                $step7Installer = Join-Path $step7Bootstrap 'python-3.13.2-amd64.exe'
-                if (!(Test-Path -LiteralPath $step7Installer)) {
-                    Write-Host 'Downloading the official Python 3.13.2 reference runtime...'
-                    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-                    $step7Partial = $step7Installer + '.' + [guid]::NewGuid().ToString('N') + '.partial'
-                    Invoke-WebRequest -UseBasicParsing -Uri $step7Spec.python_installer.url -OutFile $step7Partial
-                    if ((Get-FileHash -LiteralPath $step7Partial -Algorithm SHA256).Hash.ToLowerInvariant() -ne $step7Spec.python_installer.sha256) {
-                        throw 'Official Python installer checksum mismatch. Download preserved; nothing executed.'
-                    }
-                    Move-Item -LiteralPath $step7Partial -Destination $step7Installer
-                }
-                if ((Get-FileHash -LiteralPath $step7Installer -Algorithm SHA256).Hash.ToLowerInvariant() -ne $step7Spec.python_installer.sha256) {
-                    throw 'Cached Python installer checksum mismatch; never execute or overwrite it.'
-                }
-                Write-Host 'Installing the separate reference runtime without changing PATH...'
-                $step7InstallerArgs = @('/quiet','/norestart','InstallAllUsers=0',('TargetDir="' + $step7Runtime + '"'),
-                    'PrependPath=0','Include_launcher=0','AssociateFiles=0','Shortcuts=0','Include_test=0','Include_doc=0','Include_pip=1')
-                $step7InstallProcess = Start-Process -FilePath $step7Installer -ArgumentList $step7InstallerArgs -WindowStyle Hidden -Wait -PassThru
-                if ($step7InstallProcess.ExitCode -ne 0) { throw "Python installation failed (exit $($step7InstallProcess.ExitCode))." }
-            }
-            Invoke-Step7Native { & $step7RuntimePython -c "import sys; assert sys.version_info[:3] == (3,13,2), sys.version" }
+            # The Windows installer can complete in maintenance mode without honoring
+            # a new TargetDir. Use PSF's standalone build-system package instead.
+            # Its exact version/archive hash are pinned; no registry or PATH edits.
+            . (Join-Path $PSScriptRoot 'Step7PythonBootstrap.ps1')
+            $step7RuntimePython = Get-Step7ReferencePython -BootstrapDirectory $step7Bootstrap `
+                -SpecificationPath $step7BootstrapSpec -EvidenceDirectory (Join-Path $step7Bundle 'bootstrap')
             if (!(Test-Path -LiteralPath $step7Python)) {
+                Write-Host 'Creating the separate Step 7 Python environment...'
                 Invoke-Step7Native { & $step7RuntimePython -m venv $step7Environment }
             }
             Invoke-Step7Native { & $step7Python -c "import sys; assert sys.version_info[:3] == (3,13,2), sys.version" }
+            Write-Host 'Installing pinned CPU dependencies; experiments begin only after setup and prerequisite checks...'
             Invoke-Step7Native { & $step7Python -m pip install -c $step7Constraints 'torch==2.6.0' --index-url https://download.pytorch.org/whl/cpu }
             Invoke-Step7Native { & $step7Python -m pip install -c $step7Constraints -e './01-terminal-operations-core' -e './02-mini-port-simulation' -e './03-berth-allocation-lab[rl,dev,viz]' -e './integrated-terminal-pilot[dev]' }
             Invoke-Step7Native { & $step7Python -c "from integrated_terminal_pilot.benchmark.step7_environment import verify; print(verify())" }
+            $step7ReadyPartial = $step7Ready + '.' + [guid]::NewGuid().ToString('N') + '.partial'
             @{environment_spec_sha256=$step7SpecHash; constraints_sha256=$step7ConstraintsHash} |
-                ConvertTo-Json | Set-Content -LiteralPath $step7Ready -Encoding UTF8
+                ConvertTo-Json | Set-Content -LiteralPath $step7ReadyPartial -Encoding UTF8
+            [IO.File]::Move($step7ReadyPartial, $step7Ready)
         } else {
             $step7Recorded = Get-Content -LiteralPath $step7Ready -Raw | ConvertFrom-Json
             if ($step7Recorded.environment_spec_sha256 -ne $step7SpecHash -or $step7Recorded.constraints_sha256 -ne $step7ConstraintsHash) {
@@ -115,6 +100,14 @@ try {
     }
 } catch {
     Write-Host ('BLOCKED_PRESERVED: ' + $_.Exception.Message) -ForegroundColor Red
+    if ($step7Transcript) {
+        $step7SetupFailure = Join-Path $step7Bundle ('bootstrap\failure_' + [guid]::NewGuid().ToString('N') + '.json')
+        @{
+            phase='bootstrap'; exception=$_.Exception.ToString(); position=$_.InvocationInfo.PositionMessage
+            stack=$_.ScriptStackTrace; transcript=$step7TranscriptPath
+        } | ConvertTo-Json | Set-Content -LiteralPath $step7SetupFailure -Encoding UTF8
+        Write-Host "Setup error details: $step7SetupFailure"
+    }
     Write-Host "Keep this folder and its logs: $step7Bundle"
     $step7Exit = 2
 } finally {

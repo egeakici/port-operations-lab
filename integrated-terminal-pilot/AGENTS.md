@@ -24,3 +24,10 @@ historical CPython3.13.2 / NumPy2.2.3 / Torch2.6 reference environment. Keep the
 original v1 transport and every failed run. V2 adds missing original batch
 metadata. Strict historical replay must pass before long regressions; do not
 replace expected hashes or claim the remote four failures pass without execution.
+
+The subsequent HP bootstrap failed before session creation: the Windows installer
+returned without creating the requested executable. Complete-Step7 now uses the
+PSF standalone3.13.2 x64 NuGet package via Step7PythonBootstrap.ps1, with pinned
+SHA512/length, safe staged extraction, runtime postconditions and an immutable
+receipt. Keep old installer caches/logs; never bypass scientific session/failure
+guards. Bootstrap tests are owner-run only. No runtime pass is claimed locally.

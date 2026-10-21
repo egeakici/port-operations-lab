@@ -64,6 +64,7 @@ def main():
               'integrated-terminal-pilot/tests/unit/test_manual_execution.py',
               'integrated-terminal-pilot/tests/unit/test_progress_display.py',
               'integrated-terminal-pilot/tests/unit/test_step7_environment.py',
+              'integrated-terminal-pilot/tests/unit/test_step7_python_bootstrap.py',
               'integrated-terminal-pilot/tests/unit/test_step7_failure.py'] if a.suite=='workflow' else
              ['tests' if project03 else
           'integrated-terminal-pilot/tests/unit/test_step7_campaign.py' if a.suite=='focused' else

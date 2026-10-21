@@ -1,0 +1,16 @@
+{
+  "schema": "step7_python_bootstrap_v1",
+  "distribution": "Python Software Foundation CPython Windows x64, standard GIL build",
+  "python": "3.13.2",
+  "url": "https://api.nuget.org/v3-flatcontainer/python/3.13.2/python.3.13.2.nupkg",
+  "sha512_base64": "YLhuBjXBAu4/8hjRSqkaTn9NhUlARhFww3UV7sjJCpILsdjc49j2g0YuABJCrH7G6yRfhOFu3cB2lbCqvznGRA==",
+  "bytes": 14297314,
+  "checksum_provenance": "https://api.nuget.org/v3/registration5-gz-semver2/python/3.13.2.json -> catalogEntry -> packageHash (SHA512); inspected 2026-10-21",
+  "documentation": "https://docs.python.org/3.13/using/windows.html#the-nuget-org-packages",
+  "required_members": [
+    "tools/python.exe",
+    "tools/python313.dll",
+    "tools/Lib/venv/__init__.py",
+    "tools/Lib/ensurepip/__init__.py"
+  ]
+}

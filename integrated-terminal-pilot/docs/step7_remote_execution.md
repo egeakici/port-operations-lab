@@ -6,6 +6,9 @@ the recorded Python3.13.2/numeric reference environment and supplies the missing
 historical manifest metadata. The generic Python3.11+ setup and transport v1
 instructions below are preserved as history; use the corrected launcher for new
 execution. Its stable return folder is `step7_cpu3132_v1`.
+The bootstrap uses PSF's checksum-pinned standalone3.13.2 archive; it no longer
+uses the Windows installer, whose successful exit did not guarantee the requested
+python.exe existed on HP. Old setup logs and installer caches remain untouched.
 
 Owner workflow instruction: 2026-10-20. This is the primary Step 7 execution
 procedure. Code is prepared on the development laptop. The owner pushes it,
