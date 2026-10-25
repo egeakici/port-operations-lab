@@ -1,0 +1,24 @@
+{
+  "files": {
+    "bytes_metadata_audit.json": {
+      "bytes": 925,
+      "sha256": "56b2a62504a7ab1bd1b1c9acfa2a50b7c3733efc5111fd481dec674e6f7f22d8"
+    },
+    "descriptive_review.json": {
+      "bytes": 79510,
+      "sha256": "177554493402800a957c1a37089e6cf179d376b46a6798245a659a487ae2cec0"
+    },
+    "reference_restoration.json": {
+      "bytes": 2816,
+      "sha256": "89d3e7249e7f0653b818c54b9cc47e3e602b1c1ae17e126803fa44199035efb1"
+    },
+    "review_manifest.json": {
+      "bytes": 3017,
+      "sha256": "1c189d221f1b444a546e2379493333cffbfa7f727905f4eadc2027aa389e9056"
+    }
+  },
+  "origin": "integrated-terminal-pilot/experiments/step7_return_review_20261023",
+  "purpose": "Portable exact snapshots of historical review targets and transport-repair receipts; NEVER authoritative outcomes or full canonical return PASS",
+  "schema": "step8_historical_reconciliation_reference_v1",
+  "scientific_episodes": 0
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "step7_return_bytes_metadata_review_v1",
+  "status": "BYTES_AND_PAIRED_METADATA_VERIFIED",
+  "manifest_sha256": "d180f1dec4fb212185b40658f7be47dc66d0bd08e66b6636f88cb45c42b8357d",
+  "manifest_file_count": 31626,
+  "manifest_bytes": 13451426704,
+  "original_verifier_file_hash_phase_complete": true,
+  "original_verifier_metadata_phase_complete": true,
+  "paired_rows_verified": 1960,
+  "scenarios_verified": 140,
+  "trace_envelope_manifest_links_verified": 10080,
+  "raw_result_csv_core_metrics_match": true,
+  "full_canonical_reinflation_complete": false,
+  "manual_gate_pending": "Complete-Step7.ps1 -Action VerifyReturn",
+  "log_sha256": "8e249bbbd85ba1c18fbebbcd51c3eb232c0ad76d9a7c9085ccba61a1210cb1af",
+  "scientific_status": "EXPERIMENT_COMPLETE_DESCRIPTIVE_REVIEW_COMPLETE_FULL_RETURN_GATE_PENDING",
+  "policy_evaluations": 0,
+  "training_performed": false,
+  "step8_started": false
+}

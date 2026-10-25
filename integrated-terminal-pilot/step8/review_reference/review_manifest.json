@@ -1,0 +1,80 @@
+{
+  "schema": "step7_descriptive_owner_review_manifest_v1",
+  "date": "2026-10-23",
+  "files": {
+    "analyze_descriptive.py": {
+      "bytes": 7530,
+      "sha256": "74f42002f049d8c9f2f27696dc73feb0000a4da4654fac0979d93aecfb08468c"
+    },
+    "bytes_metadata_audit.json": {
+      "bytes": 925,
+      "sha256": "56b2a62504a7ab1bd1b1c9acfa2a50b7c3733efc5111fd481dec674e6f7f22d8"
+    },
+    "copy_inventory.json": {
+      "bytes": 2654,
+      "sha256": "83fd1d9987febf76f79a6965bb7a6d9baa2279f819a3ca08266b45ea5483f477"
+    },
+    "descriptive_review.json": {
+      "bytes": 79510,
+      "sha256": "177554493402800a957c1a37089e6cf179d376b46a6798245a659a487ae2cec0"
+    },
+    "diagnostic_review.json": {
+      "bytes": 49289,
+      "sha256": "a3cc1a95c0d7480041f2a5eb8a10ac1578ba903c92da6ece3c855b9e0b023f92"
+    },
+    "plot_tradeoffs.py": {
+      "bytes": 2235,
+      "sha256": "1bea05454f2ab6d42f16e7c84feeab45bbc2c86ec0e79b0fcace1f7e3472dbea"
+    },
+    "reference_restoration.json": {
+      "bytes": 2816,
+      "sha256": "89d3e7249e7f0653b818c54b9cc47e3e602b1c1ae17e126803fa44199035efb1"
+    },
+    "restore_missing_reference_bytes.py": {
+      "bytes": 2636,
+      "sha256": "b61ac0d68ed3fc097010052e41e32b2c6479bb75817e836b434d0f39d9919bf3"
+    },
+    "return_audit.stderr.log": {
+      "bytes": 27204,
+      "sha256": "d644b0c44d007076dc3341c3bc4fd303450de2f6ceb92160c1fea17e97532d84"
+    },
+    "return_audit.stdout.log": {
+      "bytes": 1768,
+      "sha256": "b335840788df47bf82469d3fae89591dc2465087cc1c66ca0bee5d0cc6ff7fb6"
+    },
+    "return_audit_after_restoration.stderr.log": {
+      "bytes": 59444,
+      "sha256": "8e249bbbd85ba1c18fbebbcd51c3eb232c0ad76d9a7c9085ccba61a1210cb1af"
+    },
+    "return_audit_after_restoration.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "summarize_diagnostics.py": {
+      "bytes": 3949,
+      "sha256": "14ddebdc982d74eb517e59b5b749f8bda24aed8df1f7014cb67a89893d02515a"
+    },
+    "test_tradeoffs.png": {
+      "bytes": 131541,
+      "sha256": "07f00f3faff8d72b9325b3e6cb69395a0b4c65d64c103e027bce9c0f87b87bd9"
+    },
+    "test_tradeoffs.svg": {
+      "bytes": 109421,
+      "sha256": "216808814e40714c30b2ac64b34df46415040f874c0aa26e6287a94ebce52b01"
+    },
+    "verify_paired_metadata.py": {
+      "bytes": 5937,
+      "sha256": "4996093c5a773856a784e7973a657b75200ec9a897ab13da84e742fd02226646"
+    },
+    "write_owner_report.py": {
+      "bytes": 18067,
+      "sha256": "f939e2bd10481e0674ba17f6f94c97f50ed4f778952db2fd932c2a6c6dbb8650"
+    }
+  },
+  "owner_report": "integrated-terminal-pilot\\docs\\step7_results_owner_review_20261023.md",
+  "owner_report_sha256": "10f0b266450c269c445378f14c49dbfa9be3feb8f71a299576f81f42f9c31343",
+  "status": "DESCRIPTIVE_REVIEW_COMPLETE_FULL_CANONICAL_RETURN_GATE_PENDING",
+  "scientific_runs_launched": 0,
+  "training_launched": false,
+  "step8_started": false
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "step7_return_missing_reference_restoration_v1",
+  "archive_sha256": "15bf9e58258b54f2a46ab0923115cc1f3d8b3f7353fd6bd078c4b8fb110a8244",
+  "restored": [
+    {
+      "path": "inputs/prerequisites/restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_11/best_validation_model.metadata.json",
+      "sha256": "dac76f2dd3d2503413cf4a7c42ecd770e8a32314be3c36cd9e09bff0ba45bddc",
+      "bytes": 1766,
+      "ordinary_path_readable": true
+    },
+    {
+      "path": "inputs/prerequisites/restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_11/best_validation_model.zip",
+      "sha256": "3373e06060a6f14cae422d7041d863cf18001bed285d1b896bffbe4dfae32018",
+      "bytes": 1931211,
+      "ordinary_path_readable": true
+    },
+    {
+      "path": "inputs/prerequisites/restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_23/best_validation_model.metadata.json",
+      "sha256": "6a346b4d7beed3d760f3dfff56737587eecbb74b5327db95c603adb8d5d40867",
+      "bytes": 1766,
+      "ordinary_path_readable": true
+    },
+    {
+      "path": "inputs/prerequisites/restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_23/best_validation_model.zip",
+      "sha256": "a2a105108d9b030cec8e26538012cbe1c2c2bc872f992e1a11ac0cd428ffd625",
+      "bytes": 1931210,
+      "ordinary_path_readable": true
+    },
+    {
+      "path": "inputs/prerequisites/restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_37/best_validation_model.metadata.json",
+      "sha256": "cb6ceb0639e637ed1eb6eb7d9cb29db94386d3306503a5e5092be298d3e3e2f9",
+      "bytes": 1766,
+      "ordinary_path_readable": true
+    },
+    {
+      "path": "inputs/prerequisites/restore/03-berth-allocation-lab/experiments/rl/dynamic_extended_cuda/dynamic_ppo_medium_heavy_v1_extended_cuda/seed_37/best_validation_model.zip",
+      "sha256": "8318b49712fbbd04c6adbf1b357e2c5916fae539306b50272ded7464d002a3a6",
+      "bytes": 1931222,
+      "ordinary_path_readable": true
+    },
+    {
+      "path": "inputs/prerequisites/restore/integrated-terminal-pilot/experiments/step5_development/s5dev_smoke_v1/runs/protocol_v1_first_fit/A3-train11/itp_low_development_seed10000000.json",
+      "sha256": "3b549d6475ed7d84fd25f966af91b71079cb409b43d2844278afa8ec17013cb2",
+      "bytes": 19562,
+      "ordinary_path_readable": true
+    }
+  ],
+  "scientific_results_modified": false,
+  "models_loaded": false,
+  "cause": "Seven files were absent after copy; all have long Windows paths. Copy-internal cause not proven. Exact original bytes recovered, never regenerated."
+}
