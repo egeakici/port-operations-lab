@@ -1,4 +1,22 @@
-# Step8: read-only analysis and explicit scientific gates
+# Step8: analysis and isolated final-closure diagnostics
+
+Current workflow: [FINAL_CLOSURE_RUNBOOK.md](FINAL_CLOSURE_RUNBOOK.md).
+The owner's Final Closure specification2026-10-25 supersedes the capability-gap
+status below. `final_closure.py` implements the missing isolated13M diagnostic
+runner and the fixed explicitly post-hoc statistical completion. New execution
+requires the exact consolidated scientific packet acceptance. Imports, plan,
+status, verify, analyze and finalize NEVER simulate. Only manual run/resume does.
+
+Only three specifically named NEW closure launcher/handoff files extend Step8's
+operational inventory. Original413 frozen entries remain content-verified;
+unexpected additions/removals and scientific changes still block. The ORIGINAL
+Step7 verifier is unchanged and its official receipt is reused, never rerun.
+This explicit extension supersedes this older README's no-new-top-level-file
+constraint and is part of the exact scientific review packet. Old release source
+snapshots retain the previous code and wording.
+
+The remainder documents the historical first Step8 analysis entrypoint, which
+still reports its original provisional gates; use the current closure CLI above.
 
 This directory is outside the frozen Step7 inventory. New documents are nested
 under `docs/step8/<analysis-id>/`; the original scanner includes `docs/*.md`, so

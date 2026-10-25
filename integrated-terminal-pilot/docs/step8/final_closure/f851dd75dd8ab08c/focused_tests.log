@@ -1,0 +1,189 @@
+test_actual_cli_help_does_not_simulate (test_final_closure.ClosureLifecycleTests.test_actual_cli_help_does_not_simulate) ... ok
+test_actual_manual_launcher_sequence_and_stop_on_resume_exit3 (test_final_closure.ClosureLifecycleTests.test_actual_manual_launcher_sequence_and_stop_on_resume_exit3) ... ok
+test_actual_powershell_entrypoint_help (test_final_closure.ClosureLifecycleTests.test_actual_powershell_entrypoint_help) ... ok
+test_approval_exact_hash_and_provenance_required (test_final_closure.ClosureLifecycleTests.test_approval_exact_hash_and_provenance_required) ... ok
+test_gate_never_closes_from_good_primary_results_alone (test_final_closure.ClosureLifecycleTests.test_gate_never_closes_from_good_primary_results_alone) ... ok
+test_gate_rejects_pseudo_empty_matrix (test_final_closure.ClosureLifecycleTests.test_gate_rejects_pseudo_empty_matrix) ... ok
+test_gate_requires_actual_all_counts_and_approval (test_final_closure.ClosureLifecycleTests.test_gate_requires_actual_all_counts_and_approval) ... ok
+test_non_run_verbs_never_simulate_after_successful_intake (test_final_closure.ClosureLifecycleTests.test_non_run_verbs_never_simulate_after_successful_intake) ... {
+  "plan": "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\integrated-terminal-pilot\\experiments\\step8_analysis\\test_work\\0959503f5ec44217b46857e84dfe8c25\\plan.json",
+  "plan_sha256": "75019862e3fb0ae41ecb854753ba843059f0f1dd8d5c11c055e56bd2a847a1c7",
+  "packet": "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\integrated-terminal-pilot\\experiments\\step8_analysis\\test_work\\0959503f5ec44217b46857e84dfe8c25\\packet.json",
+  "packet_sha256": "841d150936820ea1438fc54d099aeec0e4e18a31cb859038fa50b0aa340af4ea",
+  "counts": {
+    "requirements": 1,
+    "sensitivity": 1,
+    "coupling": 0,
+    "aliases": 0,
+    "unique": 1,
+    "runnable": 1,
+    "unsupported": 0,
+    "optional": 0
+  }
+}
+New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 {
+  "requirements": 1,
+  "sensitivity": 1,
+  "coupling": 0,
+  "aliases": 0,
+  "unique": 1,
+  "runnable": 1,
+  "unsupported": 0,
+  "optional": 0,
+  "verified": 0,
+  "pending": 1,
+  "failed": 0,
+  "partial_attempts": 0,
+  "verified_aliases": 0,
+  "verified_commit_inventory_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+}
+New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 ok
+test_non_run_verbs_never_simulate_even_on_failure (test_final_closure.ClosureLifecycleTests.test_non_run_verbs_never_simulate_even_on_failure) ... {"status": "BLOCKED_PRESERVED", "error": "fixture source mismatch", "type": "ContractError", "STEP7_OUTER_RERUNS": 0, "PPO_RETRAINING": "NONE"}
+{"status": "BLOCKED_PRESERVED", "error": "fixture source mismatch", "type": "ContractError", "STEP7_OUTER_RERUNS": 0, "PPO_RETRAINING": "NONE"}
+{"status": "BLOCKED_PRESERVED", "error": "fixture source mismatch", "type": "ContractError", "STEP7_OUTER_RERUNS": 0, "PPO_RETRAINING": "NONE"}
+{"status": "BLOCKED_PRESERVED", "error": "fixture source mismatch", "type": "ContractError", "STEP7_OUTER_RERUNS": 0, "PPO_RETRAINING": "NONE"}
+{"status": "BLOCKED_PRESERVED", "error": "fixture source mismatch", "type": "ContractError", "STEP7_OUTER_RERUNS": 0, "PPO_RETRAINING": "NONE"}
+{"status": "BLOCKED_PRESERVED", "error": "fixture source mismatch", "type": "ContractError", "STEP7_OUTER_RERUNS": 0, "PPO_RETRAINING": "NONE"}
+ok
+test_portable_existing_return_receipt_is_authentic (test_final_closure.ClosureLifecycleTests.test_portable_existing_return_receipt_is_authentic) ... ok
+test_portable_predecessor_used_without_old_analysis_folder (test_final_closure.ClosureLifecycleTests.test_portable_predecessor_used_without_old_analysis_folder) ... ok
+test_runtime_os_metadata_not_an_environment_mismatch (test_final_closure.ClosureLifecycleTests.test_runtime_os_metadata_not_an_environment_mismatch) ... ok
+test_already_active_batches_survive_private_intervention (test_final_closure.CouplingContractTests.test_already_active_batches_survive_private_intervention) ... ok
+test_both_byte_identity (test_final_closure.CouplingContractTests.test_both_byte_identity) ... ok
+test_censored_counterexample_refutes_universal_equality (test_final_closure.CouplingContractTests.test_censored_counterexample_refutes_universal_equality) ... ok
+test_crane_on_hand_calculation (test_final_closure.CouplingContractTests.test_crane_on_hand_calculation) ... ok
+test_hidden_future_not_added (test_final_closure.CouplingContractTests.test_hidden_future_not_added) ... ok
+test_multiple_cranes_keep_nominal_per_vessel_total (test_final_closure.CouplingContractTests.test_multiple_cranes_keep_nominal_per_vessel_total) ... ok
+test_none_nominal_hand_calculation (test_final_closure.CouplingContractTests.test_none_nominal_hand_calculation) ... ok
+test_outer_and_source_projection_unchanged (test_final_closure.CouplingContractTests.test_outer_and_source_projection_unchanged) ... ok
+test_ready_uncensored_scoped_positive (test_final_closure.CouplingContractTests.test_ready_uncensored_scoped_positive) ... ok
+test_reject_truth_and_unknown_variant (test_final_closure.CouplingContractTests.test_reject_truth_and_unknown_variant) ... ok
+test_switches_really_propagate (test_final_closure.CouplingContractTests.test_switches_really_propagate) ... ok
+test_variant_budget_identity_explicit (test_final_closure.CouplingContractTests.test_variant_budget_identity_explicit) ... ok
+test_virtual_capacity_not_a_shared_fleet (test_final_closure.CouplingContractTests.test_virtual_capacity_not_a_shared_fleet) ... ok
+test_wait_branches_and_order_invariance (test_final_closure.CouplingContractTests.test_wait_branches_and_order_invariance) ... ok
+test_wait_clone_preserves_model_kernel (test_final_closure.CouplingContractTests.test_wait_clone_preserves_model_kernel) ... ok
+test_canonical_new_trace_checks_decompressed_bytes (test_final_closure.DurableExecutionTests.test_canonical_new_trace_checks_decompressed_bytes) ... ok
+test_cell_tamper_rejected (test_final_closure.DurableExecutionTests.test_cell_tamper_rejected) ... ok
+test_failure_preserved_and_not_auto_retried (test_final_closure.DurableExecutionTests.test_failure_preserved_and_not_auto_retried) ... {
+  "requirements": 1,
+  "sensitivity": 1,
+  "coupling": 0,
+  "aliases": 0,
+  "unique": 1,
+  "runnable": 1,
+  "unsupported": 0,
+  "optional": 0,
+  "verified": 0,
+  "pending": 1,
+  "failed": 0,
+  "partial_attempts": 0,
+  "verified_aliases": 0,
+  "verified_commit_inventory_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+}
+{
+  "PROJECT_I_FINAL_CLOSED": "NO"
+}
+{
+  "PROJECT_I_FINAL_CLOSED": "NO"
+}
+New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 Step8 13M:   0%|                                                                      | 0/1 [00:00<?, ?ep/s]                                                                                                            Step8 13M:   0%|                                                                      | 0/1 [00:00<?, ?ep/s]Step8 13M:   0%|                                             | 0/1 [00:00<?, ?ep/s, a=A1, dev=CPU, f=medium]Step8 13M:   0%|                                             | 0/1 [00:00<?, ?ep/s, a=A1, dev=CPU, f=medium]
+Starting FIXTURE (CPU, one worker)
+New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 ok
+test_gzip_deterministic (test_final_closure.DurableExecutionTests.test_gzip_deterministic) ... ok
+test_incomplete_publication_never_skipped (test_final_closure.DurableExecutionTests.test_incomplete_publication_never_skipped) ... ok
+test_no_episode_when_preflight_fails (test_final_closure.DurableExecutionTests.test_no_episode_when_preflight_fails) ... New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 Step8 13M:   0%|                                                                      | 0/1 [00:00<?, ?ep/s]Step8 13M:   0%|                                                                      | 0/1 [00:00<?, ?ep/s]
+ok
+test_none_records_realistic_same_state_a2_comparison (test_final_closure.DurableExecutionTests.test_none_records_realistic_same_state_a2_comparison) ... ok
+test_plan_drift_rejected (test_final_closure.DurableExecutionTests.test_plan_drift_rejected) ... ok
+test_resource_stop_before_admission (test_final_closure.DurableExecutionTests.test_resource_stop_before_admission) ... ok
+test_run_resume_exactly_once_with_mock_episode (test_final_closure.DurableExecutionTests.test_run_resume_exactly_once_with_mock_episode) ... New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 Step8 13M:   0%|                                                                      | 0/1 [00:00<?, ?ep/s]                                                                                                            Step8 13M:   0%|                                                                      | 0/1 [00:00<?, ?ep/s]Step8 13M:   0%|                                             | 0/1 [00:00<?, ?ep/s, a=A1, dev=CPU, f=medium]Step8 13M: 100%|#####################################| 1/1 [00:00<00:00, 15.71ep/s, a=A1, dev=CPU, f=medium]
+Starting FIXTURE (CPU, one worker)
+New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 Step8 13M: 100%|######################################################################| 1/1 [00:00<?, ?ep/s]Step8 13M: 100%|######################################################################| 1/1 [00:00<?, ?ep/s]
+New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 ok
+test_safe_interrupt_commits_current_then_stops_next (test_final_closure.DurableExecutionTests.test_safe_interrupt_commits_current_then_stops_next) ... New diagnostic integrity:   0%|          | 0/2 [00:00<?, ?cell/s]                                                                 Step8 13M:   0%|                                                                      | 0/2 [00:00<?, ?ep/s]                                                                                                            Step8 13M:   0%|                                                                      | 0/2 [00:00<?, ?ep/s]Step8 13M:   0%|                                             | 0/2 [00:00<?, ?ep/s, a=A1, dev=CPU, f=medium]                                                                                                            Step8 13M:   0%|                                             | 0/2 [00:00<?, ?ep/s, a=A1, dev=CPU, f=medium]Step8 13M:  50%|##################5                  | 1/2 [00:00<00:00, 15.58ep/s, a=A1, dev=CPU, f=medium]
+Starting FIXTURE (CPU, one worker)
+Stop requested: preserving healthy episode; no new episode will be admitted.
+New diagnostic integrity:   0%|          | 0/2 [00:00<?, ?cell/s]                                                                 ok
+test_scenario_cache_tampering (test_final_closure.DurableExecutionTests.test_scenario_cache_tampering) ... ok
+test_status_hashes_large_plan_once_not_per_cell (test_final_closure.DurableExecutionTests.test_status_hashes_large_plan_once_not_per_cell) ... New diagnostic integrity:   0%|          | 0/1 [00:00<?, ?cell/s]                                                                 ok
+test_tiny_full_episode_ledger_and_policy_variants (test_final_closure.DurableExecutionTests.test_tiny_full_episode_ledger_and_policy_variants) ... ok
+test_worker_prevents_overlap_and_releases (test_final_closure.DurableExecutionTests.test_worker_prevents_overlap_and_releases) ... ok
+test_alias_exact_base_identity (test_final_closure.MatrixTests.test_alias_exact_base_identity) ... ok
+test_all_factors_validate_on_mocked_micro_scenario (test_final_closure.MatrixTests.test_all_factors_validate_on_mocked_micro_scenario) ... ok
+test_all_seeds_roles_and_policy_identities (test_final_closure.MatrixTests.test_all_seeds_roles_and_policy_identities) ... ok
+test_exact_requirement_accounting (test_final_closure.MatrixTests.test_exact_requirement_accounting) ... ok
+test_no_generation_from_planning (test_final_closure.MatrixTests.test_no_generation_from_planning) ... ok
+test_out_of_band_refused_before_generator (test_final_closure.MatrixTests.test_out_of_band_refused_before_generator) ... ok
+test_unique_cell_and_fingerprints (test_final_closure.MatrixTests.test_unique_cell_and_fingerprints) ... ok
+test_unsupported_preserved_not_success (test_final_closure.MatrixTests.test_unsupported_preserved_not_success) ... ok
+test_constant_effect_and_direction (test_final_closure.MultipleComparisonTests.test_constant_effect_and_direction) ... ok
+test_family_adjustment_widens_interval (test_final_closure.MultipleComparisonTests.test_family_adjustment_widens_interval) ... ok
+test_fixed_bootstrap_parity_and_no_switch (test_final_closure.MultipleComparisonTests.test_fixed_bootstrap_parity_and_no_switch) ... ok
+test_holm_known_independent_numerical_answer (test_final_closure.MultipleComparisonTests.test_holm_known_independent_numerical_answer) ... ok
+test_holm_monotone_and_bounded (test_final_closure.MultipleComparisonTests.test_holm_monotone_and_bounded) ... ok
+test_holm_order_independent_ties (test_final_closure.MultipleComparisonTests.test_holm_order_independent_ties) ... ok
+test_invalid_holm (test_final_closure.MultipleComparisonTests.test_invalid_holm) ... ok
+test_added_protected_path_blocks (test_step8.IntegrityAndClosureTests.test_added_protected_path_blocks) ... ok
+test_all_figure_outputs_reproducible_independent_fixture (test_step8.IntegrityAndClosureTests.test_all_figure_outputs_reproducible_independent_fixture) ... ok
+test_csv_deterministic_fixture (test_step8.IntegrityAndClosureTests.test_csv_deterministic_fixture) ... ok
+test_doc_only_head_change_not_parameter_reapproval (test_step8.IntegrityAndClosureTests.test_doc_only_head_change_not_parameter_reapproval) ... ok
+test_formatting_known_fixture (test_step8.IntegrityAndClosureTests.test_formatting_known_fixture) ... ok
+test_immutable_same_value_resume_and_collision (test_step8.IntegrityAndClosureTests.test_immutable_same_value_resume_and_collision) ... ok
+test_path_traversal_refused (test_step8.IntegrityAndClosureTests.test_path_traversal_refused) ... ok
+test_pending_return_cannot_close (test_step8.IntegrityAndClosureTests.test_pending_return_cannot_close) ... ok
+test_plan_keeps_all_models_and_unsupported (test_step8.IntegrityAndClosureTests.test_plan_keeps_all_models_and_unsupported) ... ok
+test_return_pass_alone_cannot_close (test_step8.IntegrityAndClosureTests.test_return_pass_alone_cannot_close) ... ok
+test_scientific_source_hash_drift_refuses (test_step8.IntegrityAndClosureTests.test_scientific_source_hash_drift_refuses) ... ok
+test_seven_restore_paths_and_hashes (test_step8.IntegrityAndClosureTests.test_seven_restore_paths_and_hashes) ... ok
+test_cargo_cannot_use_teu_denominator (test_step8.LedgerAndIdentityTests.test_cargo_cannot_use_teu_denominator) ... ok
+test_cargo_cutoff_mismatch (test_step8.LedgerAndIdentityTests.test_cargo_cutoff_mismatch) ... ok
+test_cargo_d17_not_loaded (test_step8.LedgerAndIdentityTests.test_cargo_d17_not_loaded) ... ok
+test_cargo_failed_original_ledger_blocks (test_step8.LedgerAndIdentityTests.test_cargo_failed_original_ledger_blocks) ... ok
+test_cargo_loaded_not_departed_counts_loaded (test_step8.LedgerAndIdentityTests.test_cargo_loaded_not_departed_counts_loaded) ... ok
+test_cargo_nout0_not_applicable (test_step8.LedgerAndIdentityTests.test_cargo_nout0_not_applicable) ... ok
+test_checkpoint_swapped_identity (test_step8.LedgerAndIdentityTests.test_checkpoint_swapped_identity) ... ok
+test_cross_family_blocks (test_step8.LedgerAndIdentityTests.test_cross_family_blocks) ... ok
+test_cross_split_blocks (test_step8.LedgerAndIdentityTests.test_cross_split_blocks) ... ok
+test_d24_censor_all_vessels (test_step8.LedgerAndIdentityTests.test_d24_censor_all_vessels) ... ok
+test_d24_departure_after_cutoff_censored (test_step8.LedgerAndIdentityTests.test_d24_departure_after_cutoff_censored) ... ok
+test_duplicate_row_blocks (test_step8.LedgerAndIdentityTests.test_duplicate_row_blocks) ... ok
+test_duplicate_vessel_refused (test_step8.LedgerAndIdentityTests.test_duplicate_vessel_refused) ... ok
+test_exact_model_and_traffic_inventory (test_step8.LedgerAndIdentityTests.test_exact_model_and_traffic_inventory) ... ok
+test_exogenous_drift_blocks (test_step8.LedgerAndIdentityTests.test_exogenous_drift_blocks) ... ok
+test_failed_excluded_only_involved_contrast (test_step8.LedgerAndIdentityTests.test_failed_excluded_only_involved_contrast) ... ok
+test_mismatched_checkpoint_sha (test_step8.LedgerAndIdentityTests.test_mismatched_checkpoint_sha) ... ok
+test_missing_row_blocks (test_step8.LedgerAndIdentityTests.test_missing_row_blocks) ... ok
+test_pair_cutoff_drift_blocks (test_step8.LedgerAndIdentityTests.test_pair_cutoff_drift_blocks) ... ok
+test_pair_nout_drift_blocks (test_step8.LedgerAndIdentityTests.test_pair_nout_drift_blocks) ... ok
+test_swapped_model_seed_blocks (test_step8.LedgerAndIdentityTests.test_swapped_model_seed_blocks) ... ok
+test_absolute_relative_sign_and_zero (test_step8.StatisticsTests.test_absolute_relative_sign_and_zero) ... ok
+test_b2_cargo_better_time_worse_not_combined_win (test_step8.StatisticsTests.test_b2_cargo_better_time_worse_not_combined_win) ... ok
+test_best_seed_refused (test_step8.StatisticsTests.test_best_seed_refused) ... ok
+test_blocked_seed_invalidates_aggregate (test_step8.StatisticsTests.test_blocked_seed_invalidates_aggregate) ... ok
+test_bootstrap_exact_rng_and_draw_count (test_step8.StatisticsTests.test_bootstrap_exact_rng_and_draw_count) ... ok
+test_deterministic_seed_reset (test_step8.StatisticsTests.test_deterministic_seed_reset) ... ok
+test_existing_frozen_cargo_helper_parity (test_step8.StatisticsTests.test_existing_frozen_cargo_helper_parity) ... ok
+test_existing_p03_bootstrap_helper_parity (test_step8.StatisticsTests.test_existing_p03_bootstrap_helper_parity) ... ok
+test_failed_seed_invalidates_aggregate (test_step8.StatisticsTests.test_failed_seed_invalidates_aggregate) ... ok
+test_float_near_ties_are_not_signed_effects (test_step8.StatisticsTests.test_float_near_ties_are_not_signed_effects) ... ok
+test_interval_linear_quantile (test_step8.StatisticsTests.test_interval_linear_quantile) ... ok
+test_mean_percent_not_percent_means (test_step8.StatisticsTests.test_mean_percent_not_percent_means) ... ok
+test_missing_seed_never_survivor_average (test_step8.StatisticsTests.test_missing_seed_never_survivor_average) ... ok
+test_nested_seeds_one_unit (test_step8.StatisticsTests.test_nested_seeds_one_unit) ... ok
+test_ni_exact_frozen_seed (test_step8.StatisticsTests.test_ni_exact_frozen_seed) ... ok
+test_ni_pass_and_zero_sensitivity_fail (test_step8.StatisticsTests.test_ni_pass_and_zero_sensitivity_fail) ... ok
+test_ni_upper_not_lower (test_step8.StatisticsTests.test_ni_upper_not_lower) ... ok
+test_nonfinite_refused (test_step8.StatisticsTests.test_nonfinite_refused) ... ok
+test_ppo_time_better_cargo_ni_fails (test_step8.StatisticsTests.test_ppo_time_better_cargo_ni_fails) ... ok
+test_primary_does_not_use_unadjusted_interval (test_step8.StatisticsTests.test_primary_does_not_use_unadjusted_interval) ... ok
+test_robustness_zero_and_rank (test_step8.StatisticsTests.test_robustness_zero_and_rank) ... ok
+test_strata_equal_weights_and_sorted_order (test_step8.StatisticsTests.test_strata_equal_weights_and_sorted_order) ... ok
+test_tail_ids_ties_median_p95 (test_step8.StatisticsTests.test_tail_ids_ties_median_p95) ... ok
+test_tau_uses_tied_reference_costs (test_step8.StatisticsTests.test_tau_uses_tied_reference_costs) ... ok
+test_zero_loss_ni_valid (test_step8.StatisticsTests.test_zero_loss_ni_valid) ... ok
+
+----------------------------------------------------------------------
+Ran 115 tests in 56.203s
+
+OK

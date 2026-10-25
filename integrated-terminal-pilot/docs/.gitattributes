@@ -1,0 +1,4 @@
+PROJECT_I_RESEARCH_HANDOFF.md text eol=lf
+PROJECT_04_TRANSITION_NOTE.md text eol=lf
+step8/final_closure/**/*.log -text
+step8/final_closure/**/*.json -text

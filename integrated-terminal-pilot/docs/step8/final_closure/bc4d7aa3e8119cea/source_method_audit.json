@@ -1,0 +1,741 @@
+{
+  "correction": "One frozen-before-new-computation post-hoc specification, not retroactive preregistration",
+  "date": "2026-10-25",
+  "files": [
+    {
+      "line_count": 286,
+      "path": "integrated-terminal-pilot/docs/implementation_roadmap.md",
+      "quotes": [
+        {
+          "line": 41,
+          "text": "   values, family definitions and counts (protocol \u00a76.5), weight bounds,"
+        },
+        {
+          "line": 78,
+          "text": "- **Gate:** rule equivalence with Project 02 `GreedyCranePolicy` and"
+        },
+        {
+          "line": 79,
+          "text": "  `FirstFitYardPolicy` on Project 01 `Terminal` fixtures. Equivalence is checked"
+        },
+        {
+          "line": 83,
+          "text": "- **Expected tests:** equivalence fixtures; determinism; no access to hidden"
+        },
+        {
+          "line": 96,
+          "text": "- **Gate:** all tests below pass, including the degenerate equivalence test."
+        },
+        {
+          "line": 98,
+          "text": "### Degenerate equivalence test (required)"
+        },
+        {
+          "line": 196,
+          "text": "- **The primary physics** is the eight-crane research profile `itp_primary_balanced_qc8_v1` (AM-02)."
+        },
+        {
+          "line": 204,
+          "text": "- **Arms:** B1, B2 (cargo-first, AM-07), B2-T (AM-08) and the A1n control. All run on the primary"
+        },
+        {
+          "line": 227,
+          "text": "  datum becomes visible. B2's \"none\" ablation reproduces A2 decisions on the"
+        },
+        {
+          "line": 249,
+          "text": "- **Inputs:** Step 7 records; diagnostic-band scenarios (13M) generated under the lock."
+        }
+      ],
+      "sha256": "e146f7da48461c88011244efee72562c4076583e6032d03b190eb913936e441e"
+    },
+    {
+      "line_count": 363,
+      "path": "integrated-terminal-pilot/docs/scientific_experiment_protocol.md",
+      "quotes": [
+        {
+          "line": 30,
+          "text": "policy rankings. The S1 primary KPI is total turnaround in both worlds"
+        },
+        {
+          "line": 54,
+          "text": "**identical in every arm** (FROZEN for the primary factorial):"
+        },
+        {
+          "line": 66,
+          "text": "| **A1** | Online FCFS (Project 03 `online_fcfs_action`) | berth-only | none | never | Primary |"
+        },
+        {
+          "line": 67,
+          "text": "| **A1n** | Greedy minimum *estimated release time* over all legal (vessel, position); ties by FCFS key; estimates from **nominal** service | berth-only | none | never | Secondary control (separates the rule change from the information change) |"
+        },
+        {
+          "line": 68,
+          "text": "| **B1** | Same greedy rule as A1n, estimates from the **integrated one-step estimator** (crane availability, multi-crane efficiency, transport distance from the candidate position to the vessel's load and preview-discharge blocks, current yard congestion) | berth + crane + yard | none | never | Primary |"
+        },
+        {
+          "line": 69,
+          "text": "| **A2** | Project 03 `online_rollout_choice` on the adapter's visible state | berth-only | berth-only nominal (visible cohort, FCFS continuation) | yes | Primary |"
+        },
+        {
+          "line": 70,
+          "text": "| **B2** | Integrated rollout: same candidate set as A2 (all legal actions plus WAIT if legal); each scored by an `observable_clone()` kernel run of the visible cohort to completion with FCFS berth continuation and P_c/P_y; score = visible-cohort total turnaround; tie-break by action index | berth + crane + yard | integrated kernel (same physics) | yes | Primary |"
+        },
+        {
+          "line": 71,
+          "text": "| **A3** | Frozen Dynamic PPO, each of seeds 11, 23, 37 (medium/heavy checkpoints), gate PASS-FORECAST | berth-only (`dynamic_obs_v1`) | none | yes (learned) | S1; reported in S2 tables |"
+        },
+        {
+          "line": 72,
+          "text": "| **B3** | Optional: B2 with candidates pruned or ordered by PPO top-k | berth + crane + yard | integrated | yes | Exploratory; not part of any primary claim; requires gate PASS |"
+        },
+        {
+          "line": 93,
+          "text": "| C6 = A3 \u2212 A1, A3 \u2212 A2 | Frozen PPO standing in the integrated terminal | Crane or yard awareness (PPO has none) |"
+        },
+        {
+          "line": 95,
+          "text": "**Primary family (Holm-adjusted, \u03b1 = 0.05):** C1b and C3. All other"
+        },
+        {
+          "line": 119,
+          "text": "| development | 10,000,000 \u2013 10,999,999 | Implementation, debugging, timing, design of B1/B2 internals |"
+        },
+        {
+          "line": 133,
+          "text": "| Project 03 bootstrap seed (`configs/benchmark/step12_dynamic_h240.yaml`) | 12012 (analysis seed, not a scenario seed) | No |"
+        },
+        {
+          "line": 137,
+          "text": "`.yml`, `.md`, `.json` and `.toml` files found no use of the 10M\u201313M range."
+        },
+        {
+          "line": 170,
+          "text": "### 6.5 Scenario families and counts (PROPOSED; confirmed at Step 2, frozen before validation)"
+        },
+        {
+          "line": 190,
+          "text": "### 7.1 Primary KPI (FROZEN, D24)"
+        },
+        {
+          "line": 241,
+          "text": "| FAILED (invariant, validation, livelock, illegal action) | none | the scenario is excluded from paired contrasts involving that arm; listed by id; any test-set FAILED is reported as a defect |"
+        },
+        {
+          "line": 242,
+          "text": "| A3 BLOCK (gate) | none | A3 unsupported on that scenario; reported, not imputed |"
+        },
+        {
+          "line": 243,
+          "text": "| EXOGENOUS_INPUT_DRIFT | none | all arms of that scenario quarantined |"
+        },
+        {
+          "line": 259,
+          "text": "   definitions, test seed list, analysis plan (contrasts, bootstrap seed,"
+        },
+        {
+          "line": 260,
+          "text": "   Holm family) and the Step 8 sensitivity ranges (\u00a711)."
+        },
+        {
+          "line": 273,
+          "text": "- Uncertainty: deterministic stratified (by family) scenario bootstrap,"
+        },
+        {
+          "line": 274,
+          "text": "  10,000 resamples, percentile 95 % CI, bootstrap seed `120001` (PROPOSED;"
+        },
+        {
+          "line": 278,
+          "text": "- Claims: \"X better than Y\" requires a Holm-adjusted CI (primary family) or"
+        },
+        {
+          "line": 292,
+          "text": "| none | off (nominal 0.5 min/move per vessel) | off | off |"
+        },
+        {
+          "line": 297,
+          "text": "\"none\" must reproduce A2's decisions on the same states. Disagreement"
+        },
+        {
+          "line": 338,
+          "text": "- **AM-01:** common balanced P_y; the section 3 first-fit P_y is superseded as the primary yard primitive."
+        },
+        {
+          "line": 339,
+          "text": "- **AM-02:** versioned eight-crane primary research profile; four cranes stay the historical v1"
+        }
+      ],
+      "sha256": "cb61ac7d9aaf1c75f4bb768019e8f04426f9a5780bcf370fd0abe8ea6887836e"
+    },
+    {
+      "line_count": 303,
+      "path": "integrated-terminal-pilot/docs/protocol_amendments.md",
+      "quotes": [
+        {
+          "line": 24,
+          "text": "> For all primary arms A1, A2, A3, B1, B2 and the optional B3, the common yard primitive P_y is the"
+        },
+        {
+          "line": 69,
+          "text": "_(none \u2014 pending)_"
+        },
+        {
+          "line": 77,
+          "text": "conversation\"). No signed document or external calibration source exists, and none is implied."
+        },
+        {
+          "line": 92,
+          "text": "- **Affects:** research profiles `itp_primary_balanced_qc8_v1`, `itp_sensitivity_balanced_qc4_v1`,"
+        },
+        {
+          "line": 103,
+          "text": "- **Record:** P3-PY-FF. **Old status:** frozen protocol section 3 primary P_y. **New status:**"
+        },
+        {
+          "line": 104,
+          "text": "  SUPERSEDED (2026-10-13) as the *primary experimental* yard primitive only."
+        },
+        {
+          "line": 109,
+          "text": "## AM-02 \u2014 FLEET-8: versioned eight-quay-crane primary synthetic research profile"
+        },
+        {
+          "line": 112,
+          "text": "- **Profile:** `itp_primary_balanced_qc8_v1`. Eight quay cranes `QC01`\u2013`QC08`, derived **in memory**"
+        },
+        {
+          "line": 131,
+          "text": "  `benchmark.profiles.assert_primary_profile_unchanged` refuses any automatic primary switch."
+        },
+        {
+          "line": 167,
+          "text": "  when `N_out = 0`. Load completion is the primary facet; loaded-but-not-departed is reported"
+        },
+        {
+          "line": 170,
+          "text": "  across-scenario paired mean of `d_s` is \u2264 +0.01. The bound comes from a paired scenario bootstrap"
+        },
+        {
+          "line": 171,
+          "text": "  (10,000 resamples, seed 20261013, 95th percentile). Margin 0.00 is a stricter sensitivity"
+        },
+        {
+          "line": 172,
+          "text": "  analysis. Per-family results are primary; a stratified overall estimate uses equal family weight."
+        },
+        {
+          "line": 196,
+          "text": "  tolerance **before validation**. None may be applied without a new owner decision."
+        }
+      ],
+      "sha256": "a0063043c5081ee45d387e5f94153751218bb6ad8152e8a821b5ac8d29b5f1bb"
+    },
+    {
+      "line_count": 101,
+      "path": "integrated-terminal-pilot/docs/step6_closure_contract_gate.md",
+      "quotes": [
+        {
+          "line": 32,
+          "text": "This establishes full preference-order equivalence including ties, not equality"
+        },
+        {
+          "line": 62,
+          "text": "| NOT_EXACT_ELIGIBLE | Record the violated condition; do not force equivalence |"
+        },
+        {
+          "line": 74,
+          "text": "decisions, 5 noneligible controls, 0 demonstrated contract defects. At every"
+        },
+        {
+          "line": 96,
+          "text": "performance gap, establish universal A2/B2-T equivalence, or authorize F3."
+        }
+      ],
+      "sha256": "488851540d871695323f9d87c56c956d405f352a2f5615d7e1ed6050e5eaebaa"
+    },
+    {
+      "line_count": 205,
+      "path": "integrated-terminal-pilot/docs/step6_closure_final_report.md",
+      "quotes": [
+        {
+          "line": 5,
+          "text": "All predictions: `UNCALIBRATED_SYNTHETIC_FORECAST`. No winner or primary CARGO-NI inference."
+        },
+        {
+          "line": 23,
+          "text": "**PASS_SCOPED:** 12 FULL fixtures, 20 eligible decisions, 0 PREFIX, 5 noneligible controls, 0 demonstrated contract defects. For uncensored fixed-service branches, integrated turnaround equals authentic future queue waiting plus a candidate-independent constant. Candidate orders, ties and WAIT branches match under that predicate. Rate/distance dependence, cargo delays and censoring are preserved negative findings; no universal equivalence is claimed."
+        },
+        {
+          "line": 58,
+          "text": "| itp_heavy | 10000000 | A2 | 58,695.842 | 6989 | 6870 | 119 | 119 | 72.686 |"
+        },
+        {
+          "line": 59,
+          "text": "| itp_heavy | 10000000 | B2-T | 59,520.025 | 6989 | 6989 | 0 | 0 | 1,006.469 |"
+        },
+        {
+          "line": 60,
+          "text": "| itp_heavy | 10000000 | B2 | 59,520.025 | 6989 | 6989 | 0 | 0 | 999.463 |"
+        },
+        {
+          "line": 61,
+          "text": "| itp_heavy | 10000001 | A2 | 41,350.045 | 7023 | 6953 | 70 | 70 | 35.287 |"
+        },
+        {
+          "line": 62,
+          "text": "| itp_heavy | 10000001 | B2-T | 37,939.188 | 7023 | 7023 | 0 | 0 | 263.335 |"
+        },
+        {
+          "line": 63,
+          "text": "| itp_heavy | 10000001 | B2 | 39,807.442 | 7023 | 7023 | 0 | 0 | 251.493 |"
+        },
+        {
+          "line": 64,
+          "text": "| itp_yard_bottleneck | 10000000 | A2 | 36,899.374 | 4850 | 4670 | 180 | 180 | 29.196 |"
+        },
+        {
+          "line": 65,
+          "text": "| itp_yard_bottleneck | 10000000 | B2-T | 41,446.701 | 4850 | 4766 | 84 | 84 | 289.204 |"
+        },
+        {
+          "line": 66,
+          "text": "| itp_yard_bottleneck | 10000000 | B2 | 40,564.349 | 4850 | 4850 | 0 | 0 | 287.218 |"
+        },
+        {
+          "line": 67,
+          "text": "| itp_yard_bottleneck | 10000001 | A2 | 42,871.787 | 5973 | 5843 | 130 | 130 | 32.316 |"
+        },
+        {
+          "line": 68,
+          "text": "| itp_yard_bottleneck | 10000001 | B2-T | 42,548.103 | 5973 | 5973 | 0 | 0 | 270.419 |"
+        },
+        {
+          "line": 69,
+          "text": "| itp_yard_bottleneck | 10000001 | B2 | 43,168.470 | 5973 | 5973 | 0 | 0 | 261.304 |"
+        },
+        {
+          "line": 75,
+          "text": "| itp_heavy_development_seed10000000 | A1 | 63,629.723 | 0 |"
+        },
+        {
+          "line": 76,
+          "text": "| itp_heavy_development_seed10000000 | A1n | 62,908.046 | 92 |"
+        },
+        {
+          "line": 77,
+          "text": "| itp_heavy_development_seed10000000 | B1 | 62,709.612 | 92 |"
+        },
+        {
+          "line": 78,
+          "text": "| itp_heavy_development_seed10000001 | A1 | 41,075.233 | 110 |"
+        },
+        {
+          "line": 79,
+          "text": "| itp_yard_bottleneck_development_seed10000000 | A1 | 43,888.089 | 0 |"
+        },
+        {
+          "line": 80,
+          "text": "| itp_yard_bottleneck_development_seed10000000 | A1n | 39,213.427 | 255 |"
+        },
+        {
+          "line": 81,
+          "text": "| itp_yard_bottleneck_development_seed10000000 | B1 | 39,213.427 | 255 |"
+        },
+        {
+          "line": 82,
+          "text": "| itp_yard_bottleneck_development_seed10000001 | A1 | 44,053.601 | 0 |"
+        },
+        {
+          "line": 83,
+          "text": "| itp_heavy_development_seed10000000 | A3 mean of train 11/23/37 | 63,879.416 | 114.000 |"
+        },
+        {
+          "line": 84,
+          "text": "| itp_heavy_development_seed10000001 | A3 mean of train 11/23/37 | 41,323.643 | 233.000 |"
+        },
+        {
+          "line": 85,
+          "text": "| itp_yard_bottleneck_development_seed10000000 | A3 mean of train 11/23/37 | 37,512.547 | 185.333 |"
+        },
+        {
+          "line": 86,
+          "text": "| itp_yard_bottleneck_development_seed10000001 | A3 mean of train 11/23/37 | 43,882.106 | 44.667 |"
+        },
+        {
+          "line": 126,
+          "text": "- itp_yard_bottleneck / 10000000 / B2-T, decision 6 at t=1,421.146: WAIT elapsed 1.400 min; departures []; new announcements ['V017']; TA error -4,588.417."
+        },
+        {
+          "line": 132,
+          "text": "- itp_heavy / 10000000 / A2: overlapping tags {'D17_ROLLOVER': 119, 'TRANSSHIPMENT_NOT_DISCHARGED_TO_YARD_AT_D17': 119}; D17 status counts {'ABOARD_ARRIVED_VESSEL': 119}."
+        },
+        {
+          "line": 133,
+          "text": "- itp_heavy / 10000001 / A2: overlapping tags {'D17_ROLLOVER': 70, 'TRANSSHIPMENT_NOT_DISCHARGED_TO_YARD_AT_D17': 70}; D17 status counts {'ABOARD_ARRIVED_VESSEL': 70}."
+        },
+        {
+          "line": 134,
+          "text": "- itp_yard_bottleneck / 10000000 / A2: overlapping tags {'D17_ROLLOVER': 180, 'TRANSSHIPMENT_NOT_DISCHARGED_TO_YARD_AT_D17': 180}; D17 status counts {'ABOARD_ARRIVED_VESSEL': 180}."
+        },
+        {
+          "line": 135,
+          "text": "- itp_yard_bottleneck / 10000000 / B2-T: overlapping tags {'D17_ROLLOVER': 84, 'TRANSSHIPMENT_NOT_DISCHARGED_TO_YARD_AT_D17': 84}; D17 status counts {'ABOARD_ARRIVED_VESSEL': 84}."
+        },
+        {
+          "line": 136,
+          "text": "- itp_yard_bottleneck / 10000001 / A2: overlapping tags {'D17_ROLLOVER': 130, 'TRANSSHIPMENT_NOT_DISCHARGED_TO_YARD_AT_D17': 130}; D17 status counts {'ABOARD_ARRIVED_VESSEL': 130}."
+        },
+        {
+          "line": 138,
+          "text": "N_out=loaded+U, ledger/final-status and per-vessel move reconciliations pass. Each D17 loss links to a timeout event and exact container status, source connection, eventual yard-ready time and overlapping WAIT windows. Evidence tags can overlap; upstream primary attribution remains `UNKNOWN_OR_MULTIPLE_CONSTRAINTS`. Departure never substitutes for LOAD_COMPLETED. Loaded-but-not-departed, vessel-present incomplete obligations and unfinished moves are reported separately by run/flow/vessel."
+        },
+        {
+          "line": 167,
+          "text": "Remaining scientific blockers: 28 pending synthetic parameter records and a separate formal Step 7 lock procedure; uncalibrated/omitted landside forecasts; conditional model/horizon comparability; n=2 scenarios/family; incomplete causal attribution of WAIT and cargo losses; the missing historical slowest A2 state; sampled memory rather than peak RSS; and frozen PPO forecast-substitution domain shift / unestablished equality with the original GPU training runtime. Negative/null/mixed findings are preserved. No winner, S2 success, primary CARGO-NI conclusion or validation readiness is declared."
+        },
+        {
+          "line": 177,
+          "text": "All **320 berth decisions and 68 selected WAITs** are covered. B2 loaded every outbound obligation in all four selected scenarios. A2 had D17 losses of 119/70 containers in Heavy and 180/130 in Yard Bottleneck. B2-T had 84 losses in Bottleneck seed 10000000 and zero in the other three cases."
+        },
+        {
+          "line": 179,
+          "text": "Turnaround findings are mixed: **B2 is slower than A2 in three of four scenarios** despite its cargo fulfillment. B2-T is slower than A2 in two scenarios and faster in two. Relative to B2-T, B2 is equal on Heavy seed 10000000, slower on Heavy seed 10000001 and Bottleneck seed 10000001, and faster with 84 fewer lost obligations on Bottleneck seed 10000000. These are descriptive scenario contrasts; no statistical winner or primary CARGO-NI conclusion follows."
+        },
+        {
+          "line": 189,
+          "text": "| itp_heavy / 10000001 / B2-T | 14 | 2461.609 | 721 (ASSIGN) | 433 (ASSIGN) | 27 | 2665.945 |"
+        },
+        {
+          "line": 190,
+          "text": "| itp_heavy / 10000001 / B2-T | 16 | 2762.735 | 0 (WAIT) | 482 (ASSIGN) | 110 | 1889.261 |"
+        },
+        {
+          "line": 191,
+          "text": "| itp_heavy / 10000001 / B2 | 14 | 2461.609 | 721 (ASSIGN) | 433 (ASSIGN) | 27 | 2665.945 |"
+        },
+        {
+          "line": 192,
+          "text": "| itp_yard_bottleneck / 10000000 / B2-T | 14 | 2661.011 | 433 (ASSIGN) | 0 (WAIT) | 85 | 6.553 |"
+        },
+        {
+          "line": 193,
+          "text": "| itp_yard_bottleneck / 10000000 / B2-T | 15 | 2809.378 | 578 (ASSIGN) | 818 (ASSIGN) | 84 | 235.448 |"
+        },
+        {
+          "line": 194,
+          "text": "| itp_yard_bottleneck / 10000000 / B2-T | 17 | 3053.333 | 385 (ASSIGN) | 769 (ASSIGN) | 58 | 396.778 |"
+        },
+        {
+          "line": 195,
+          "text": "| itp_yard_bottleneck / 10000000 / B2 | 14 | 2661.011 | 433 (ASSIGN) | 0 (WAIT) | 85 | 6.553 |"
+        },
+        {
+          "line": 196,
+          "text": "| itp_yard_bottleneck / 10000000 / B2 | 15 | 2820.437 | 241 (ASSIGN) | 770 (ASSIGN) | 85 | 871.550 |"
+        },
+        {
+          "line": 197,
+          "text": "| itp_yard_bottleneck / 10000001 / B2-T | 19 | 3414.945 | 626 (ASSIGN) | 0 (WAIT) | 48 | 714.238 |"
+        },
+        {
+          "line": 198,
+          "text": "| itp_yard_bottleneck / 10000001 / B2-T | 22 | 4025.397 | 481 (ASSIGN) | 0 (WAIT) | 12 | 141.975 |"
+        },
+        {
+          "line": 199,
+          "text": "| itp_yard_bottleneck / 10000001 / B2 | 19 | 3414.945 | 626 (ASSIGN) | 0 (WAIT) | 48 | 714.238 |"
+        },
+        {
+          "line": 201,
+          "text": "The 11 pivotal unique inputs have no observed one-container pivotal case. The maximum predicted turnaround sacrifice is 2665.945 minutes. The primary model objective remains unchanged; these observations do not authorize a tolerance, recalibration or policy rescue."
+        }
+      ],
+      "sha256": "82a6ce533ed2f769b232707e2e8538a467f66e7b431782cbdd0c897494d64e99"
+    },
+    {
+      "line_count": 150,
+      "path": "integrated-terminal-pilot/docs/step7_results_owner_review_20261023.md",
+      "quotes": [
+        {
+          "line": 18,
+          "text": "- The original verifier passed its protected-source checks before entering canonical row verification; only CRLF/LF-equivalent content differences are permitted. Review scripts live outside the locked source inventory."
+        },
+        {
+          "line": 20,
+          "text": "## Primary test results"
+        },
+        {
+          "line": 140,
+          "text": "- Step8 has NOT started. Paired bootstrap confidence intervals, formal S1/S2 conclusions, cargo noninferiority and any preregistered further diagnostics remain pending."
+        }
+      ],
+      "sha256": "10f0b266450c269c445378f14c49dbfa9be3feb8f71a299576f81f42f9c31343"
+    },
+    {
+      "line_count": 299,
+      "path": "integrated-terminal-pilot/docs/manual_execution_runbook.md",
+      "quotes": [
+        {
+          "line": 96,
+          "text": "python integrated-terminal-pilot/scripts/benchmark_itp_devices.py --device both --steps 32 --repeats 3 --warmup 2 --scenario-seed 10000000 --training-seed 11"
+        },
+        {
+          "line": 152,
+          "text": "No 11M/12M/13M scenario is generated by planning or preflight."
+        },
+        {
+          "line": 256,
+          "text": "python integrated-terminal-pilot/scripts/train_itp_development_ppo.py --acknowledge-development-only --device cuda --run-dir \"$train\" --total-timesteps 4096 --checkpoint-every 512 --scenario-seed 10000000 --training-seed 11"
+        },
+        {
+          "line": 260,
+          "text": "python integrated-terminal-pilot/scripts/train_itp_development_ppo.py --acknowledge-development-only --device cuda --run-dir \"$train\" --total-timesteps 4096 --checkpoint-every 512 --scenario-seed 10000000 --training-seed 11 --resume-from \"$ck\""
+        },
+        {
+          "line": 291,
+          "text": "## Primary workflow update - 2026-10-20"
+        }
+      ],
+      "sha256": "71c5081ae1b02af2fec95e7f63bea79a724f3bfb586f42c654e4717977302d34"
+    },
+    {
+      "line_count": 21,
+      "path": "integrated-terminal-pilot/configs/protocol/step7_analysis_contract.json",
+      "quotes": [
+        {
+          "line": 4,
+          "text": "  \"primary_kpi\": \"D24 sum over all vessels of min(departure,T_end)-arrival; missing departure=T_end\","
+        },
+        {
+          "line": 6,
+          "text": "  \"primary_turnaround_contrasts_holm_family\": [\"B1-A1n\", \"B2-A2\"],"
+        },
+        {
+          "line": 10,
+          "text": "  \"bootstrap\": {\"resamples\": 10000, \"seed\": 120001, \"interval\": \"percentile 95%\", \"unit\": \"traffic scenario\", \"strata\": \"family\", \"overall_weights\": {\"itp_medium\": 0.5, \"itp_heavy\": 0.5}},"
+        },
+        {
+          "line": 11,
+          "text": "  \"bootstrap_seed_status\": \"protocol section 10 existing proposed value retained for pre-lock review; no result-based selection\","
+        },
+        {
+          "line": 13,
+          "text": "  \"cargo\": {\"metric\": \"itp_outbound_obligation_v1\", \"N_out\": \"original unique export and outbound transshipment obligations\", \"U\": \"without authoritative LOAD_COMPLETED by common T_end\", \"d\": \"R(policy)-R(comparator)\", \"resamples\": 10000, \"seed\": 20261013, \"upper_percentile\": 95, \"margin\": 0.01, \"sensitivity_margin\": 0.0, \"per_family\": \"primary\", \"overall\": \"equal-family stratified\", \"point_estimate_is_not_inferiority_proof\": true},"
+        },
+        {
+          "line": 18,
+          "text": "  \"step8_ranges_only_not_executed\": {\"cranes\": [4,6,8], \"crane_moves_per_hour\": [25,30,35], \"efficiency\": [\"Project02 table\",\"ideal all 1.0\"], \"transport_units\": [3,4,6], \"transport_speed_m_per_min\": [150,250,400], \"yard_capacity_multiplier\": [0.5,1,2], \"g_min\": [1.0,0.5,0.3], \"initial_occupancy\": [0.3,0.5,0.7], \"D17_wait_min\": [120,480], \"note\": \"heavy 0.3 occupancy unsupported; exact scoped none-ablation gate required; diagnostic split13M inaccessible to Step7\"},"
+        }
+      ],
+      "sha256": "504c01dbd591e4205cad5f8f30525f715ab652c3a4548f4fcdf19c1c4bb6a628"
+    },
+    {
+      "line_count": 163,
+      "path": "integrated-terminal-pilot/step8/statistical.py",
+      "quotes": [
+        {
+          "line": 3,
+          "text": "The frozen contract does NOT specify how Holm confidence intervals are constructed."
+        },
+        {
+          "line": 4,
+          "text": "Consequently primary unadjusted intervals are calculated but cannot authorize a"
+        },
+        {
+          "line": 5,
+          "text": "Holm-confirmatory verdict. Wilcoxon is a separately labelled robustness check."
+        },
+        {
+          "line": 15,
+          "text": "TIME_SEED = 120001"
+        },
+        {
+          "line": 16,
+          "text": "CARGO_SEED = 20261013"
+        },
+        {
+          "line": 25,
+          "text": "    return None if comparator <= 0 else 100 * (candidate - comparator) / comparator"
+        },
+        {
+          "line": 29,
+          "text": "    if set(members) != set(SEEDS) or any(v is None for v in members.values()):"
+        },
+        {
+          "line": 34,
+          "text": "def bootstrap_draws(by_family, *, seed=TIME_SEED, resamples=RESAMPLES):"
+        },
+        {
+          "line": 48,
+          "text": "            raise ContractError(\"Bootstrap needs nonempty finite scenario differences\")"
+        },
+        {
+          "line": 55,
+          "text": "    draws = bootstrap_draws(by_family, seed=seed)"
+        },
+        {
+          "line": 64,
+          "text": "    draws = bootstrap_draws(by_family, seed=CARGO_SEED)"
+        },
+        {
+          "line": 76,
+          "text": "def time_label(ci, *, primary=False):"
+        },
+        {
+          "line": 77,
+          "text": "    if primary:"
+        },
+        {
+          "line": 78,
+          "text": "        return \"BLOCKED_HOLM_CI_CONSTRUCTION_UNSPECIFIED\""
+        },
+        {
+          "line": 85,
+          "text": "        return \"BLOCKED_PRIMARY_MULTIPLICITY\""
+        },
+        {
+          "line": 88,
+          "text": "    if cargo is None:"
+        },
+        {
+          "line": 107,
+          "text": "    \"\"\"Supplementary; never used to sort Holm hypotheses or decide improvement."
+        },
+        {
+          "line": 133,
+          "text": "        end = t_end if departure is None else min(departure, t_end)"
+        },
+        {
+          "line": 153,
+          "text": "    expected = None if n_out == 0 else u / n_out"
+        }
+      ],
+      "sha256": "2f64a4526aa0972d639a16ad03dc8f39cb692f8bd41fa95afc56f1489de1d034"
+    },
+    {
+      "line_count": 79,
+      "path": "integrated-terminal-pilot/step8/diagnostic_plan.py",
+      "quotes": [
+        {
+          "line": 4,
+          "text": "the primary profile. A plan describing those gaps is not an executable campaign."
+        },
+        {
+          "line": 31,
+          "text": "                for arm, training_seed in ((\"A1\", None), (\"A2\", None), (\"B2\", None),"
+        },
+        {
+          "line": 33,
+          "text": "                    unsupported = family == \"itp_heavy\" and condition[\"changes\"].get(\"initial_occupancy\") == .3"
+        },
+        {
+          "line": 36,
+          "text": "                                      condition=condition[\"id\"], family=family, role=\"DIAGNOSTIC_ONLY_NOT_PRIMARY_TEST\","
+        },
+        {
+          "line": 38,
+          "text": "                                      status=\"UNSUPPORTED_LOCKED_HEAVY_OCCUPANCY_0_3\" if unsupported else"
+        },
+        {
+          "line": 44,
+          "text": "                     \"STEP7_FULL_MODEL_OBSERVED_FRESH_13M_CONDITION_PENDING\","
+        },
+        {
+          "line": 45,
+          "text": "                     source=\"protocol11; AM07 objective unchanged; AM09/closure scoped none gate\")"
+        },
+        {
+          "line": 46,
+          "text": "                for name, crane, transport, yard in ((\"none\", False, False, False),"
+        },
+        {
+          "line": 56,
+          "text": "                sensitivity_planned_outer_runs_including_explicit_unsupported=len(cells),"
+        },
+        {
+          "line": 57,
+          "text": "                sensitivity_explicit_unsupported=sum(c[\"status\"].startswith(\"UNSUPPORTED\") for c in cells),"
+        },
+        {
+          "line": 59,
+          "text": "                coupling_count_reason=\"Derived requirement:4 model-coupling conditions *2 primary families *20 diagnostic scenarios (protocol6.5/11); both/base can share identical verified records only once an adapter matches\","
+        },
+        {
+          "line": 66,
+          "text": "                comparison_rule=\"Compare A1/A2/B2/A3 on the SAME scenario and physics within each condition; different physics never pooled as primary\","
+        },
+        {
+          "line": 74,
+          "text": "                    \"Frozen runner rejects B2 outside PRIMARY_RESEARCH_PROFILE; QC4/QC6 cannot be passed through that API as-is.\","
+        },
+        {
+          "line": 76,
+          "text": "                    \"Protocol11 universal none==A2 text is only supported by the approved scoped closure equivalence gate; no amended mapping to a realistic 13M coupling campaign is specified.\","
+        },
+        {
+          "line": 77,
+          "text": "                    \"Heavy occupancy0.3 explicitly unsupported in locked analysis note. Retain these cells, do not regenerate cargo or silently drop them.\","
+        },
+        {
+          "line": 78,
+          "text": "                    \"Coupling counts derive from protocol6.5/11 and the objective stays AM07; the operational mapping of model-only crane-off state and scoped none/A2 gate must be specified before new diagnostic results.\","
+        }
+      ],
+      "sha256": "b52ffb4273fb94b9bebe183d3501fe0017639375587ccd36fcb38b5bd34c4858"
+    },
+    {
+      "line_count": 99,
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/stats.py",
+      "quotes": [
+        {
+          "line": 22,
+          "text": "def improvement_percent(candidate: float, reference: float) -> float | None:"
+        },
+        {
+          "line": 23,
+          "text": "    return None if reference <= 0 else 100.0 * (reference - candidate) / reference"
+        },
+        {
+          "line": 26,
+          "text": "def gap_closed(ppo: float, fcfs: float, rollout: float) -> float | None:"
+        },
+        {
+          "line": 27,
+          "text": "    return None if fcfs <= rollout else (fcfs - ppo) / (fcfs - rollout)"
+        },
+        {
+          "line": 59,
+          "text": "def paired_bootstrap("
+        },
+        {
+          "line": 70,
+          "text": "        raise BenchmarkError(\"Invalid bootstrap request.\")"
+        },
+        {
+          "line": 76,
+          "text": "            raise BenchmarkError(\"Bootstrap requires finite paired differences.\")"
+        },
+        {
+          "line": 84,
+          "text": "            \"bootstrap_seed\": seed, \"resamples\": resamples,"
+        },
+        {
+          "line": 89,
+          "text": "                  *, device: str, dependencies: Mapping[str, str]) -> None:"
+        }
+      ],
+      "sha256": "7d06bb14213f5abb212662a9caaa2d90d003aa005a1e10ad2a9559b268892bb5"
+    }
+  ],
+  "finding": "No pre-existing unambiguous primary Holm CI construction. Frozen primary identities m2; raw percentile bootstrap and NI rules exist.",
+  "heavy_03": "Locked step7_analysis_contract.step8_ranges_only_not_executed.note explicitly unsupported; maintain all120 cells; owner confirms N/A interpretation.",
+  "missing": [
+    "Holm interval inversion/local test convention",
+    "population-wise vs joint family scope",
+    "sidedness implementation beyond below/above-zero interval rule"
+  ],
+  "original_full_verification_repeated": false,
+  "original_none_rule": "Protocol11 universal equality conflicts with ready-cargo/fixed-service/uncensored scoped gate and Q6 retained availability/censoring.",
+  "schema": "post_hoc_source_audit_v1"
+}

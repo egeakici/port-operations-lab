@@ -1,0 +1,8 @@
+{
+  "owner": "Project I owner",
+  "packet_sha256": "9103d8987cc581551e40f015fe0dec8e77320ac65bbf924db1f115b728ac729b",
+  "plan_sha256": "4b959879b7ed060602b29cf46fc07dd36affec3e751ba6728c6be442d2c00daa",
+  "provenance": "Explicit user reply to request_user_input_async call_8763ef52649a4931a01d831984e0691f question 0: FC01-FC03 scientific corrections and FC04 record explicitly approved. Source: conversation owner approval message. Exact canonical packet SHA256 9103d8987cc581551e40f015fe0dec8e77320ac65bbf924db1f115b728ac729b. Expensive execution remains owner-manual.",
+  "scope": "All FC01-04; qualified final release only after all gates",
+  "time": "2026-10-25T15:58:24.038913+00:00"
+}

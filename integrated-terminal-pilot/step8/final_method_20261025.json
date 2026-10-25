@@ -1,0 +1,22 @@
+{
+  "id": "POST_HOC_METHOD_SPECIFICATION_20261025_V1",
+  "date": "2026-10-25",
+  "classification": "POST_HOC_MULTIPLICITY_COMPLETION",
+  "approval": "PENDING_EXPLICIT_OWNER_ACCEPTANCE",
+  "fixed_before_new_adjusted_computation": true,
+  "previously_seen": "Step7 outcomes and Step8 unadjusted intervals were available; no adjusted alternatives were compared.",
+  "hypotheses": ["B1-A1n", "B2-A2"],
+  "m": 2,
+  "populations": ["itp_heavy", "itp_medium", "equal_family_overall"],
+  "population_scope": "Separate m=2 family in each population; no simultaneous coverage across populations, metrics or secondary contrasts claimed.",
+  "alpha": 0.05,
+  "intervals": "Conservative Bonferroni simultaneous percentile intervals: marginal confidence 1-alpha/m=0.975; linear quantiles [alpha/(2m),1-alpha/(2m)]. These are NOT described as exact Holm-inverted intervals. Union bound gives familywise coverage to the extent that marginal nonparametric bootstrap intervals have nominal coverage. This is an approximate bootstrap procedure, not finite-sample exact coverage.",
+  "holm_tests": "Two-sided centered paired bootstrap p=(1+count(abs(draw-estimate)>=abs(estimate)))/(B+1). Stable ascending p then hypothesis ID. Holm adjusted p at rank i is min(1,max over ranks j<=i of (m-j+1)*p[j]). Supporting tests, not substitutes for interval decisions.",
+  "decision": "Time direction follows the simultaneous interval. If a Holm test disagrees, report the disagreement, do not switch methods. Qualified exploratory primary conclusion only.",
+  "bootstrap": {"resamples": 10000, "seed": 120001, "rng": "numpy.default_rng PCG64", "unit": "paired traffic scenario", "strata": "family", "overall_weights": [0.5,0.5], "quantile": "linear"},
+  "metrics": ["difference", "difference_per_vessel", "percent"],
+  "cargo": "UNCHANGED AM06: 10000 draws, seed20261013, one-sided upper95, +0.01 margin and separate zero-margin sensitivity. No multiplicity-adjusted cargo claim.",
+  "PPO": "All11/23/37 averaged within each scenario before inference; individual seeds retained.",
+  "authority": "Final Closure specification03 authorizes post-hoc methodological completion, but not fabrication of owner acceptance.",
+  "references": ["https://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html", "https://www.jstor.org/stable/4615733"]
+}

@@ -24,7 +24,7 @@ def main():
     publish(log.with_suffix(".json"), dict(schema="itp_step8_focused_test_receipt_v1", code_sha256=s.digest(inventory),
             code_inventory=inventory, command=command, exit_code=result.returncode, log_sha256=sha(log),
             wall_seconds=time.perf_counter()-started, scientific_episodes=0,
-            authority="owner Step8 specification14 explicit focused-fixture test authorization",
+            authority="Owner Final Closure absolute limit4 and sections03/04/06 explicit focused-fixture/engineering authorization; no scientific campaign",
             exclusions="All historical full regressions, Step7 simulations, training, deep canonical inflation"))
     sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
     print(result.stdout.decode("utf-8", errors="replace"))

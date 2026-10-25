@@ -1,0 +1,3 @@
+# Isolated closure analysis extras; simulation pins remain fixed.
+scipy==1.15.2
+matplotlib==3.10.1

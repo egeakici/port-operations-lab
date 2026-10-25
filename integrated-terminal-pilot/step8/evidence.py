@@ -8,6 +8,8 @@ import json
 import math
 from pathlib import Path
 import subprocess
+import os
+import uuid
 
 from tqdm import tqdm
 
@@ -21,6 +23,11 @@ REVIEW = PROJECT / "experiments/step7_return_review_20261023"
 PORTABLE_REVIEW = Path(__file__).resolve().parent / "review_reference"
 EXPECTED_MANIFEST = "d180f1dec4fb212185b40658f7be47dc66d0bd08e66b6636f88cb45c42b8357d"
 EXPECTED_LOCK = "1e62f58554ad97d29356243b99975f4d494b4ac58009a0fc19d464fb027cbcac"
+FINAL_CLOSURE_EXTENSIONS = frozenset({
+    "integrated-terminal-pilot/scripts/Complete-ProjectIClosure.ps1",
+    "integrated-terminal-pilot/docs/PROJECT_I_RESEARCH_HANDOFF.md",
+    "integrated-terminal-pilot/docs/PROJECT_04_TRANSITION_NOTE.md",
+})
 REPORT = "report_8f17f4357902"
 
 
@@ -49,8 +56,21 @@ def publish_bytes(path, data):
         if path.read_bytes() != data:
             raise ContractError("Immutable output collision: " + str(path))
     else:
-        with path.open("xb") as stream:
-            stream.write(data)
+        # Publish complete bytes atomically; power interruption cannot leave a
+        # seemingly final truncated result/plan. Incomplete private staging files
+        # remain distinguishable and never authorize a verified cell.
+        staged=path.with_name(path.name+'.part-'+uuid.uuid4().hex)
+        with staged.open('xb') as stream:
+            stream.write(data); stream.flush(); os.fsync(stream.fileno())
+        try:
+            if os.name=='nt':
+                os.rename(staged,path)  # Windows refuses an existing destination.
+            else:
+                os.link(staged,path); staged.unlink()
+        except FileExistsError:
+            if path.read_bytes()!=data:
+                raise ContractError('Immutable output collision: '+str(path))
+            staged.unlink()
 
 
 def safe_path(base, rel):
@@ -80,7 +100,8 @@ def close(a, b, name):
 
 def protected_source(lock, bundle):
     current = s.source_manifest()
-    if set(current) != set(lock["source_sha256"]):
+    extras = set(current) - set(lock["source_sha256"])
+    if (set(lock["source_sha256"]) - set(current)) or not extras <= FINAL_CLOSURE_EXTENSIONS:
         raise ContractError("BLOCKED_SOURCE: protected inventory added/removed")
     newline = []
     for rel, expected in lock["source_sha256"].items():
@@ -94,9 +115,12 @@ def protected_source(lock, bundle):
             if a != b:
                 raise ContractError("BLOCKED_SOURCE: scientific source changed " + rel)
             newline.append(rel)
-    return dict(count=len(current), inventory=current,
-                inventory_sha256=s.digest(current), newline_only=newline,
+    original_entries = {p: current[p] for p in lock["source_sha256"]}
+    return dict(count=len(original_entries), inventory=original_entries,
+                inventory_sha256=s.digest(original_entries), newline_only=newline,
                 original_inventory_sha256=s.digest(lock["source_sha256"]),
+                post_step7_analysis_extensions={p:current[p] for p in sorted(extras)},
+                extension_scope="Exact named NEW closure launcher/handoff documents only; all original locked entries verified unchanged; original Step7 verifier untouched",
                 scientific_content="UNCHANGED")
 
 
@@ -388,5 +412,9 @@ def verify_panel(rows):
 
 def code_inventory():
     base = Path(__file__).resolve().parent
-    return {p.relative_to(REPO).as_posix(): sha(p) for p in sorted(base.rglob("*"))
-            if p.is_file() and p.suffix in (".py", ".ps1", ".json", ".md") and "__pycache__" not in p.parts}
+    inventory = {p.relative_to(REPO).as_posix(): sha(p) for p in sorted(base.rglob("*"))
+            if p.is_file() and (p.suffix in (".py", ".ps1", ".json", ".md", ".zip", ".txt") or p.name=='.gitattributes') and "__pycache__" not in p.parts}
+    inventory.update({p:sha(REPO/p) for p in FINAL_CLOSURE_EXTENSIONS if (REPO/p).exists()})
+    for rel in ('integrated-terminal-pilot/scripts/.gitattributes','integrated-terminal-pilot/docs/.gitattributes'):
+        if (REPO/rel).exists(): inventory[rel]=sha(REPO/rel)
+    return dict(sorted(inventory.items()))
