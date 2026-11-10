@@ -1,0 +1,2077 @@
+{
+  "manifest_version": "p04_step1_design_manifest_v1",
+  "artifact_kind": "DESIGN_DECISION_MANIFEST_NOT_EXECUTABLE_CONFIGURATION",
+  "formulation_id": "P04-QCSP-V1",
+  "audit_date_local": "2026-11-09",
+  "timezone": "Europe/Istanbul",
+  "step01_gate": "PASS",
+  "gate_qualification": "Specification only; physical model recommendations and numeric values pending future gates. No simulator, solver, dataset or training delivered.",
+  "actual_project_directory": "04-rail-crane-scheduler",
+  "requested_directory_mapping": "Use pre-existing empty numbered directory; do not create duplicate rail-crane-scheduler.",
+  "git_preflight": {
+    "start_head": "7124fa94019fc7772b5ef0e6e6bd1487b485efd3",
+    "initial_status_short": [
+      "?? Project_04_Step_01_Problem_Specification_and_Scientific_Contract_Codex_Prompt.md"
+    ],
+    "initial_tracked_diff_empty": true,
+    "start_project04_file_count": 0,
+    "preexisting_user_prompt_unmodified": true,
+    "recent_commits": [
+      "7124fa9 feat: Step 8 closure diagnostics and research handoff",
+      "2a05112 feat: add provisional Step 8 scientific analysis and closure gates",
+      "901602e docs: review Step 7 results and record pending return verification",
+      "8cc697f fix: isolate Step 7 regressions from historical held-out replay",
+      "41db1de fix: bootstrap Step 7 with verified standalone Python",
+      "83f7e3b fix: repair Step 7 inputs and pin reference CPU environment",
+      "50d612f fix: render Step 7 progress on a single terminal line",
+      "7cc1320 feat: prepare portable Step 7 manual execution workflow"
+    ],
+    "project04_existing_ignore_rule": ".gitignore:27:04-rail-crane-scheduler/"
+  },
+  "source_inventory": [
+    {
+      "evidence_id": "E01",
+      "path": "01-terminal-operations-core/src/terminal_core/quay_crane.py",
+      "symbols": [
+        "QuayCrane",
+        "move_to"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "84561455fdeb05a4a3da6bd8c92e5be4e86904684291865368038818cca9ca1d",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E02",
+      "path": "01-terminal-operations-core/src/terminal_core/operation_task.py",
+      "symbols": [
+        "OperationTask",
+        "TaskLocation"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "0e9d4cdd9fdca1c708c2989413b6a10a729a4c099fd81d9afbde57e32768bba2",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E03",
+      "path": "01-terminal-operations-core/src/terminal_core/terminal.py",
+      "symbols": [
+        "Terminal",
+        "_atomic",
+        "_validate_task_can_be_ready",
+        "assign_task_resource",
+        "start_task",
+        "complete_task"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "dc77c982dd6ba9f94fd21dc102618257ce176317e8170f3b31edeaac1ca0a106",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E04",
+      "path": "01-terminal-operations-core/src/terminal_core/vessel.py",
+      "symbols": [
+        "Vessel"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "c144ecd9e004ac68594684052305ed17d3f6f47695a185c9a523a1bdc883d8db",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E05",
+      "path": "01-terminal-operations-core/src/terminal_core/berth.py",
+      "symbols": [
+        "Berth",
+        "BerthOccupancy"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "83a89d1cfb317ec2735077d5afb9123c45adb791b838957beb49b3fe2f02fd00",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E06",
+      "path": "01-terminal-operations-core/src/terminal_core/terminal_event.py",
+      "symbols": [
+        "TerminalEvent"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "511d62b511f2d2facafe338d321c502fe9634ac2bbe9da39b69b31e93d7370e2",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E07",
+      "path": "01-terminal-operations-core/src/terminal_core/terminal_state.py",
+      "symbols": [
+        "TerminalState"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "258ce8d3ed01a0ef718d37e3cab3f00fedbd2bd2ec918ab7ce0ae572fb63c731",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E08",
+      "path": "02-mini-port-simulation/src/mini_port_sim/simulation.py",
+      "symbols": [
+        "PortSimulation",
+        "elapsed_minutes",
+        "now_datetime"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "b4a7013006fd9153b719758490bca519438987140059c21280dba1e522773af7",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E09",
+      "path": "02-mini-port-simulation/src/mini_port_sim/processes/crane_dispatcher.py",
+      "symbols": [
+        "crane_dispatcher_process"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "5cf127b1c62c2e1100704d8127955a3161ebed99f84c92cbbdf5f03426980a67",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E10",
+      "path": "02-mini-port-simulation/src/mini_port_sim/policies/crane_policy.py",
+      "symbols": [
+        "GreedyCranePolicy",
+        "choose"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "210453b0205c3e86af14334f5c7206b0a4b342e2b360b37d8351f7d747ac5427",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E11",
+      "path": "02-mini-port-simulation/src/mini_port_sim/processes/task_process.py",
+      "symbols": [
+        "crane_task_process",
+        "_remaining_duration_minutes",
+        "TaskWorkPlan"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "482ca2c65e79cd5f32ff04c17f645070a0eff2c1cde79656679565502f107743",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E12",
+      "path": "02-mini-port-simulation/src/mini_port_sim/processes/vessel_process.py",
+      "symbols": [
+        "vessel_service_process"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "7f8ff287da41c73315b5687397175bc68630a12e625d7bbdad7835fe5cfb6a12",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E13",
+      "path": "02-mini-port-simulation/src/mini_port_sim/visualization/replay.py",
+      "symbols": [
+        "build_event_replay",
+        "build_state_replay"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "66461edf996f95bac6613b9831462f904cfb45edc88723fd72ebe28785d1868f",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E14",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/envs/dynamic_bap_env.py",
+      "symbols": [
+        "DynamicBAPEnv",
+        "action_masks"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "e2673b89b2d2db32e968b0bfe2ba82103f76ba9e08472b05e14df0bf1cad6924",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E15",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/envs/dynamic_visible_state.py",
+      "symbols": [
+        "DynamicVisibleState"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "c7934532c1a12ed7a4d7eaaf01485288cd2f0d44139f0d6511f15def9395566a",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E16",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/policies/dynamic_fcfs.py",
+      "symbols": [
+        "online_fcfs_action"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "6d163553df810f62b6ca8cb39435932b43337fa9e8731172c5f110c1472093b8",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E17",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/policies/dynamic_online_rollout.py",
+      "symbols": [
+        "_VisibleContinuation",
+        "online_rollout_choice"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "b372a023acd6ed60636e4918e067907314d9c055df1e924fbaf68640f4328755",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E18",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_checkpoint.py",
+      "symbols": [
+        "save_dynamic_checkpoint",
+        "load_dynamic_checkpoint"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "d91d512d5dbb3fc05d0a293fd39f95b321e0b9ef3e0a0c0c5dddf723eada2914",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E19",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_training.py",
+      "symbols": [
+        "_ValidationMonitor"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "d7584b72e4eaeca7c8599418b101639a927e4839f725537c03fa6aae6e5353ab",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E20",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/rl/dynamic_decision.py",
+      "symbols": [
+        "dynamic_rule"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "fdcac1887b154216934100d3dc475193bc9e03b0df3e39d88f70c8162565d564",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E21",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/benchmark/stats.py",
+      "symbols": [
+        "scenario_seed_means",
+        "paired_bootstrap"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "7d06bb14213f5abb212662a9caaa2d90d003aa005a1e10ad2a9559b268892bb5",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E22",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/crane.py",
+      "symbols": [
+        "GreedyBerthOrderCranePolicy",
+        "primitive_crane_greedy_v1"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "fc21df92aebd79a77e011f9a34414ba9badb599470a5b779ae08aa3e54cda743",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E23",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/observations.py",
+      "symbols": [
+        "CraneVesselView",
+        "CraneView",
+        "CraneObservation"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "d960796a3568213668656da0fc6a874d4ae440b1e4a86451a94c23fbb75535c2",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E24",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/policies/actions.py",
+      "symbols": [
+        "CraneAssignment",
+        "CraneAction"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "c0ae60c179d760cf693cb129440919ab8d3b3959ba28b2c452c747a03c676f9a",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E25",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/models.py",
+      "symbols": [
+        "CRANE_KEYS",
+        "CONTAINER_KEYS",
+        "LOCATION_KEYS"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "b6dbe2c36b72051028a4429f09e24272c020ed96063e0381a40deb87447b2b34",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E26",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/scenarios/validation.py",
+      "symbols": [
+        "FIDELITY_MISLABEL"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "b30e43e69209eef66270533ecb091a5cb1ac4843fb3547963ed31e0484092d9e",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E27",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/state.py",
+      "symbols": [
+        "CraneState",
+        "WorkOrderState"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "6f150eb3c52b52dfa078fa36aa2eba9207c65ff3954e0261c252de79a656e429",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E28",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/physics.py",
+      "symbols": [
+        "crane_rate_moves_per_hour",
+        "quay_transfer_x_m"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "9ffb235462f48653fa5c7ba9c6ab5a32b81d91e080df34a882009140acf856bb",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E29",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/kernel.py",
+      "symbols": [
+        "TerminalKernel",
+        "_commit_crane_action",
+        "_recompute_rates",
+        "observable_clone"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "4e3203930a41955a11c74714e198a85193f73f3f05311ca4d6c12a2313b6d545",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E30",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/events.py",
+      "symbols": [
+        "EVENT_PRIORITY",
+        "push_event",
+        "TIME_TOL"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "852d59380d4d612baf001fcbfd7b559850553d333cbddffa744c22bba09d5a46",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E31",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/validator.py",
+      "symbols": [
+        "validate_crane_action"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "02ad8a1a7ea5f51e7df13ec4a155ff64b0d4ace7da1c5fa860fefe891bcf3f26",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E32",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/invariants.py",
+      "symbols": [
+        "check"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "a07b3c587c3e085b8d9a5918cd60339a6e37e8bc9c83e372d3d12e35897a10fd",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E33",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/ledger.py",
+      "symbols": [
+        "replay_audit"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "ef2430774fa96afd4d93c79d359188ef21f77364d8f6d20cd0eb9d24d6fb317b",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E34",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/observable.py",
+      "symbols": [
+        "build_observable_clone"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "5240bf890b54d75ce653e5e1fee5ff7b7fe3575e8ac35a194834fed7a8f27194",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E35",
+      "path": "integrated-terminal-pilot/configs/protocol/itp_protocol_control_register_v1.yaml",
+      "symbols": [
+        "itp_primary_balanced_qc8_v1",
+        "efficiency_basis"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "9e4b9cfe226d5c8997e6c04a9f051b04d6c19db14b85a08bdbfb58e864eefb46",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E36",
+      "path": "integrated-terminal-pilot/configs/generator/itp_generator_v1_decisions.yaml",
+      "symbols": [
+        "S2-020",
+        "S2-021",
+        "S2-071A"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "77745c1868d9c0650e4d1a739aea235bef78ac4837fb9f9d302928c8d0ba6524",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E37",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/benchmark/step7_inputs.py",
+      "symbols": [
+        "prepare",
+        "source_sha256"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "7c93ce9c2d687f3088dbb4d7dc0a042efd3cb35e8b83df486e97284a635e55ca",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E38",
+      "path": "integrated-terminal-pilot/docs/PROJECT_I_RESEARCH_HANDOFF.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "9f4ad0faa88def2594e591960c5832218ac08e57a9b5a7b405c4d532cc3e9cd2",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E39",
+      "path": "integrated-terminal-pilot/docs/PROJECT_04_TRANSITION_NOTE.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "9b6d3cb2b961a393ed6c40cbfd958ef48c34d75ca4553f6376187a43890beed3",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E40",
+      "path": "integrated-terminal-pilot/docs/step8/CURRENT_FINAL_CLOSURE.json",
+      "symbols": [
+        "PROJECT_I_FINAL_CLOSED"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "185c1e9e7e40058f107155482bd9ab639eab3636d1434e7cff0f07a5dfb6cd27",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E41",
+      "path": "integrated-terminal-pilot/PROJECT_I_SCIENTIFIC_CLOSURE.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "e3b71ff15d8e586b8beb21df7523125e71a56225fea1367a1fb7bf60abf64a57",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E42",
+      "path": "integrated-terminal-pilot/docs/step8/e54e000a11c7097e/project_i_scientific_closure.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "6fe80310bb90668dea1646c5afa08d6ea87d749e85bb7e20dbd024545874f924",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E43",
+      "path": "integrated-terminal-pilot/docs/step8/final_closure/4b959879b7ed0606/OWNER_APPROVAL_RECORDED.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "3a54f82484401b7a0ccb6a6d558cfaab81bdef75ae05868ea53c31ab085f0154",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E44",
+      "path": "03-berth-allocation-lab/docs/project03_final_report.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "ee9c73537dc85e97003c42ddd997962d1f0b41f3be673a399336624e1fea31f6",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E45",
+      "path": "03-berth-allocation-lab/README.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "2a7aa0b5bc277d3edf9e52ae480e4b108607c026e2487c4662ee73ff2c603dfc",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E46",
+      "path": "README.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "9151e4a3cbc79b238bd7ca6b58295c1cf022b4cf9d962a42fd16339f001a0e9f",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E47",
+      "path": "PROJECT_CONTEXT.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "63c4251e3abf87234acf5b42759a5cbf5dff6e9e031c745adea81832c027830d",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E48",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/envs/dynamic_observation.py",
+      "symbols": [
+        "build_dynamic_observation_space",
+        "encode_dynamic_observation"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "59f53b683005e61defea87fbf3246eee801529a0659189c12a454986a4b9521b",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E49",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/core/numerics.py",
+      "symbols": [
+        "NUMERICAL_TOLERANCE"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "3a950dc3c0285607c99b3ce08232b08517278326467bcf46bbec24d19543c834",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E50",
+      "path": "03-berth-allocation-lab/src/berth_allocation_lab/tracking/records.py",
+      "symbols": [
+        "RunManifest",
+        "ScientificRunResult"
+      ],
+      "evidence_status": "ADAPTER_NEEDED",
+      "sha256_raw_bytes": "e7c17c4721cebb5fcfe19ba1dcff0306e8ec59e4914903e61b05946de18a290f",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E51",
+      "path": "Project_04_Step_01_Problem_Specification_and_Scientific_Contract_Codex_Prompt.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "b0d8d8643b9c7bd708441b6f55c1b3fc124dad2fc0248e09257be710be40f96c",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E52",
+      "path": "01-terminal-operations-core/README.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "b2a4b7b16ec1dad1d41c3c30f35362478dc22424f4ed78c5c605fac83feec25d",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E53",
+      "path": "02-mini-port-simulation/README.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "8db2da96171f06c93a8b7fa2511acdbd25a6ef36d89e8a8a6db1b4c72823f0dc",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E54",
+      "path": "integrated-terminal-pilot/AGENTS.md",
+      "symbols": [],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "51a0c3af3f1f0e78409219bc43b9de9baae2b25a762030318af8597f2ae0011d",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E55",
+      "path": "integrated-terminal-pilot/src/integrated_terminal_pilot/simulator/catalog.py",
+      "symbols": [
+        "CraneRecord",
+        "PhysicsConfig"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "236782b86c84322fa5aba0fc2973e3e2addb8a6930ddc2d68abcc5cd667879e3",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    },
+    {
+      "evidence_id": "E56",
+      "path": ".gitignore",
+      "symbols": [
+        "04-rail-crane-scheduler/"
+      ],
+      "evidence_status": "EXISTING",
+      "sha256_raw_bytes": "f188a3b7cbe8caef1b678f05eafb8bcda08554b1daa2f21a231c4e6da2b54937",
+      "review_method": "READ_ONLY_SOURCE_OR_DOCUMENT_INSPECTION",
+      "runtime_reverified": false
+    }
+  ],
+  "source_inventory_sha256": "05f9a3b312617c1917425efbdb97dce64e53bf7fcbbdb7730a72cbe9f0ec2d76",
+  "document_evidence": {
+    "DOC01": "04-rail-crane-scheduler/docs/01_problem_specification.md",
+    "DOC03": "04-rail-crane-scheduler/docs/03_scientific_experiment_contract.md",
+    "DOC04": "04-rail-crane-scheduler/docs/04_repository_reuse_and_integration.md"
+  },
+  "frozen_qualitative_scope": [
+    "Ship-to-shore quay crane common-rail QCSP",
+    "Single berthed vessel, two fixed cranes, deterministic fully visible current workload",
+    "Atomic non-preemptive bay/workload jobs",
+    "Full-time rail order, safety, unique identity and completion required",
+    "Validity before planning-start-relative makespan; secondary KPIs separate",
+    "Separate single centralized crane PPO, newly trained later",
+    "Exactly 14 named steps; only Step 01 delivered",
+    "Prior project source/science/results/checkpoints read-only"
+  ],
+  "variables": [
+    {
+      "name": "vessel_count",
+      "unit": "vessels",
+      "domain": "exactly 1",
+      "value": 1,
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_id": "P04-S01-001",
+      "note": "Owner scope, not a calibration coefficient."
+    },
+    {
+      "name": "crane_count",
+      "unit": "cranes",
+      "domain": "exactly 2, fixed rank",
+      "value": 2,
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_id": "P04-S01-001",
+      "note": "Already assigned to the single vessel; not QCAP."
+    },
+    {
+      "name": "planning_start_time_min",
+      "unit": "min",
+      "domain": "finite >= 0",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-004",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "horizon_min",
+      "unit": "min",
+      "domain": "finite > 0",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-008",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "vessel_length_m",
+      "unit": "m",
+      "domain": "finite > 0",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-004",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "berth_position_m",
+      "unit": "m",
+      "domain": "finite; hull inside quay",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-004",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "ship_orientation",
+      "unit": "dimensionless",
+      "domain": "+1 or -1 relative to named ship reference",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-004",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "bay_offset_m",
+      "unit": "m",
+      "domain": "0 <= u_b <= vessel_length_m",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-004",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "bay_position_m",
+      "unit": "m",
+      "domain": "derived by explicit orientation transform",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-004",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "rail_lower_m",
+      "unit": "m",
+      "domain": "finite <= rail_upper_m",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-005",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "rail_upper_m",
+      "unit": "m",
+      "domain": "finite >= rail_lower_m",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-005",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "service_reach_lower_m",
+      "unit": "m",
+      "domain": "finite <= service_reach_upper_m",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-005",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "service_reach_upper_m",
+      "unit": "m",
+      "domain": "finite >= service_reach_lower_m",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-005",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "initial_position_m",
+      "unit": "m",
+      "domain": "inside rail; ordered and separated",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-005",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "min_clearance_m",
+      "unit": "m",
+      "domain": "finite >= 0; crane reference-point convention pending",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-005",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "travel_speed_m_per_min",
+      "unit": "m/min",
+      "domain": "finite > 0",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-007",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "workload_moves",
+      "unit": "moves",
+      "domain": "integer > 0 per job; empty J permitted",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-006",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "effective_moves_per_hour",
+      "unit": "moves/hour",
+      "domain": "finite > 0 per eligible crane/job",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-006",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "setup_handling_min",
+      "unit": "min",
+      "domain": "finite >= 0; explicit even if zero",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-006",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "release_time_min",
+      "unit": "min",
+      "domain": "v1 equals t0; dynamic extension >= t0",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-001",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "time_tolerance_min",
+      "unit": "min",
+      "domain": "finite >= 0; numerical error policy required",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-008",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "position_tolerance_m",
+      "unit": "m",
+      "domain": "finite >= 0; cannot authorize material unsafe motion",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-008",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "cp_time_tick_min",
+      "unit": "min",
+      "domain": "finite > 0 if discrete model adopted",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-018",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "cp_position_resolution_m",
+      "unit": "m",
+      "domain": "finite > 0 if spatial discretization adopted",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-018",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "cp_max_position_error_m",
+      "unit": "m",
+      "domain": "finite >= 0 with proved bound",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-018",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "solver_wall_limit_s",
+      "unit": "s",
+      "domain": "finite > 0",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-018",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "rl_task_slot_capacity",
+      "unit": "jobs",
+      "domain": "positive integer; no silent overflow",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-012",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "rl_reward_time_scale_min",
+      "unit": "min",
+      "domain": "finite > 0",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-012",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "rl_failure_margin_min",
+      "unit": "min",
+      "domain": "finite > 0 for bounded penalty proposal",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-012",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "rl_discount_gamma",
+      "unit": "dimensionless",
+      "domain": "(0,1]; equivalence requires review",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-012",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "bay_count",
+      "unit": "bays",
+      "domain": "integer >= 0; independent of jobs/moves",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-014",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "task_count",
+      "unit": "jobs",
+      "domain": "integer >= 0",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-014",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "container_count",
+      "unit": "containers",
+      "domain": "optional integer >= 0; unknown for aggregate-only input",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "REQUIRES_OWNER_APPROVAL",
+      "decision_id": "P04-S01-002",
+      "note": "Required explicit input or schema definition; no executable default."
+    },
+    {
+      "name": "predecessor_task_ids",
+      "unit": "IDs",
+      "domain": "v1 empty; extension acyclic known references",
+      "value": [],
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_id": "P04-S01-001",
+      "note": "Owner v1 ready-work scope; no stowage dependencies implied."
+    },
+    {
+      "name": "assignment_y_kj",
+      "unit": "binary",
+      "domain": "0 or 1; sum_k=1",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "SYNTHETIC_PROPOSAL",
+      "decision_id": "P04-S01-007",
+      "note": "Symbolic decision/derived quantity of the proposed formulation, not a parameter value."
+    },
+    {
+      "name": "setup_start_U_j",
+      "unit": "min",
+      "domain": ">=release and crane availability",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "SYNTHETIC_PROPOSAL",
+      "decision_id": "P04-S01-007",
+      "note": "Symbolic decision/derived quantity of the proposed formulation, not a parameter value."
+    },
+    {
+      "name": "processing_start_S_j",
+      "unit": "min",
+      "domain": "U_j+setup",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "SYNTHETIC_PROPOSAL",
+      "decision_id": "P04-S01-007",
+      "note": "Symbolic decision/derived quantity of the proposed formulation, not a parameter value."
+    },
+    {
+      "name": "completion_C_j",
+      "unit": "min",
+      "domain": "S_j+60*w/rho",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "SYNTHETIC_PROPOSAL",
+      "decision_id": "P04-S01-007",
+      "note": "Symbolic decision/derived quantity of the proposed formulation, not a parameter value."
+    },
+    {
+      "name": "trajectory_x_k_t",
+      "unit": "m",
+      "domain": "continuous piecewise linear; full-interval order/clearance",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "SYNTHETIC_PROPOSAL",
+      "decision_id": "P04-S01-007",
+      "note": "Symbolic decision/derived quantity of the proposed formulation, not a parameter value."
+    },
+    {
+      "name": "remaining_work",
+      "unit": "moves",
+      "domain": "0..original workload",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "SYNTHETIC_PROPOSAL",
+      "decision_id": "P04-S01-007",
+      "note": "Symbolic decision/derived quantity of the proposed formulation, not a parameter value."
+    },
+    {
+      "name": "makespan_C_max",
+      "unit": "min",
+      "domain": "max completion - t0; null for failures",
+      "value": null,
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "numeric_source_status": "SYNTHETIC_PROPOSAL",
+      "decision_id": "P04-S01-009",
+      "note": "Symbolic decision/derived quantity of the proposed formulation, not a parameter value."
+    }
+  ],
+  "historical_numeric_references_not_defaults": [
+    {
+      "name": "project_i_primary_fleet",
+      "value": 8,
+      "unit": "cranes",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_status": "INHERITED_FROZEN",
+      "scope": "HISTORICAL_PROJECT_ONLY; NOT_A_PROJECT04_DEFAULT",
+      "evidence_refs": [
+        "E35",
+        "E36",
+        "E38"
+      ]
+    },
+    {
+      "name": "project_i_original_fleet",
+      "value": 4,
+      "unit": "cranes",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_status": "INHERITED_FROZEN",
+      "scope": "HISTORICAL_PROJECT_ONLY; NOT_A_PROJECT04_DEFAULT",
+      "evidence_refs": [
+        "E35",
+        "E36",
+        "E38"
+      ]
+    },
+    {
+      "name": "project_i_max_per_vessel",
+      "value": 2,
+      "unit": "cranes/vessel",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_status": "INHERITED_FROZEN",
+      "scope": "HISTORICAL_PROJECT_ONLY; NOT_A_PROJECT04_DEFAULT",
+      "evidence_refs": [
+        "E35",
+        "E36",
+        "E38"
+      ]
+    },
+    {
+      "name": "project_i_nominal_rate",
+      "value": 30,
+      "unit": "moves/hour",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_status": "INHERITED_FROZEN",
+      "scope": "HISTORICAL_PROJECT_ONLY; NOT_A_PROJECT04_DEFAULT",
+      "evidence_refs": [
+        "E35",
+        "E36",
+        "E38"
+      ]
+    },
+    {
+      "name": "project_i_two_assigned_efficiency",
+      "value": 0.92,
+      "unit": "dimensionless",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_status": "INHERITED_FROZEN",
+      "scope": "HISTORICAL_PROJECT_ONLY; NOT_A_PROJECT04_DEFAULT",
+      "evidence_refs": [
+        "E35",
+        "E36",
+        "E38"
+      ]
+    },
+    {
+      "name": "project03_numeric_reference",
+      "value": 1e-09,
+      "unit": "m or min by comparison context",
+      "numeric_source_status": "EXISTING_REFERENCE",
+      "decision_status": "INHERITED_FROZEN",
+      "scope": "HISTORICAL_PROJECT_ONLY; NOT_A_PROJECT04_DEFAULT",
+      "evidence_refs": [
+        "E49"
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "decision_id": "P04-S01-001",
+      "topic_question": "Target quay rail QCSP",
+      "proposed_value_or_rule": "Target quay rail QCSP; one berthed vessel, two fixed cranes, known static jobs; QCAP later",
+      "evidence": "Owner specification §§1,4",
+      "evidence_refs": [
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "scientific_materiality": "Defines problem",
+      "affected_future_steps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "test_requirements": "scope/identity check",
+      "change_consequence": "change requires formulation major version"
+    },
+    {
+      "decision_id": "P04-S01-002",
+      "topic_question": "Atomic bay/workload jobs non-preemptive",
+      "proposed_value_or_rule": "Atomic bay/workload jobs non-preemptive; preserve original mapping, no cargo inference",
+      "evidence": "Owner §§4,5; E02,E27,E33",
+      "evidence_refs": [
+        "E02",
+        "E27",
+        "E33",
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "scientific_materiality": "Defines completion",
+      "affected_future_steps": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "test_requirements": "INV01/05/09",
+      "change_consequence": "change invalidates duration/completion comparisons"
+    },
+    {
+      "decision_id": "P04-S01-003",
+      "topic_question": "Full-interval non-crossing/order/separation",
+      "proposed_value_or_rule": "Full-interval non-crossing/order/separation; safety mandatory",
+      "evidence": "Owner §5; E39 confirms absent inherited travel",
+      "evidence_refs": [
+        "E39",
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "scientific_materiality": "Physical validity",
+      "affected_future_steps": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "test_requirements": "INV03/06/07/14 and X1/X2",
+      "change_consequence": "change requires new physics/results"
+    },
+    {
+      "decision_id": "P04-S01-004",
+      "topic_question": "Meters/minutes/moves",
+      "proposed_value_or_rule": "Meters/minutes/moves; explicit berth/ship/rail transform and orientation",
+      "evidence": "E01,E04,E05,E08,E25; problem spec",
+      "evidence_refs": [
+        "DOC01",
+        "E01",
+        "E04",
+        "E05",
+        "E08",
+        "E25"
+      ],
+      "source_category": "RESEARCH_PROPOSAL",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Schema material",
+      "affected_future_steps": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "test_requirements": "both orientations, units, INV08/13",
+      "change_consequence": "change requires adapter/schema migration"
+    },
+    {
+      "decision_id": "P04-S01-005",
+      "topic_question": "Recommend reference-point separation input d",
+      "proposed_value_or_rule": "Recommend reference-point separation input d; body widths absent; do not inherit berth clearance",
+      "evidence": "Owner §5; E05,E25,E26",
+      "evidence_refs": [
+        "E05",
+        "E25",
+        "E26",
+        "E51"
+      ],
+      "source_category": "RESEARCH_PROPOSAL",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Safety geometry material",
+      "affected_future_steps": [
+        2,
+        4
+      ],
+      "test_requirements": "INV07/08",
+      "change_consequence": "change invalidates geometry fingerprints"
+    },
+    {
+      "decision_id": "P04-S01-006",
+      "topic_question": "Recommend fixed effective rho per crane/job plus explicit stationary overhead",
+      "proposed_value_or_rule": "Recommend fixed effective rho per crane/job plus explicit stationary overhead; numeric values null",
+      "evidence": "E11,E28,E35,E36; model gap",
+      "evidence_refs": [
+        "E11",
+        "E28",
+        "E35",
+        "E36"
+      ],
+      "source_category": "UNVERIFIED_SYNTHETIC_ASSUMPTION",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Physics material",
+      "affected_future_steps": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        13
+      ],
+      "test_requirements": "dimensional/zero-distance/rate checks, bounded equivalence",
+      "change_consequence": "change invalidates durations and benchmarks"
+    },
+    {
+      "decision_id": "P04-S01-007",
+      "topic_question": "Recommend constant-speed straight committed moves",
+      "proposed_value_or_rule": "Recommend constant-speed straight committed moves; own travel/setup/process exclusive; different cranes may overlap safely",
+      "evidence": "Owner §§4,10; E01,E29,E31",
+      "evidence_refs": [
+        "E01",
+        "E29",
+        "E31",
+        "E51"
+      ],
+      "source_category": "RESEARCH_PROPOSAL",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Action/time material",
+      "affected_future_steps": [
+        2,
+        4
+      ],
+      "test_requirements": "INV03/05/06/14",
+      "change_consequence": "change requires path/action and solver review"
+    },
+    {
+      "decision_id": "P04-S01-008",
+      "topic_question": "Propose deterministic completion-first ties, half-open resource intervals, closed safety",
+      "proposed_value_or_rule": "Propose deterministic completion-first ties, half-open resource intervals, closed safety; epsilon_t/epsilon_x values null",
+      "evidence": "E30,E49",
+      "evidence_refs": [
+        "E30",
+        "E49"
+      ],
+      "source_category": "RESEARCH_PROPOSAL",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Numeric boundary material",
+      "affected_future_steps": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "test_requirements": "INV10/13 and same-time fixtures",
+      "change_consequence": "change changes trace/version fingerprints"
+    },
+    {
+      "decision_id": "P04-S01-009",
+      "topic_question": "Validity then minimize makespan from planning start",
+      "proposed_value_or_rule": "Validity then minimize makespan from planning start; secondary metrics separate",
+      "evidence": "Owner §6",
+      "evidence_refs": [
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "scientific_materiality": "Scientific objective",
+      "affected_future_steps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "test_requirements": "complete/incomplete/zero-work KPI checks",
+      "change_consequence": "amendment required for other reward/objective"
+    },
+    {
+      "decision_id": "P04-S01-010",
+      "topic_question": "Four deterministic safe heuristic families",
+      "proposed_value_or_rule": "Four deterministic safe heuristic families; bounded CP-SAT reference with independent validation",
+      "evidence": "Owner §7; scientific contract",
+      "evidence_refs": [
+        "DOC03",
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "scientific_materiality": "Baseline role fixed, detailed design proposed",
+      "affected_future_steps": [
+        5,
+        6,
+        7,
+        11
+      ],
+      "test_requirements": "deterministic safe coverage/status/gap checks",
+      "change_consequence": "freeze versions before comparison"
+    },
+    {
+      "decision_id": "P04-S01-011",
+      "topic_question": "One separate centralized crane Maskable PPO, new training",
+      "proposed_value_or_rule": "One separate centralized crane Maskable PPO, new training; no P03 weight transfer assumption",
+      "evidence": "Owner §7; E14,E18,E44",
+      "evidence_refs": [
+        "E14",
+        "E18",
+        "E44",
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "scientific_materiality": "Architecture direction fixed",
+      "affected_future_steps": [
+        8,
+        9,
+        10,
+        11,
+        13
+      ],
+      "test_requirements": "mask/space/reward/sidecar reviews",
+      "change_consequence": "change requires new research arm"
+    },
+    {
+      "decision_id": "P04-S01-012",
+      "topic_question": "Propose crane/task slots plus WAIT",
+      "proposed_value_or_rule": "Propose crane/task slots plus WAIT; elapsed-time reward; bounded failure penalty; yield/action grammar reviewed at 08–09",
+      "evidence": "scientific contract; E14,E48 patterns",
+      "evidence_refs": [
+        "DOC03",
+        "E14",
+        "E48"
+      ],
+      "source_category": "RESEARCH_PROPOSAL",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Interface/reward material",
+      "affected_future_steps": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "test_requirements": "WAIT progress, reachable support, telescoping, discount audit",
+      "change_consequence": "changing after freeze requires version/retraining"
+    },
+    {
+      "decision_id": "P04-S01-013",
+      "topic_question": "Common physics/validator/splits",
+      "proposed_value_or_rule": "Common physics/validator/splits; scenario unit; training seeds nested; online comparator matched to visibility",
+      "evidence": "Owner §6; E19–E21,E34,E44",
+      "evidence_refs": [
+        "E19",
+        "E20",
+        "E21",
+        "E34",
+        "E44",
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "scientific_materiality": "Fairness mandatory",
+      "affected_future_steps": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "test_requirements": "split/fingerprint/leakage/pairing audits",
+      "change_consequence": "protocol amendment needed for changes"
+    },
+    {
+      "decision_id": "P04-S01-014",
+      "topic_question": "Proposed synthetic families and string seed namespaces",
+      "proposed_value_or_rule": "Proposed synthetic families and string seed namespaces; counts/rates/speeds/work distributions unapproved",
+      "evidence": "Owner §9; scientific contract",
+      "evidence_refs": [
+        "DOC03",
+        "E51"
+      ],
+      "source_category": "UNVERIFIED_SYNTHETIC_ASSUMPTION",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Scenario design material",
+      "affected_future_steps": [
+        2,
+        3,
+        7,
+        10,
+        11
+      ],
+      "test_requirements": "reproducibility/split/coverage audits",
+      "change_consequence": "distribution changes define new study version"
+    },
+    {
+      "decision_id": "P04-S01-015",
+      "topic_question": "Preserve frozen projects, protocol hashes/checkpoints, source lock and Project I manual execution boundary",
+      "proposed_value_or_rule": "Preserve frozen projects, protocol hashes/checkpoints, source lock and Project I manual execution boundary",
+      "evidence": "Owner §§2,3; E37,E39,E40–E43; Project I AGENTS.md",
+      "evidence_refs": [
+        "E37",
+        "E39",
+        "E40",
+        "E41",
+        "E42",
+        "E43",
+        "E51",
+        "E54"
+      ],
+      "source_category": "REPOSITORY_CONTRACT",
+      "decision_status": "INHERITED_FROZEN",
+      "scientific_materiality": "Historical integrity",
+      "affected_future_steps": [],
+      "test_requirements": "source hashes/diff/unchanged checks",
+      "change_consequence": "new experiment must be separate, never rewrite history"
+    },
+    {
+      "decision_id": "P04-S01-016",
+      "topic_question": "Three-phase integration",
+      "proposed_value_or_rule": "Three-phase integration; old CraneAction cannot execute rail paths; current positions and ship bays absent",
+      "evidence": "E22–E34,E39; adapter matrix",
+      "evidence_refs": [
+        "DOC04",
+        "E22",
+        "E23",
+        "E24",
+        "E25",
+        "E26",
+        "E27",
+        "E28",
+        "E29",
+        "E30",
+        "E31",
+        "E32",
+        "E33",
+        "E34",
+        "E39"
+      ],
+      "source_category": "RESEARCH_PROPOSAL",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Integration conflict",
+      "affected_future_steps": [
+        2,
+        13
+      ],
+      "test_requirements": "stale/reject/no-mutation/cargo mapping tests",
+      "change_consequence": "successor versioned support required"
+    },
+    {
+      "decision_id": "P04-S01-017",
+      "topic_question": "Keep exactly 14 named stages, Step 02 next",
+      "proposed_value_or_rule": "Keep exactly 14 named stages, Step 02 next",
+      "evidence": "Owner §11",
+      "evidence_refs": [
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "OWNER_SCOPE_ACCEPTED",
+      "scientific_materiality": "Scope/governance",
+      "affected_future_steps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "test_requirements": "gate coverage",
+      "change_consequence": "renumbering requires owner amendment"
+    },
+    {
+      "decision_id": "P04-S01-018",
+      "topic_question": "CP-SAT grid/resolution/rounding/error bounds and budgets remain unresolved",
+      "proposed_value_or_rule": "CP-SAT grid/resolution/rounding/error bounds and budgets remain unresolved",
+      "evidence": "Owner §§7,10; scientific contract",
+      "evidence_refs": [
+        "DOC03",
+        "E51"
+      ],
+      "source_category": "RESEARCH_PROPOSAL",
+      "decision_status": "PROPOSED_PENDING_REVIEW",
+      "scientific_materiality": "Optimality comparability",
+      "affected_future_steps": [
+        2,
+        6
+      ],
+      "test_requirements": "continuous validation/error proof",
+      "change_consequence": "change invalidates model optimality claims"
+    },
+    {
+      "decision_id": "P04-S01-019",
+      "topic_question": "Real calibration, multiple vessels/QCAP, dynamic dependencies, yard/three-branch RL deferred",
+      "proposed_value_or_rule": "Real calibration, multiple vessels/QCAP, dynamic dependencies, yard/three-branch RL deferred",
+      "evidence": "Owner §§1,4,7; E26,E39",
+      "evidence_refs": [
+        "E26",
+        "E39",
+        "E51"
+      ],
+      "source_category": "OWNER_SCOPE",
+      "decision_status": "DEFERRED",
+      "scientific_materiality": "Outside v1",
+      "affected_future_steps": [
+        8,
+        13,
+        14
+      ],
+      "test_requirements": "data/visibility/protocol review",
+      "change_consequence": "no scope creep"
+    },
+    {
+      "decision_id": "P04-S01-020",
+      "topic_question": "Prior reference numbers are contextual only: I primary fleet 8, max per vessel 2, nominal 30 moves/h, assigned two-crane factor 0.92",
+      "proposed_value_or_rule": "Prior reference numbers are contextual only: I primary fleet 8, max per vessel 2, nominal 30 moves/h, assigned two-crane factor 0.92; original fleet 4",
+      "evidence": "E35,E36,E38",
+      "evidence_refs": [
+        "E35",
+        "E36",
+        "E38"
+      ],
+      "source_category": "REPOSITORY_CONTRACT",
+      "decision_status": "INHERITED_FROZEN",
+      "scientific_materiality": "Integration compatibility, not P04 parameter approval",
+      "affected_future_steps": [
+        2,
+        13
+      ],
+      "test_requirements": "source/status and rate-equivalence audit",
+      "change_consequence": "preserve I and version any P04 adoption"
+    }
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "name": "Problem Specification",
+      "state": "SPECIFICATION_PASS",
+      "acceptance_gate": "Actual repository audit; consistent QCSP formulation, invariants/examples, scientific contract, adapter gaps, decisions and all 14 gates; scoped documents pass static consistency",
+      "expected_verification_and_frozen_boundary": "JSON/IDs/paths/units/status/source hashes and unchanged old projects; freeze this design record with pending values explicit",
+      "excluded": "All algorithms, scenarios, simulation, CP-SAT, RL and old-science edits",
+      "depends_on": []
+    },
+    {
+      "step": 2,
+      "name": "Data & Integration Contracts",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "01; resolve/version O1/O2 and map every source field/gap. Define schema IDs and unit-bearing fields for input/jobs/cranes/bays, geometry/rate provenance, plan/path/events/outcomes/KPIs, immutable observation/proposal and integration rejection contracts. All references/units/version rules and approximation metadata unambiguous; adapter feasibility honest",
+      "expected_verification_and_frozen_boundary": "Schema/identity/unknown-field/invalid-unit/round-trip design fixtures, no executable scheduling; freeze schema versions, source mapping and decisions with unresolved numerics marked; actual adapter execution waits for 13",
+      "excluded": "Generator, physical kernel, policies, optimizer, environment, training, integration execution",
+      "depends_on": [
+        1
+      ]
+    },
+    {
+      "step": 3,
+      "name": "Synthetic Scenario Generator",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "02, accepted O3 parameter profile; deterministic labeled standalone supported instances, independent bay/job/move counts and original IDs; split namespace/fingerprint separation and categorical coverage",
+      "expected_verification_and_frozen_boundary": "Same config/seed -> identical bytes/fingerprint; invalid/impossible and zero-work fixtures labeled; freeze generator/profile/split manifests with sample sizes reviewed",
+      "excluded": "Scheduling algorithms, solver, PPO; no inherited empirical calibration claim",
+      "depends_on": [
+        2
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Physical Scheduling Core",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "02–03, accepted O1–O3 motion/geometry/timing; single clock, path reservations, setup/process, deterministic events, replayable state/trace and independent validator; every physical/completion invariant implemented",
+      "expected_verification_and_frozen_boundary": "All INV01–14 applicable cases, X1/X2, simultaneous events, continuity/speed/conservation, deadlock/horizon/empty input, property checks; freeze core/validator/numeric/trace versions",
+      "excluded": "Policy optimization, CP-SAT, training, real-terminal safety certification",
+      "depends_on": [
+        3
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Heuristic Baselines",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "04; four distinct deterministic safe policies described in scientific contract, legal WAIT and honest coverage/unsupported handling",
+      "expected_verification_and_frozen_boundary": "Same input -> identical valid plan; verify constructive stratum and failures; validator rejects malicious paths; freeze policy IDs/configs, tie rules and supported action space",
+      "excluded": "PPO/training and unsupported optimality claims",
+      "depends_on": [
+        4
+      ]
+    },
+    {
+      "step": 6,
+      "name": "CP-SAT Reference Solver",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "04–05 plus O4; bounded small-instance model, status/bounds/gaps, approximation and continuous path validation; optimal only with matching certification",
+      "expected_verification_and_frozen_boundary": "Hand-solvable cases, infeasible/unknown/time-limit incumbent, integer scaling/rounding and error bounds, model/validator agreement; freeze solver/formulation/grid/budget versions",
+      "excluded": "Claiming unrestricted continuous optimality without proof, large campaign, RL",
+      "depends_on": [
+        5
+      ]
+    },
+    {
+      "step": 7,
+      "name": "Baseline Benchmark",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "03–06; common frozen inputs/physics/validator/metrics and controlled comparison of four heuristics/reference; predeclare family weights/counts/contrasts/inference before test access",
+      "expected_verification_and_frozen_boundary": "Pairing/source/environment hashes, failure coverage, runtime accounting, split audits, reproducibility records; freeze baseline protocol/test manifests/results before RL test use",
+      "excluded": "Training, outcomes-based test reselection, commercial ranking",
+      "depends_on": [
+        6
+      ]
+    },
+    {
+      "step": 8,
+      "name": "Dynamic Crane Environment",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "04–07; reviewed causal event-driven interface and termination/WAIT semantics on v1; any genuinely dynamic diagnostic uses a separately declared extension",
+      "expected_verification_and_frozen_boundary": "Observable-state/hidden-future mutation, time progress, no competing clock, deterministic reset/termination/truncation; freeze environment event/visibility version after review",
+      "excluded": "PPO training, premature final tensor/action architecture, multi-vessel/QCAP creep",
+      "depends_on": [
+        7
+      ]
+    },
+    {
+      "step": 9,
+      "name": "RL Observation & Action Design",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "08; review stable crane/task slots, M/overflow, scales, masks/action grammar including yielding, elapsed reward/failure bound, discount/truncation semantics",
+      "expected_verification_and_frozen_boundary": "Space/dtype/shape and slot stability, masks agree with validator, finite same-time decisions, WAIT anti-stall, telescoping objective tests; freeze observation/action/reward and preprocessing versions",
+      "excluded": "Training/checkpoint selection or monolithic berth+crane+yard RL",
+      "depends_on": [
+        8
+      ]
+    },
+    {
+      "step": 10,
+      "name": "Maskable PPO Training",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "07–09; approved budget and multiple training seeds; train-only fitting, validation-only selection, seed/dependency/source provenance and complete checkpoints",
+      "expected_verification_and_frozen_boundary": "Split disjointness, checkpoint sidecar/space compatibility, deterministic evaluation mode, all seeds/failures retained; freeze selected checkpoint hashes and selection rule before test",
+      "excluded": "Test-driven selection, reuse of P03 weights by assumption, old-science mutation",
+      "depends_on": [
+        9
+      ]
+    },
+    {
+      "step": 11,
+      "name": "Scientific PPO Benchmark",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "07 and frozen 10 checkpoints; preregister matched-information comparisons, nested-seed paired inference/multiplicity and quality/feasibility/compute diagnostics on held-out inputs",
+      "expected_verification_and_frozen_boundary": "Scenario-first pairing, no leakage, independent validation, failure/timeout/negative findings, uncertainty and certified-reference caveats; freeze results/analysis/provenance package",
+      "excluded": "Guaranteed PPO superiority, retuning on test, terminal-wide superiority claim",
+      "depends_on": [
+        10
+      ]
+    },
+    {
+      "step": 12,
+      "name": "Interactive Replay",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "04 trace contract and 07/11 validated records; read-only rail paths and Gantt linked by IDs/times/status; gaps visible",
+      "expected_verification_and_frozen_boundary": "Replay agrees with immutable trace/metrics, same-time/boundary/failure visualization, no policy/simulation rerun; freeze replay/trace compatibility and artifact links",
+      "excluded": "New research episodes, physics or authoritative result mutation",
+      "depends_on": [
+        11
+      ]
+    },
+    {
+      "step": 13,
+      "name": "Integration Adapter & Smoke",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "02,04,11–12; close/restrict readiness-matrix gaps, approved versioned successor physical support, cargo mapping and single-clock boundary; proposals validated atomically with provenance",
+      "expected_verification_and_frozen_boundary": "Source fingerprint/time freshness, positions/frame/order, rail safety, original-container reconciliation, hidden/stale/rejected proposals, no mutation on reject; freeze adapter/successor contract and smoke receipts",
+      "excluded": "Editing frozen Project I kernel/results or treating read-only translation as physical execution/performance evidence",
+      "depends_on": [
+        12
+      ]
+    },
+    {
+      "step": 14,
+      "name": "Scientific Closure",
+      "state": "NOT_IMPLEMENTED",
+      "acceptance_gate": "All prior gates with exceptions explicit; reproducible source/protocol/input/result/checkpoint manifest, physical/learning/reference limitations, negative results, calibration limits and handoff; every claimed result traceable",
+      "expected_verification_and_frozen_boundary": "Independent release audit, hashes/reproduction receipts, all failures/unsupported cells visible, source and backups preserved; freeze final versioned research release",
+      "excluded": "Deployment, real-terminal benefit or joint-RL claims without a new study",
+      "depends_on": [
+        13
+      ]
+    }
+  ],
+  "invariant_ids": [
+    "INV01",
+    "INV02",
+    "INV03",
+    "INV04",
+    "INV05",
+    "INV06",
+    "INV07",
+    "INV08",
+    "INV09",
+    "INV10",
+    "INV11",
+    "INV12",
+    "INV13",
+    "INV14"
+  ],
+  "counterexample_ids": [
+    "X1",
+    "X2"
+  ],
+  "missing_data_flags": [
+    {
+      "id": "GAP_SHIP_BAY_GEOMETRY",
+      "status": "DATA_GAP",
+      "needed_by": [
+        2,
+        3,
+        13
+      ],
+      "disposition": "Standalone explicitly synthetic layout; no inherited vessel stowage."
+    },
+    {
+      "id": "GAP_CURRENT_RAIL_POSITIONS",
+      "status": "DATA_GAP",
+      "needed_by": [
+        13
+      ],
+      "disposition": "home_position_m is not current observed trajectory."
+    },
+    {
+      "id": "GAP_RATE_PROFILE",
+      "status": "PROPOSED_PENDING_REVIEW",
+      "needed_by": [
+        3,
+        4,
+        13
+      ],
+      "disposition": "Choose effective versus derived-rate basis and explicit synthetic values."
+    },
+    {
+      "id": "GAP_GEOMETRY_MOTION_CONVENTION",
+      "status": "PROPOSED_PENDING_REVIEW",
+      "needed_by": [
+        2,
+        4
+      ],
+      "disposition": "Resolve or version O1/O2 before schema freeze."
+    },
+    {
+      "id": "GAP_REAL_CALIBRATION",
+      "status": "UNKNOWN",
+      "needed_by": [],
+      "disposition": "Not required for synthetic v1; no commercial or empirical claims."
+    }
+  ],
+  "conflict_flags": [
+    {
+      "id": "RATE_MODEL_NOT_EQUIVALENT",
+      "status": "OPEN_FOR_FUTURE_GATE",
+      "steps": [
+        2,
+        4,
+        13
+      ]
+    },
+    {
+      "id": "AGGREGATE_NOT_CARGO_LEDGER",
+      "status": "OPEN_FOR_FUTURE_GATE",
+      "steps": [
+        2,
+        13
+      ]
+    },
+    {
+      "id": "PRIMITIVE_ACTION_CANNOT_EXECUTE_RAIL_PLAN",
+      "status": "CONTRACT_CONFLICT",
+      "steps": [
+        2,
+        13
+      ]
+    },
+    {
+      "id": "GRID_OPTIMUM_NOT_CONTINUOUS_OPTIMUM",
+      "status": "OPEN_FOR_FUTURE_GATE",
+      "steps": [
+        6
+      ]
+    },
+    {
+      "id": "PER_VESSEL_CAP_NOT_RAIL_SAFETY",
+      "status": "OPEN_FOR_FUTURE_GATE",
+      "steps": [
+        2,
+        13
+      ]
+    }
+  ],
+  "project_i_snapshot": {
+    "output": "integrated-terminal-pilot/experiments/step8_final_closure/4b959879b7ed0606/releases/e54e000a11c7097e",
+    "manifest_sha256": "2b08d56ea825d513ca73cdd255ea4beb644141aae14023fea87ac1a1656afe7f",
+    "status": {
+      "STEP7_CAMPAIGN_EXECUTION": "COMPLETED_1960_OF_1960",
+      "STEP7_OFFICIAL_RETURN_GATE": "VERIFIED_FULL_CANONICAL",
+      "STEP7_OUTER_RERUNS": 0,
+      "FROZEN_SCIENTIFIC_LOCK_AND_CHECKPOINTS": "VERIFIED",
+      "STEP8_PRIMARY_ANALYSIS": "COMPLETE_WITH_POST_HOC_QUALIFICATION",
+      "STEP8_S1_INFERENCE": "COMPLETE",
+      "STEP8_S2_INFERENCE": "POST_HOC_QUALIFIED",
+      "STEP8_CARGO_NONINFERIORITY": "VERIFIED_NAMED_COMPARATORS_AM06",
+      "STEP8_DIAGNOSTIC_CELLS": {
+        "requirements": 4480,
+        "sensitivity": 4320,
+        "coupling": 160,
+        "aliases": 40,
+        "unique": 4440,
+        "runnable": 4320,
+        "unsupported": 120,
+        "optional": 0,
+        "verified": 0,
+        "pending": 4320,
+        "failed": 0,
+        "partial_attempts": 0,
+        "verified_aliases": 0,
+        "verified_commit_inventory_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "STEP8_ABLATION_SENSITIVITY": "BLOCKED",
+      "STEP8_FINAL_REPORT": "PROVISIONAL_DIAGNOSTICS_PENDING",
+      "OWNER_SCIENTIFIC_AMENDMENTS": "EXPLICIT_OWNER_ACCEPTANCE",
+      "PROJECT_I_FINAL_CLOSED": "NO",
+      "reasons": [
+        "Mandatory new13M diagnostic cells incomplete or failed",
+        "All4320 unique runnable cells and40 aliases must be verified",
+        "Full canonical verification of NEW diagnostic traces pending"
+      ],
+      "PPO_RETRAINING": "NONE",
+      "ORIGINAL_POLICIES_CHECKPOINTS_PHYSICS": "UNCHANGED",
+      "qualification": "POST_HOC_MULTIPLICITY_COMPLETION; SYNTHETIC_UNCALIBRATED; no fully-preregistered primary adjusted superiority claim"
+    }
+  },
+  "owner_packet": [
+    {
+      "id": "O1",
+      "decision_refs": [
+        "P04-S01-004",
+        "P04-S01-005"
+      ],
+      "recommended": "Reference-point d plus explicit ship reference/orientation; no assumed body widths",
+      "alternative": "Body-aware envelope with documented widths/edge clearance",
+      "deadline": "Representation before Step 02 schema freeze; numeric geometry before Step 04",
+      "approval": "NOT_RECEIVED_OR_INFERRED"
+    },
+    {
+      "id": "O2",
+      "decision_refs": [
+        "P04-S01-007",
+        "P04-S01-012"
+      ],
+      "recommended": "Constant-speed straight committed movement, own phases exclusive; safe cross-crane concurrency",
+      "alternative": "Interruptible/piecewise move and explicit yield actions with richer reservations",
+      "deadline": "Version in Step 02, core choice before Step 04, RL grammar before Step 09",
+      "approval": "NOT_RECEIVED_OR_INFERRED"
+    },
+    {
+      "id": "O3",
+      "decision_refs": [
+        "P04-S01-006",
+        "P04-S01-008",
+        "P04-S01-014"
+      ],
+      "recommended": "Standalone synthetic explicit effective-rate/overhead and geometry/speed/horizon/tolerance/workload profile",
+      "alternative": "Derived nominal-times-assigned-efficiency model with proved loss accounting",
+      "deadline": "Required representation in Step 02; approval before Step 03 generation / Step 04 execution",
+      "approval": "NOT_RECEIVED_OR_INFERRED"
+    },
+    {
+      "id": "O4",
+      "decision_refs": [
+        "P04-S01-018"
+      ],
+      "recommended": "Conservative finite model plus continuous validator; certification scoped to encoded model",
+      "alternative": "Equivalence-proved exact encoding of restricted continuous case",
+      "deadline": "Before Step 06; metadata only in Step 02",
+      "approval": "NOT_RECEIVED_OR_INFERRED"
+    }
+  ],
+  "step02_prerequisites": [
+    "Step01 audited contract and source snapshot",
+    "Resolve or explicitly version O1/O2 schema-affecting representation decisions before Step02 acceptance",
+    "Define required no-default physical fields and approval/source metadata without choosing unapproved numeric values",
+    "Specify versioned scenario/job/crane/bay/plan/path/event/result and immutable adapter contracts",
+    "Keep ship-bay/current-position/rate/cargo/action conflicts explicit; no claim existing adapter can execute rail plans",
+    "No scheduler/generator/core/environment/solver/training implementation in Step02"
+  ],
+  "outputs": [
+    "04-rail-crane-scheduler/README.md",
+    "04-rail-crane-scheduler/docs/01_problem_specification.md",
+    "04-rail-crane-scheduler/docs/02_physical_constraints_and_invariants.md",
+    "04-rail-crane-scheduler/docs/03_scientific_experiment_contract.md",
+    "04-rail-crane-scheduler/docs/04_repository_reuse_and_integration.md",
+    "04-rail-crane-scheduler/docs/05_step1_decision_register.md",
+    "04-rail-crane-scheduler/docs/06_implementation_roadmap.md",
+    "04-rail-crane-scheduler/docs/07_step1_audit_and_closure.md",
+    "04-rail-crane-scheduler/configs/research/step1_problem_contract_v1.json"
+  ],
+  "execution_assertions": {
+    "simulation_executed": false,
+    "optimizer_executed": false,
+    "rl_checkpoint_loaded": false,
+    "training_executed": false,
+    "scientific_episodes_executed": false,
+    "datasets_or_seeds_generated": false,
+    "dependencies_installed": false,
+    "external_api_called": false,
+    "commit_created": false,
+    "push_performed": false,
+    "protected_project_writes": false
+  },
+  "checks": {
+    "kind": "LIGHTWEIGHT_DOCUMENT_CONSISTENCY_ONLY",
+    "receipt": "04-rail-crane-scheduler/docs/07_step1_audit_and_closure.md",
+    "runtime_validation_claim": false,
+    "git_visibility": "All nine new Project04 files remain ignored by existing root rule; .gitignore unchanged. Ordinary git status still lists only the pre-existing prompt."
+  }
+}
