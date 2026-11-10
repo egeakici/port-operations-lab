@@ -1,0 +1,692 @@
+{
+  "head": "b5cdcc82d3ef8e920e8d16d490570034109d9435",
+  "scope": "SOURCE_DOCS_TESTS_ONLY_EXCLUDES_EXPERIMENTS_AND_MODELS",
+  "self_index_lengths_intentionally_null": true,
+  "entries": [
+    {
+      "path": "04-rail-crane-scheduler/.gitignore",
+      "change": "NEW",
+      "bytes": 80
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/step1_problem_contract_v1.json",
+      "change": "UNCHANGED_INHERITED",
+      "bytes": 79616
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/step2_contract_manifest_v1.json",
+      "change": "NEW",
+      "bytes": 6153
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/01_problem_specification.md",
+      "change": "UNCHANGED_INHERITED",
+      "bytes": 10311
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/02_physical_constraints_and_invariants.md",
+      "change": "UNCHANGED_INHERITED",
+      "bytes": 7021
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/03_scientific_experiment_contract.md",
+      "change": "UNCHANGED_INHERITED",
+      "bytes": 16874
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/04_repository_reuse_and_integration.md",
+      "change": "UNCHANGED_INHERITED",
+      "bytes": 15852
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/05_step1_decision_register.md",
+      "change": "UNCHANGED_INHERITED",
+      "bytes": 10704
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/06_implementation_roadmap.md",
+      "change": "UNCHANGED_INHERITED",
+      "bytes": 9209
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/07_step1_audit_and_closure.md",
+      "change": "UNCHANGED_INHERITED",
+      "bytes": 11536
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/08_data_contracts.md",
+      "change": "NEW",
+      "bytes": 3465
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/09_units_coordinates_and_time.md",
+      "change": "NEW",
+      "bytes": 1260
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/10_integration_mapping.md",
+      "change": "NEW",
+      "bytes": 3350
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/11_step2_validation_and_closure.md",
+      "change": "NEW",
+      "bytes": 1219
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/ARCHITECTURE.md",
+      "change": "NEW",
+      "bytes": 2322
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/CLAIM_AUDIT.md",
+      "change": "NEW",
+      "bytes": 1669
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/ARTIFACT_INTEGRITY.json",
+      "change": "NEW",
+      "bytes": null
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/CHANGED_FILES.json",
+      "change": "NEW",
+      "bytes": null
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/CLI_SMOKE.json",
+      "change": "NEW",
+      "bytes": 13148
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/CLI_SMOKE_FINAL.json",
+      "change": "NEW",
+      "bytes": 13183
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/CONTINUATION.md",
+      "change": "NEW",
+      "bytes": 1278
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/FINAL_REPORT.md",
+      "change": "NEW",
+      "bytes": 6737
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/FINAL_STATIC_CHECKS.json",
+      "change": "NEW",
+      "bytes": 449
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/FINAL_STATUS.json",
+      "change": "NEW",
+      "bytes": 8904
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/OWNER_DECISIONS.md",
+      "change": "NEW",
+      "bytes": 3122
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/PREFLIGHT.json",
+      "change": "NEW",
+      "bytes": 96571
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/PROGRESS.md",
+      "change": "NEW",
+      "bytes": 2598
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step01_receipt.json",
+      "change": "NEW",
+      "bytes": 378
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step02_attempt001.json",
+      "change": "NEW",
+      "bytes": 1024
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step02_attempt001.xml",
+      "change": "NEW",
+      "bytes": 2593
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step02_attempt002.json",
+      "change": "NEW",
+      "bytes": 1044
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step02_attempt002.xml",
+      "change": "NEW",
+      "bytes": 2593
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step02_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt001.json",
+      "change": "NEW",
+      "bytes": 17373
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt001.xml",
+      "change": "NEW",
+      "bytes": 16392
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt002.json",
+      "change": "NEW",
+      "bytes": 2696
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt002.xml",
+      "change": "NEW",
+      "bytes": 2252
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt003.json",
+      "change": "NEW",
+      "bytes": 6824
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt003.xml",
+      "change": "NEW",
+      "bytes": 12116
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt004.json",
+      "change": "NEW",
+      "bytes": 1532
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt004.xml",
+      "change": "NEW",
+      "bytes": 1144
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt005.json",
+      "change": "NEW",
+      "bytes": 2780
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_attempt005.xml",
+      "change": "NEW",
+      "bytes": 1272
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step03_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step04_attempt001.json",
+      "change": "NEW",
+      "bytes": 1737
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step04_attempt001.xml",
+      "change": "NEW",
+      "bytes": 1599
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step04_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step05_attempt001.json",
+      "change": "NEW",
+      "bytes": 1850
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step05_attempt001.xml",
+      "change": "NEW",
+      "bytes": 977
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step05_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step06_attempt001.json",
+      "change": "NEW",
+      "bytes": 2161
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step06_attempt001.xml",
+      "change": "NEW",
+      "bytes": 936
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step06_receipt.json",
+      "change": "NEW",
+      "bytes": 85
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step07_attempt001.json",
+      "change": "NEW",
+      "bytes": 2073
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step07_attempt001.xml",
+      "change": "NEW",
+      "bytes": 589
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step07_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step08_attempt001.json",
+      "change": "NEW",
+      "bytes": 3905
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step08_attempt001.xml",
+      "change": "NEW",
+      "bytes": 1361
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step08_attempt002.json",
+      "change": "NEW",
+      "bytes": 3919
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step08_attempt002.xml",
+      "change": "NEW",
+      "bytes": 1355
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step08_attempt003.json",
+      "change": "NEW",
+      "bytes": 3033
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step08_attempt003.xml",
+      "change": "NEW",
+      "bytes": 711
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step08_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step09_attempt001.json",
+      "change": "NEW",
+      "bytes": 2300
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step09_attempt001.xml",
+      "change": "NEW",
+      "bytes": 1145
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step09_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step10_attempt001.json",
+      "change": "NEW",
+      "bytes": 4944
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step10_attempt001.xml",
+      "change": "NEW",
+      "bytes": 2135
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step10_attempt002.json",
+      "change": "NEW",
+      "bytes": 2436
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step10_attempt002.xml",
+      "change": "NEW",
+      "bytes": 591
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step10_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step11_attempt001.json",
+      "change": "NEW",
+      "bytes": 2533
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step11_attempt001.xml",
+      "change": "NEW",
+      "bytes": 612
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step11_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step12_attempt001.json",
+      "change": "NEW",
+      "bytes": 5085
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step12_attempt001.xml",
+      "change": "NEW",
+      "bytes": 572
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step12_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step13_attempt001.json",
+      "change": "NEW",
+      "bytes": 2761
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step13_attempt001.xml",
+      "change": "NEW",
+      "bytes": 886
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step13_receipt.json",
+      "change": "NEW",
+      "bytes": 74
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step14_attempt001.json",
+      "change": "NEW",
+      "bytes": 5970
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step14_attempt001.xml",
+      "change": "NEW",
+      "bytes": 10038
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step14_attempt002.json",
+      "change": "NEW",
+      "bytes": 5981
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step14_attempt002.xml",
+      "change": "NEW",
+      "bytes": 10415
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step14_attempt003.json",
+      "change": "NEW",
+      "bytes": 5980
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step14_attempt003.xml",
+      "change": "NEW",
+      "bytes": 10550
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/development_run/step14_receipt.json",
+      "change": "NEW",
+      "bytes": 85
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/EXECUTIVE_SUMMARY.md",
+      "change": "NEW",
+      "bytes": 1139
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/MANUAL_EXECUTION.md",
+      "change": "NEW",
+      "bytes": 10614
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step03_generator.md",
+      "change": "NEW",
+      "bytes": 1659
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step04_physics_validation.md",
+      "change": "NEW",
+      "bytes": 1804
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step05_baselines.md",
+      "change": "NEW",
+      "bytes": 1290
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step06_cpsat_formulation_and_limits.md",
+      "change": "NEW",
+      "bytes": 1872
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step07_protocol.md",
+      "change": "NEW",
+      "bytes": 1212
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step08_environment.md",
+      "change": "NEW",
+      "bytes": 1161
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step09_rl_interface.md",
+      "change": "NEW",
+      "bytes": 1757
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step10_training.md",
+      "change": "NEW",
+      "bytes": 2689
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step11_evaluation.md",
+      "change": "NEW",
+      "bytes": 2027
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step12_replay.md",
+      "change": "NEW",
+      "bytes": 1297
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/step13_integration_matrix.md",
+      "change": "NEW",
+      "bytes": 2847
+    },
+    {
+      "path": "04-rail-crane-scheduler/frontend/replay_app.py",
+      "change": "NEW",
+      "bytes": 2352
+    },
+    {
+      "path": "04-rail-crane-scheduler/pyproject.toml",
+      "change": "NEW",
+      "bytes": 670
+    },
+    {
+      "path": "04-rail-crane-scheduler/README.md",
+      "change": "MODIFIED",
+      "bytes": 3594
+    },
+    {
+      "path": "04-rail-crane-scheduler/scripts/check_stage.py",
+      "change": "NEW",
+      "bytes": 3438
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/__init__.py",
+      "change": "NEW",
+      "bytes": 101
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/__main__.py",
+      "change": "NEW",
+      "bytes": 79
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/baselines.py",
+      "change": "NEW",
+      "bytes": 4085
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/cli.py",
+      "change": "NEW",
+      "bytes": 12728
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/contracts.py",
+      "change": "NEW",
+      "bytes": 18669
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/cpsat.py",
+      "change": "NEW",
+      "bytes": 5954
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/encoding.py",
+      "change": "NEW",
+      "bytes": 2627
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/environment.py",
+      "change": "NEW",
+      "bytes": 7835
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/evaluation.py",
+      "change": "NEW",
+      "bytes": 16389
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/integration.py",
+      "change": "NEW",
+      "bytes": 6330
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/kernel.py",
+      "change": "NEW",
+      "bytes": 6680
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/replay.py",
+      "change": "NEW",
+      "bytes": 5948
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/research.py",
+      "change": "NEW",
+      "bytes": 6043
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/scenarios.py",
+      "change": "NEW",
+      "bytes": 6274
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/training.py",
+      "change": "NEW",
+      "bytes": 15617
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/validator.py",
+      "change": "NEW",
+      "bytes": 5477
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/conftest.py",
+      "change": "NEW",
+      "bytes": 549
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/fixtures/generator_config.json",
+      "change": "NEW",
+      "bytes": 2894
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/fixtures/problem.json",
+      "change": "NEW",
+      "bytes": 2432
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/fixtures/training_plan_fixture.json",
+      "change": "NEW",
+      "bytes": 2579
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step02_contracts.py",
+      "change": "NEW",
+      "bytes": 3721
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step03_generator.py",
+      "change": "NEW",
+      "bytes": 2782
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step04_physics.py",
+      "change": "NEW",
+      "bytes": 4425
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step05_baselines.py",
+      "change": "NEW",
+      "bytes": 1720
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step06_cpsat.py",
+      "change": "NEW",
+      "bytes": 1326
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step07_research.py",
+      "change": "NEW",
+      "bytes": 1657
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step08_environment.py",
+      "change": "NEW",
+      "bytes": 2587
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step09_encoding.py",
+      "change": "NEW",
+      "bytes": 2045
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step10_training.py",
+      "change": "NEW",
+      "bytes": 2513
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step11_evaluation.py",
+      "change": "NEW",
+      "bytes": 3087
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step12_replay.py",
+      "change": "NEW",
+      "bytes": 1500
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step13_integration.py",
+      "change": "NEW",
+      "bytes": 2138
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step14_audit.py",
+      "change": "NEW",
+      "bytes": 3435
+    }
+  ]
+}

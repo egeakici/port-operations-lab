@@ -1,0 +1,245 @@
+{
+  "schema_version": "p04_development_final_status_v1",
+  "date_local": "2026-11-10",
+  "timezone": "Europe/Istanbul",
+  "head": "b5cdcc82d3ef8e920e8d16d490570034109d9435",
+  "branch": "main",
+  "project_state": "IMPLEMENTATION_PARTIAL_BLOCKED",
+  "current_step": "AWAITING_OWNER_FINAL_REVIEW",
+  "steps": [
+    {
+      "step": 1,
+      "status": "REUSED_VERIFIED",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "source_hash_checks": 56
+      },
+      "receipt": "docs/development_run/step01_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 2,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 22,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step02_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 3,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 10,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step03_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 4,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 12,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step04_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 5,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 6,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step05_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 6,
+      "status": "PARTIAL_BLOCKED",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 3,
+        "skipped": 1,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step06_receipt.json",
+      "blocker": "ORTOOLS_DEPENDENCY_PENDING"
+    },
+    {
+      "step": 7,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 3,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step07_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 8,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 4,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step08_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 9,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 8,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step09_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 10,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 3,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step10_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 11,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 5,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step11_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 12,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 3,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step12_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 13,
+      "status": "PASS",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 6,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step13_receipt.json",
+      "blocker": null
+    },
+    {
+      "step": 14,
+      "status": "PARTIAL_BLOCKED",
+      "evidence_scope": "FIXTURE_ENGINEERING_NOT_PRIMARY_SCIENCE",
+      "final_regression": {
+        "passed": 4,
+        "skipped": 0,
+        "failed": 0
+      },
+      "receipt": "docs/development_run/step14_receipt.json",
+      "blocker": "FINAL_SOURCE_TESTS_PASS_WITH_ONE_DEPENDENCY_SKIP; PRIMARY_PROFILE_OWNER_APPROVAL_PENDING"
+    }
+  ],
+  "final_test_counts": {
+    "tests": 90,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "final_test_passed": 89,
+  "final_test_elapsed_s": 22.85137200000463,
+  "cli_commands_verified": 10,
+  "protected_tracked_files_unchanged": 656,
+  "original_step01_files_unchanged_except_authorized_readme": true,
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe",
+    "src/rail_crane_scheduler/cli.py": "1a7db1625a126d4055f26e97943339ec8ed2fd3f0b4308ac2f2404d72aea608d",
+    "src/rail_crane_scheduler/contracts.py": "874e82bfd5dde02e3043dffd318d1e24eed8f712eef58101f8b593a5cdfa8226",
+    "src/rail_crane_scheduler/cpsat.py": "8d2e51410338369313983317e4cd2ddbf8f40dfed9c522e7ac1175a96454acdb",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4",
+    "src/rail_crane_scheduler/evaluation.py": "99cfc4f9d91c0416fa1d8b231e446ccc0f9a72eb831b455167d30e896d420c31",
+    "src/rail_crane_scheduler/integration.py": "bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/replay.py": "2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e",
+    "src/rail_crane_scheduler/research.py": "44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6",
+    "src/rail_crane_scheduler/scenarios.py": "b9e9ca2bbfec7b4165a7878c2aefc59f97b986758a405fb9d7108c409ad2b8f2",
+    "src/rail_crane_scheduler/training.py": "3a68ed5cecf94b67609ded3ab1031eca381c16080358bed78e5ed362ee6eec27",
+    "src/rail_crane_scheduler/validator.py": "7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4"
+  },
+  "versions": {
+    "pytest": "9.1.1",
+    "numpy": "2.2.3",
+    "gymnasium": "1.2.3",
+    "torch": "2.6.0",
+    "stable-baselines3": "2.8.0",
+    "sb3-contrib": "2.8.0",
+    "streamlit": "1.61.1",
+    "matplotlib": "3.10.1"
+  },
+  "problem_schema": "p04_contracts_v1",
+  "physics_profile": "p04_reference_point_constant_speed_proposed_v1",
+  "generator_version": "p04_counter_sha256_v2",
+  "cp_formulation": "p04_exact_finite_event_dispatch_paths_v1",
+  "PPO_CHECKPOINT_TRAINED": "NO",
+  "actual_research_training_seed_count": 0,
+  "actual_heldout_research_run_count": 0,
+  "actual_cp_sat_certified_results": 0,
+  "SCIENTIFICALLY_CLOSED": false,
+  "primary_profile": "OWNER_APPROVAL_REQUIRED",
+  "adapter": "ISOLATED_SMOKE_PASS; LIVE_INTEGRATION_PENDING; FULL_TERMINAL_INTEGRATION_NOT_PERFORMED",
+  "long_training_or_expensive_campaign_launched": false,
+  "legacy_policy_inference_or_rerun": false,
+  "commit_push_or_stage_performed": false,
+  "runtime_warning": "Managed Windows temporary-directory cleanup PermissionError emitted at process exit; tests returned 0; preserved in attempt stderr.",
+  "blockers": [
+    "OR-Tools absent; actual solver integration test skipped, no exact solver claim",
+    "O1-O6 material physics/interface/cohort/budget/inference choices not approved",
+    "No separately authorized primary generation, PPO optimization or held-out campaign",
+    "Native Project I bay/rail/cargo API insufficient; isolated adapter only"
+  ],
+  "artifacts": {
+    "inventory": "docs/development_run/CHANGED_FILES.json",
+    "integrity": "docs/development_run/ARTIFACT_INTEGRITY.json",
+    "runbook": "docs/MANUAL_EXECUTION.md",
+    "decisions": "docs/development_run/OWNER_DECISIONS.md",
+    "continuation": "docs/development_run/CONTINUATION.md"
+  },
+  "cli_final_receipt": "docs/development_run/CLI_SMOKE_FINAL.json"
+}

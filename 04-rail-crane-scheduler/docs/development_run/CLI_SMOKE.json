@@ -1,0 +1,193 @@
+{
+  "status": "PASS",
+  "scope": "BOUNDED_FIXTURE_AND_READONLY_CLI_ONLY",
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "training",
+        "--mode",
+        "check"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.19229979999363422,
+      "stdout": "{\"status\": \"DEPENDENCY_METADATA_ONLY_NOT_TRAINING\", \"versions\": {\"numpy\": \"2.2.3\", \"gymnasium\": \"1.2.3\", \"torch\": \"2.6.0\", \"stable-baselines3\": \"2.8.0\", \"sb3-contrib\": \"2.8.0\"}}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "solver",
+        "--mode",
+        "check"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.1094815000105882,
+      "stdout": "{\"status\": \"DEPENDENCY_PENDING\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "generator",
+        "--mode",
+        "validate",
+        "--config",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\tests\\fixtures\\generator_config.json"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.12240449999808334,
+      "stdout": "{\"status\": \"CONFIG_VALID\", \"config_hash\": \"8a763cbd1d87a74fdc705f459036221a0c878b864f56b1d16f1fb38c2e5b4d5e\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "generator",
+        "--mode",
+        "manifest",
+        "--config",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\tests\\fixtures\\generator_config.json"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.12759720000030939,
+      "stdout": "{\"config_hash\": \"8a763cbd1d87a74fdc705f459036221a0c878b864f56b1d16f1fb38c2e5b4d5e\", \"problem_hash\": \"51fac72403a5ba15f41854370f71a51ec0bb7cc23f3fe7fafe30a34b73b70139\", \"origin\": \"TEST_FIXTURE_SYNTHETIC\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "benchmark",
+        "--mode",
+        "validate",
+        "--problem",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\tests\\fixtures\\problem.json"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.19569069999852218,
+      "stdout": "{\"status\": \"DEVELOPMENT_VALIDATED\", \"rows\": 4, \"verified\": true}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "training",
+        "--mode",
+        "plan",
+        "--config",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\tests\\fixtures\\training_plan_fixture.json"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.4614449000073364,
+      "stdout": "{\"status\": \"PENDING_OWNER_APPROVAL\", \"plan_hash\": \"1f191b2d2a963999fe757063393d718dff36862d331837557b577ecd24a2336c\", \"payload\": {\"label\": \"TEST_FIXTURE_ONLY_NOT_PRIMARY_BUDGET\", \"training_config\": {\"schema_version\": \"p04_crane_maskableppo_v1\", \"seeds\": [11, 23], \"task_capacity\": 4, \"max_episode_steps\": 40, \"reward_scale_min\": 1.0, \"failure_margin_min\": 1.0, \"total_steps\": 16, \"rollout_steps\": 8, \"batch_size\": 4, \"epochs\": 1, \"learning_rate\": 0.001, \"gamma\": 1.0, \"gae_lambda\": 0.95, \"clip_range\": 0.2, \"entropy_coef\": 0.0, \"value_coef\": 0.5, \"max_grad_norm\": 0.5, \"net_sizes\": [8], \"validation_interval_steps\": 8, \"device\": \"cpu\", \"permit_cpu_fallback\": false}, \"train_inputs\": [], \"validation_inputs\": [], \"source_sha256\": {\"src/rail_crane_scheduler/__init__.py\": \"9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838\", \"src/rail_crane_scheduler/__main__.py\": \"307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7\", \"src/rail_crane_scheduler/baselines.py\": \"e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe\", \"src/rail_crane_scheduler/cli.py\": \"3170dd803fe8f509e32c207ad56caf6aa5981aaf11d9bd70e54f0447b5838a73\", \"src/rail_crane_scheduler/contracts.py\": \"874e82bfd5dde02e3043dffd318d1e24eed8f712eef58101f8b593a5cdfa8226\", \"src/rail_crane_scheduler/cpsat.py\": \"8d2e51410338369313983317e4cd2ddbf8f40dfed9c522e7ac1175a96454acdb\", \"src/rail_crane_scheduler/encoding.py\": \"208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb\", \"src/rail_crane_scheduler/environment.py\": \"77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4\", \"src/rail_crane_scheduler/evaluation.py\": \"8045d1112964cf8626d9b9d4c972c58d8f3eb4bcbab8d7a3dd79850bcbac03b6\", \"src/rail_crane_scheduler/integration.py\": \"bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9\", \"src/rail_crane_scheduler/kernel.py\": \"740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70\", \"src/rail_crane_scheduler/replay.py\": \"2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e\", \"src/rail_crane_scheduler/research.py\": \"44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6\", \"src/rail_crane_scheduler/scenarios.py\": \"b9e9ca2bbfec7b4165a7878c2aefc59f97b986758a405fb9d7108c409ad2b8f2\", \"src/rail_crane_scheduler/training.py\": \"3a68ed5cecf94b67609ded3ab1031eca381c16080358bed78e5ed362ee6eec27\", \"src/rail_crane_scheduler/validator.py\": \"7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4\"}}, \"saved_to\": null, \"estimated_work_steps\": 32, \"runtime_estimate\": null}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "evaluation",
+        "--mode",
+        "status"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.13832389999879524,
+      "stdout": "{\"status\": \"SCIENTIFIC_EVIDENCE_NOT_YET_RUN\", \"rows\": 0, \"scientifically_closed\": false}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "evaluation",
+        "--mode",
+        "render-existing"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.13624340000387747,
+      "stdout": "# Project04 scientific evidence\n\nSCIENTIFIC_EVIDENCE_NOT_YET_RUN\n\nActual trained checkpoints: 0. Held-out runs: 0. No superiority claim.\n\n| Policy | Valid makespan min |\n| --- | --- |\n\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "benchmark",
+        "--mode",
+        "run-development-small",
+        "--problem",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\tests\\fixtures\\problem.json",
+        "--output",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\review_fixture_94cea2ce382f"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.20203719999699388,
+      "stdout": "{\"origin\": \"TEST_FIXTURE_SYNTHETIC\", \"problem_hash\": \"2c797bcc6161a1dd96c90e87f33ff856f7aba8a443d5c63ca7e6d02cd82eb33b\", \"source_sha256\": {\"src/rail_crane_scheduler/__init__.py\": \"9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838\", \"src/rail_crane_scheduler/__main__.py\": \"307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7\", \"src/rail_crane_scheduler/baselines.py\": \"e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe\", \"src/rail_crane_scheduler/cli.py\": \"3170dd803fe8f509e32c207ad56caf6aa5981aaf11d9bd70e54f0447b5838a73\", \"src/rail_crane_scheduler/contracts.py\": \"874e82bfd5dde02e3043dffd318d1e24eed8f712eef58101f8b593a5cdfa8226\", \"src/rail_crane_scheduler/cpsat.py\": \"8d2e51410338369313983317e4cd2ddbf8f40dfed9c522e7ac1175a96454acdb\", \"src/rail_crane_scheduler/encoding.py\": \"208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb\", \"src/rail_crane_scheduler/environment.py\": \"77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4\", \"src/rail_crane_scheduler/evaluation.py\": \"8045d1112964cf8626d9b9d4c972c58d8f3eb4bcbab8d7a3dd79850bcbac03b6\", \"src/rail_crane_scheduler/integration.py\": \"bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9\", \"src/rail_crane_scheduler/kernel.py\": \"740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70\", \"src/rail_crane_scheduler/replay.py\": \"2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e\", \"src/rail_crane_scheduler/research.py\": \"44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6\", \"src/rail_crane_scheduler/scenarios.py\": \"b9e9ca2bbfec7b4165a7878c2aefc59f97b986758a405fb9d7108c409ad2b8f2\", \"src/rail_crane_scheduler/training.py\": \"3a68ed5cecf94b67609ded3ab1031eca381c16080358bed78e5ed362ee6eec27\", \"src/rail_crane_scheduler/validator.py\": \"7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4\"}, \"files\": {\"balanced_finish_v1.json\": \"0961297e51a6c90f07f4e4d15900b556d243e62e0833f4c39befdc692fc0ec68\", \"longest_work_v1.json\": \"9ec8645311fcfd00980d37c8f6ca83abb0cfc325600bd17d1524e8465f518310\", \"nearest_feasible_v1.json\": \"69298cf8ffe885fc7d87deb3083fd995bc91c62b83eac273ec8e96ea09a83266\", \"ordered_sweep_v1.json\": \"9232347b69036bc767ca539895c3b70d8f1244ddae3522621e3b8fa7c8978aa9\", \"problem.json\": \"2c797bcc6161a1dd96c90e87f33ff856f7aba8a443d5c63ca7e6d02cd82eb33b\"}}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "-B",
+        "-m",
+        "rail_crane_scheduler",
+        "replay",
+        "--mode",
+        "render",
+        "--problem",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\review_fixture_94cea2ce382f\\problem.json",
+        "--schedule",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\review_fixture_94cea2ce382f\\ordered_sweep_v1.json",
+        "--output",
+        "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\review_fixture_94cea2ce382f\\gantt.png"
+      ],
+      "returncode": 0,
+      "elapsed_s": 0.8389159999933327,
+      "stdout": "{\"status\": \"RENDERED_RECORDED_TRACE\", \"valid_complete\": true}\n",
+      "stderr": ""
+    }
+  ],
+  "review_fixture_directory": "experiments/review_fixture_94cea2ce382f",
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe",
+    "src/rail_crane_scheduler/cli.py": "3170dd803fe8f509e32c207ad56caf6aa5981aaf11d9bd70e54f0447b5838a73",
+    "src/rail_crane_scheduler/contracts.py": "874e82bfd5dde02e3043dffd318d1e24eed8f712eef58101f8b593a5cdfa8226",
+    "src/rail_crane_scheduler/cpsat.py": "8d2e51410338369313983317e4cd2ddbf8f40dfed9c522e7ac1175a96454acdb",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4",
+    "src/rail_crane_scheduler/evaluation.py": "8045d1112964cf8626d9b9d4c972c58d8f3eb4bcbab8d7a3dd79850bcbac03b6",
+    "src/rail_crane_scheduler/integration.py": "bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/replay.py": "2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e",
+    "src/rail_crane_scheduler/research.py": "44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6",
+    "src/rail_crane_scheduler/scenarios.py": "b9e9ca2bbfec7b4165a7878c2aefc59f97b986758a405fb9d7108c409ad2b8f2",
+    "src/rail_crane_scheduler/training.py": "3a68ed5cecf94b67609ded3ab1031eca381c16080358bed78e5ed362ee6eec27",
+    "src/rail_crane_scheduler/validator.py": "7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4"
+  }
+}

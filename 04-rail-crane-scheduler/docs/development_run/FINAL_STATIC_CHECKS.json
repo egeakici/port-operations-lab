@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "python_files_ast_parsed": 32,
+  "json_files_parsed": 48,
+  "local_markdown_links_resolved": 26,
+  "final_source_hashes_verified": 16,
+  "protected_tracked_hashes_verified": 656,
+  "stage14_test_counts": {
+    "tests": 90,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "cli_commands_verified": 10,
+  "legacy_staged_changes": false,
+  "scope": "NO_SIMULATION_OR_TRAINING_IN_THIS_STATIC_CHECK"
+}
