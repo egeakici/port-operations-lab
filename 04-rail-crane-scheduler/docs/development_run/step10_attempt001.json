@@ -1,0 +1,44 @@
+{
+  "step": 10,
+  "status": "FAIL",
+  "scope": "TEST_FIXTURE_ENGINEERING_ONLY",
+  "command": [
+    "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider",
+    "tests\\test_step10_training.py",
+    "--basetemp=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\test_tmp\\step10_attempt001",
+    "--junitxml=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\docs\\development_run\\step10_attempt001.xml"
+  ],
+  "elapsed_s": 83.03964410000481,
+  "returncode": 1,
+  "counts": {
+    "tests": 3,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "1a78eec374784bad318ca44eeef587fff10eb5e8d622397fef0236378d11dedb",
+    "src/rail_crane_scheduler/cli.py": "c9be4a2a0ee3f676b0873b70b0c98835e9baa780d688895261360e67b9980d34",
+    "src/rail_crane_scheduler/contracts.py": "6e966cdea43a21794904303f62b3087afd459305885efe098b3de5bfc9453f5d",
+    "src/rail_crane_scheduler/cpsat.py": "fed29775e04f5f54453a33620d37f552f42fc7ff07156c6acfd7a93fc04ef2d1",
+    "src/rail_crane_scheduler/encoding.py": "f15fb94002af7c5ad0ecf90e7e0053d2edf93cb5fc7ed63c155f5b57edf3a033",
+    "src/rail_crane_scheduler/environment.py": "4c1a99a375566c147c7e2da4eb9feb8cbc09863de18d26ce95e9f8dd98977759",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/research.py": "44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6",
+    "src/rail_crane_scheduler/scenarios.py": "bda27a8d3bbd56c27d3ef19c8f756afd5f6302e60960d967aebfeee6c239748e",
+    "src/rail_crane_scheduler/training.py": "bee095f0bf312700ac8334cdd5605417fefc91a44274150ec7685d2ff71b2380",
+    "src/rail_crane_scheduler/validator.py": "e8f3f18f916a17aaa2a9c6d3dcb5d0f0ce1fd7bd16181f28fdeb1c837c737263"
+  },
+  "previous_attempt": null,
+  "stdout": "F..                                                                      [100%]\n================================== FAILURES ===================================\n____________ test_untrained_model_mask_save_reload_and_corruption _____________\ntests\\test_step10_training.py:18: in test_untrained_model_mask_save_reload_and_corruption\n    path=tmp_path/'untrained'; data=save_checkpoint(model,path,c,env,seed=11,label='SMOKE_UNTRAINED_NOT_RESEARCH')\n                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc\\rail_crane_scheduler\\training.py:107: in save_checkpoint\n    write_new(stage/'metadata.json',canonical(data))\n                                    ^^^^^^^^^^^^^^^\nsrc\\rail_crane_scheduler\\contracts.py:111: in canonical\n    return json.dumps(value, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False, allow_nan=False).encode(\"utf-8\")\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\json\\__init__.py:238: in dumps\n    **kw).encode(obj)\n          ^^^^^^^^^^^\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\json\\encoder.py:200: in encode\n    chunks = self.iterencode(o, _one_shot=True)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\json\\encoder.py:261: in iterencode\n    return _iterencode(o, 0)\n           ^^^^^^^^^^^^^^^^^\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\json\\encoder.py:180: in default\n    raise TypeError(f'Object of type {o.__class__.__name__} '\nE   TypeError: Object of type int64 is not JSON serializable\n---------------------------- Captured stderr call -----------------------------\n2026-11-10 14:47:54.681820: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\n2026-11-10 14:48:37.857044: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\n=========================== short test summary info ===========================\nFAILED tests/test_step10_training.py::test_untrained_model_mask_save_reload_and_corruption\n1 failed, 2 passed in 78.50s (0:01:18)\n",
+  "stderr": ""
+}

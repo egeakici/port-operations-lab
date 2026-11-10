@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="78.499" timestamp="2026-11-10T14:47:38.646743+03:00" hostname="LAPTOP-QD5GCVHH"><testcase classname="tests.test_step10_training" name="test_untrained_model_mask_save_reload_and_corruption" time="77.978"><failure message="TypeError: Object of type int64 is not JSON serializable">tests\test_step10_training.py:18: in test_untrained_model_mask_save_reload_and_corruption
+    path=tmp_path/'untrained'; data=save_checkpoint(model,path,c,env,seed=11,label='SMOKE_UNTRAINED_NOT_RESEARCH')
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\rail_crane_scheduler\training.py:107: in save_checkpoint
+    write_new(stage/'metadata.json',canonical(data))
+                                    ^^^^^^^^^^^^^^^
+src\rail_crane_scheduler\contracts.py:111: in canonical
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py:238: in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py:200: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py:261: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py:180: in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+E   TypeError: Object of type int64 is not JSON serializable</failure></testcase><testcase classname="tests.test_step10_training" name="test_selection_splits_and_guard" time="0.018" /><testcase classname="tests.test_step10_training" name="test_rng_roundtrip_and_no_implicit_cuda" time="0.008" /></testsuite></testsuites>
