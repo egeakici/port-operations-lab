@@ -1,0 +1,36 @@
+{
+  "step": 3,
+  "status": "FAIL",
+  "scope": "TEST_FIXTURE_ENGINEERING_ONLY",
+  "command": [
+    "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider",
+    "tests\\test_step03_generator.py",
+    "--basetemp=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\test_tmp\\step03_attempt002",
+    "--junitxml=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\docs\\development_run\\step03_attempt002.xml"
+  ],
+  "elapsed_s": 1.8056643000018084,
+  "returncode": 1,
+  "counts": {
+    "tests": 9,
+    "failures": 0,
+    "errors": 2,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/cli.py": "c9be4a2a0ee3f676b0873b70b0c98835e9baa780d688895261360e67b9980d34",
+    "src/rail_crane_scheduler/contracts.py": "a7314254ba20d22c0a92b45e595ff4e1e52a29678d9332bb0e723f1b6484a109",
+    "src/rail_crane_scheduler/scenarios.py": "bda27a8d3bbd56c27d3ef19c8f756afd5f6302e60960d967aebfeee6c239748e"
+  },
+  "previous_attempt": "step03_attempt001.json",
+  "stdout": "..E.....E                                                                [100%]\n=================================== ERRORS ====================================\n_____________________ ERROR at setup of test_safe_writer ______________________\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\pathlib\\_local.py:722: in mkdir\n    os.mkdir(self, mode)\nE   FileNotFoundError: [WinError 3] Sistem belirtilen yolu bulam\u0131yor: 'C:\\\\Users\\\\EGE ASUS\\\\Desktop\\\\port-operations-lab\\\\04-rail-crane-scheduler\\\\experiments\\\\test_tmp\\\\step03_attempt002'\n____________________ ERROR at setup of test_generator_cli _____________________\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\pathlib\\_local.py:722: in mkdir\n    os.mkdir(self, mode)\nE   FileNotFoundError: [WinError 3] Sistem belirtilen yolu bulam\u0131yor: 'C:\\\\Users\\\\EGE ASUS\\\\Desktop\\\\port-operations-lab\\\\04-rail-crane-scheduler\\\\experiments\\\\test_tmp\\\\step03_attempt002'\n=========================== short test summary info ===========================\nERROR tests/test_step03_generator.py::test_safe_writer - FileNotFoundError: [...\nERROR tests/test_step03_generator.py::test_generator_cli - FileNotFoundError:...\n7 passed, 2 errors in 0.66s\n",
+  "stderr": ""
+}

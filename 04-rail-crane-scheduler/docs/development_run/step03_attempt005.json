@@ -1,0 +1,47 @@
+{
+  "step": 3,
+  "status": "PASS",
+  "scope": "TEST_FIXTURE_ENGINEERING_ONLY",
+  "command": [
+    "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider",
+    "tests\\test_step03_generator.py",
+    "--basetemp=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\test_tmp\\step03_attempt005",
+    "--junitxml=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\docs\\development_run\\step03_attempt005.xml"
+  ],
+  "elapsed_s": 0.7722229000064544,
+  "returncode": 0,
+  "counts": {
+    "tests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "d78c7622541e934c385e6034b99a35d1a0343dafe2bddcb6d2d179de089f7d7e",
+    "src/rail_crane_scheduler/cli.py": "3170dd803fe8f509e32c207ad56caf6aa5981aaf11d9bd70e54f0447b5838a73",
+    "src/rail_crane_scheduler/contracts.py": "795c974daf605bbe813057a687140b07b55519624e91693a6bb8310eb33f4be9",
+    "src/rail_crane_scheduler/cpsat.py": "8d2e51410338369313983317e4cd2ddbf8f40dfed9c522e7ac1175a96454acdb",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "9556a29e098c7d5939af3fe1afc7b31fc7be161091c0246416c7986dd2d1699f",
+    "src/rail_crane_scheduler/evaluation.py": "771c6138a481ac64fb126d1304fafd0ce3efe0f8ec882ae142602c3ec1a1d334",
+    "src/rail_crane_scheduler/integration.py": "bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/replay.py": "305bf3c324c517260b48c1b919b77e170dd6f40114335767f8a34368c69009fa",
+    "src/rail_crane_scheduler/research.py": "44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6",
+    "src/rail_crane_scheduler/scenarios.py": "b9e9ca2bbfec7b4165a7878c2aefc59f97b986758a405fb9d7108c409ad2b8f2",
+    "src/rail_crane_scheduler/training.py": "5b55dfadf05bbbeb44bc27115017b4e7947fe3d6a373805b79e3e00ae7bda503",
+    "src/rail_crane_scheduler/validator.py": "7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4"
+  },
+  "previous_attempt": "step03_attempt004.json",
+  "stdout": "..........                                                               [100%]\n10 passed in 0.18s\n",
+  "stderr": ""
+}
