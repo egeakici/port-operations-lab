@@ -1,0 +1,46 @@
+{
+  "step": 12,
+  "status": "PASS",
+  "scope": "TEST_FIXTURE_ENGINEERING_ONLY",
+  "command": [
+    "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider",
+    "tests\\test_step12_replay.py",
+    "--basetemp=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\test_tmp\\step12_attempt001",
+    "--junitxml=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\docs\\development_run\\step12_attempt001.xml"
+  ],
+  "elapsed_s": 13.413158300012583,
+  "returncode": 0,
+  "counts": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "d78c7622541e934c385e6034b99a35d1a0343dafe2bddcb6d2d179de089f7d7e",
+    "src/rail_crane_scheduler/cli.py": "c9be4a2a0ee3f676b0873b70b0c98835e9baa780d688895261360e67b9980d34",
+    "src/rail_crane_scheduler/contracts.py": "6e966cdea43a21794904303f62b3087afd459305885efe098b3de5bfc9453f5d",
+    "src/rail_crane_scheduler/cpsat.py": "fed29775e04f5f54453a33620d37f552f42fc7ff07156c6acfd7a93fc04ef2d1",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "4c1a99a375566c147c7e2da4eb9feb8cbc09863de18d26ce95e9f8dd98977759",
+    "src/rail_crane_scheduler/evaluation.py": "17b1476e0b1cab0892037f30f2d69a86d567b80d1a745b768cdffae75c8ca473",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/replay.py": "305bf3c324c517260b48c1b919b77e170dd6f40114335767f8a34368c69009fa",
+    "src/rail_crane_scheduler/research.py": "44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6",
+    "src/rail_crane_scheduler/scenarios.py": "bda27a8d3bbd56c27d3ef19c8f756afd5f6302e60960d967aebfeee6c239748e",
+    "src/rail_crane_scheduler/training.py": "aa9a2e82fd18619db06e895c20282e41b4ab83c1f018a47143c1c7d6f3ab0706",
+    "src/rail_crane_scheduler/validator.py": "e8f3f18f916a17aaa2a9c6d3dcb5d0f0ce1fd7bd16181f28fdeb1c837c737263"
+  },
+  "previous_attempt": null,
+  "stdout": "...                                                                      [100%]\n3 passed in 11.13s\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<frozen os>\", line 368, in walk\nPermissionError: [WinError 5] Eri\u015fim engellendi: 'C:\\\\Users\\\\EGEASU~1\\\\AppData\\\\Local\\\\Temp\\\\tmp9saq9dqk'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\weakref.py\", line 666, in _exitfunc\n    f()\n    ~^^\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\weakref.py\", line 590, in __call__\n    return info.func(*info.args, **(info.kwargs or {}))\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tempfile.py\", line 935, in _cleanup\n    cls._rmtree(name, ignore_errors=ignore_errors)\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tempfile.py\", line 930, in _rmtree\n    _shutil.rmtree(name, onexc=onexc)\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\shutil.py\", line 790, in rmtree\n    return _rmtree_unsafe(path, onexc)\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\shutil.py\", line 613, in _rmtree_unsafe\n    for dirpath, dirnames, filenames in results:\n                                        ^^^^^^^\n  File \"<frozen os>\", line 371, in walk\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\shutil.py\", line 611, in onerror\n    onexc(os.scandir, err.filename, err)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tempfile.py\", line 902, in onexc\n    _resetperms(path)\n    ~~~~~~~~~~~^^^^^^\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tempfile.py\", line 286, in _resetperms\n    _dont_follow_symlinks(_os.chmod, path, 0o700)\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tempfile.py\", line 275, in _dont_follow_symlinks\n    func(path, *args, follow_symlinks=False)\n    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [WinError 5] Eri\u015fim engellendi: 'C:\\\\Users\\\\EGEASU~1\\\\AppData\\\\Local\\\\Temp\\\\tmp9saq9dqk'\n"
+}
