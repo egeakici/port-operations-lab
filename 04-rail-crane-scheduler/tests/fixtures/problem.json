@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "schema_version": "p04_contracts_v1",
+    "problem_type": "QCSP_V1",
+    "scenario_id": "fixture",
+    "family": "tiny",
+    "role": "development",
+    "seed_namespace": "p04/fixture",
+    "seed": 0,
+    "origin": "TEST_FIXTURE_SYNTHETIC",
+    "assumptions_version": "p04_reference_point_constant_speed_proposed_v1",
+    "source_project": "Project04",
+    "source_snapshot": null
+  },
+  "vessel": {
+    "vessel_id": "V",
+    "berth_id": "B",
+    "length_m": 20.0,
+    "berth_origin_m": 0.0,
+    "orientation": 1,
+    "planning_start_min": 0.0,
+    "epoch_iso8601": null
+  },
+  "rail": {
+    "rail_id": "R",
+    "axis": "quay_x_m",
+    "lower_m": 0.0,
+    "upper_m": 20.0,
+    "min_clearance_m": 2.0,
+    "separation_model": "REFERENCE_POINT",
+    "time_tolerance_min": 1e-09,
+    "position_tolerance_m": 1e-09,
+    "horizon_min": 100.0
+  },
+  "cranes": [
+    {
+      "crane_id": "Z_left",
+      "rail_id": "R",
+      "rail_rank": 0,
+      "initial_position_m": 0.0,
+      "reach_lower_m": 0.0,
+      "reach_upper_m": 20.0,
+      "travel_speed_m_per_min": 2.0,
+      "effective_moves_per_hour": 60.0,
+      "setup_min": 1.0,
+      "available_at_min": 0.0
+    },
+    {
+      "crane_id": "A_right",
+      "rail_id": "R",
+      "rail_rank": 1,
+      "initial_position_m": 20.0,
+      "reach_lower_m": 0.0,
+      "reach_upper_m": 20.0,
+      "travel_speed_m_per_min": 2.0,
+      "effective_moves_per_hour": 60.0,
+      "setup_min": 1.0,
+      "available_at_min": 0.0
+    }
+  ],
+  "bays": [
+    {
+      "bay_id": "b1",
+      "local_m": 2.0,
+      "verified_global_m": 2.0
+    },
+    {
+      "bay_id": "b2",
+      "local_m": 18.0,
+      "verified_global_m": 18.0
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "j1",
+      "vessel_id": "V",
+      "bay_id": "b1",
+      "operation_kind": "DISCHARGE",
+      "workload_moves": 2,
+      "release_min": 0.0,
+      "predecessor_ids": [],
+      "source_task_ids": [],
+      "source_container_ids": []
+    },
+    {
+      "task_id": "j2",
+      "vessel_id": "V",
+      "bay_id": "b2",
+      "operation_kind": "LOAD",
+      "workload_moves": 3,
+      "release_min": 0.0,
+      "predecessor_ids": [],
+      "source_task_ids": [],
+      "source_container_ids": []
+    }
+  ],
+  "declared_workload_moves": 5,
+  "units": [
+    "min",
+    "m",
+    "moves",
+    "moves/hour"
+  ]
+}

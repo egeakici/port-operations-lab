@@ -1,0 +1,162 @@
+{
+  "schema_version": "p04_contracts_v1",
+  "assumptions_version": "p04_reference_point_constant_speed_proposed_v1",
+  "status": "DATA_CONTRACTS_IMPLEMENTED_FIXTURE_TESTED",
+  "research_profile_status": "OWNER_APPROVAL_REQUIRED",
+  "generated_during": "FINAL_INTEGRATION_AUDIT",
+  "types": {
+    "ProblemMetadata": {
+      "schema_version": "str",
+      "problem_type": "str",
+      "scenario_id": "str",
+      "family": "str",
+      "role": "str",
+      "seed_namespace": "str",
+      "seed": "int",
+      "origin": "str",
+      "assumptions_version": "str",
+      "source_project": "str",
+      "source_snapshot": "str | None"
+    },
+    "VesselContext": {
+      "vessel_id": "str",
+      "berth_id": "str",
+      "length_m": "float",
+      "berth_origin_m": "float",
+      "orientation": "int",
+      "planning_start_min": "float",
+      "epoch_iso8601": "str | None"
+    },
+    "RailGeometry": {
+      "rail_id": "str",
+      "axis": "str",
+      "lower_m": "float",
+      "upper_m": "float",
+      "min_clearance_m": "float | None",
+      "separation_model": "str",
+      "time_tolerance_min": "float | None",
+      "position_tolerance_m": "float | None",
+      "horizon_min": "float | None"
+    },
+    "CraneDefinition": {
+      "crane_id": "str",
+      "rail_id": "str",
+      "rail_rank": "int",
+      "initial_position_m": "float",
+      "reach_lower_m": "float",
+      "reach_upper_m": "float",
+      "travel_speed_m_per_min": "float | None",
+      "effective_moves_per_hour": "float | None",
+      "setup_min": "float | None",
+      "available_at_min": "float"
+    },
+    "BayDefinition": {
+      "bay_id": "str",
+      "local_m": "float",
+      "verified_global_m": "float | None"
+    },
+    "CraneTaskGroup": {
+      "task_id": "str",
+      "vessel_id": "str",
+      "bay_id": "str",
+      "operation_kind": "str",
+      "workload_moves": "int",
+      "release_min": "float",
+      "predecessor_ids": "tuple[str, ...]",
+      "source_task_ids": "tuple[str, ...]",
+      "source_container_ids": "tuple[str, ...]"
+    },
+    "QCSPProblem": {
+      "metadata": "ProblemMetadata",
+      "vessel": "VesselContext",
+      "rail": "RailGeometry",
+      "cranes": "tuple[CraneDefinition, ...]",
+      "bays": "tuple[BayDefinition, ...]",
+      "tasks": "tuple[CraneTaskGroup, ...]",
+      "declared_workload_moves": "int",
+      "units": "tuple[str, ...]"
+    },
+    "SchedulingDecision": {
+      "tag": "str",
+      "crane_id": "str | None",
+      "task_id": "str | None"
+    },
+    "MotionSegment": {
+      "crane_id": "str",
+      "mode": "str",
+      "start_min": "float",
+      "end_min": "float",
+      "start_m": "float",
+      "end_m": "float",
+      "task_id": "str | None"
+    },
+    "ScheduledTask": {
+      "task_id": "str",
+      "crane_id": "str",
+      "departure_min": "float",
+      "setup_start_min": "float",
+      "process_start_min": "float",
+      "completion_min": "float"
+    },
+    "CraneSchedule": {
+      "schema_version": "str",
+      "problem_hash": "str",
+      "policy_id": "str",
+      "outcome": "str",
+      "solver_status": "str | None",
+      "tasks": "tuple[ScheduledTask, ...]",
+      "segments": "tuple[MotionSegment, ...]",
+      "stop_min": "float"
+    },
+    "CraneTraceEvent": {
+      "schema_version": "str",
+      "event_id": "str",
+      "sequence": "int",
+      "time_min": "float",
+      "kind": "str",
+      "crane_id": "str | None",
+      "task_id": "str | None"
+    },
+    "CraneObservation": {
+      "schema_version": "str",
+      "time_min": "float",
+      "positions_m": "tuple[float, ...]",
+      "available": "tuple[bool, ...]",
+      "completed_task_ids": "tuple[str, ...]",
+      "assigned_task_ids": "tuple[str, ...]",
+      "visibility": "str"
+    },
+    "MetricRecord": {
+      "problem_hash": "str",
+      "valid_complete": "bool",
+      "makespan_min": "float | None",
+      "original_moves": "int",
+      "completed_moves": "int",
+      "travel_min": "float",
+      "travel_m": "float",
+      "productive_crane_min": "float",
+      "utilization": "float | None",
+      "idle_crane_min": "float",
+      "policy_latency_s": "tuple[float, ...]"
+    }
+  },
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe",
+    "src/rail_crane_scheduler/cli.py": "1a7db1625a126d4055f26e97943339ec8ed2fd3f0b4308ac2f2404d72aea608d",
+    "src/rail_crane_scheduler/contracts.py": "874e82bfd5dde02e3043dffd318d1e24eed8f712eef58101f8b593a5cdfa8226",
+    "src/rail_crane_scheduler/cpsat.py": "8d2e51410338369313983317e4cd2ddbf8f40dfed9c522e7ac1175a96454acdb",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4",
+    "src/rail_crane_scheduler/evaluation.py": "99cfc4f9d91c0416fa1d8b231e446ccc0f9a72eb831b455167d30e896d420c31",
+    "src/rail_crane_scheduler/integration.py": "bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/replay.py": "2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e",
+    "src/rail_crane_scheduler/research.py": "44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6",
+    "src/rail_crane_scheduler/scenarios.py": "b9e9ca2bbfec7b4165a7878c2aefc59f97b986758a405fb9d7108c409ad2b8f2",
+    "src/rail_crane_scheduler/training.py": "3a68ed5cecf94b67609ded3ab1031eca381c16080358bed78e5ed362ee6eec27",
+    "src/rail_crane_scheduler/validator.py": "7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4"
+  },
+  "structural_validation_is_physical_pass": false
+}

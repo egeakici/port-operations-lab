@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rail-crane-scheduler"
+version = "0.1.0"
+requires-python = ">=3.13"
+description = "Isolated synthetic quay-crane scheduling research tools"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest==9.1.1"]
+rl = ["numpy==2.2.3", "gymnasium==1.2.3", "stable-baselines3==2.8.0", "sb3-contrib==2.8.0", "torch==2.6.0"]
+solver = ["ortools>=9.11,<10"]
+visualization = ["streamlit==1.61.1", "matplotlib==3.10.1"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --strict-markers"

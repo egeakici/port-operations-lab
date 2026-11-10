@@ -1,0 +1,31 @@
+{
+  "step": 2,
+  "status": "PASS",
+  "scope": "TEST_FIXTURE_ENGINEERING_ONLY",
+  "command": [
+    "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests\\test_step02_contracts.py",
+    "--junitxml=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\docs\\development_run\\step02_attempt002.xml"
+  ],
+  "elapsed_s": 0.8210682000062661,
+  "returncode": 0,
+  "counts": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/contracts.py": "a7314254ba20d22c0a92b45e595ff4e1e52a29678d9332bb0e723f1b6484a109"
+  },
+  "previous_attempt": "step02_attempt001.json",
+  "stdout": "......................                                                   [100%]\n22 passed in 0.22s\n",
+  "stderr": ""
+}
