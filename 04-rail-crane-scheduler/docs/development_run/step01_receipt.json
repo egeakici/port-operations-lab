@@ -1,0 +1,12 @@
+{
+  "step": 1,
+  "status": "REUSED_VERIFIED",
+  "source_hash_checks": 56,
+  "relocated_prompt_equivalence": [
+    {
+      "historical_path": "Project_04_Step_01_Problem_Specification_and_Scientific_Contract_Codex_Prompt.md",
+      "current_equivalent": "Project04_Batch_Prompt_Package\\01_STEP01_Problem_Specification.md"
+    }
+  ],
+  "no_scientific_reruns": true
+}
