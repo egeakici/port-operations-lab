@@ -1,0 +1,42 @@
+{
+  "step": 8,
+  "status": "PASS",
+  "scope": "TEST_FIXTURE_ENGINEERING_ONLY",
+  "command": [
+    "C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "-p",
+    "no:cacheprovider",
+    "tests\\test_step08_environment.py",
+    "--basetemp=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\test_tmp\\step08_attempt003",
+    "--junitxml=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\docs\\development_run\\step08_attempt003.xml"
+  ],
+  "elapsed_s": 1.433795699995244,
+  "returncode": 0,
+  "counts": {
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "1a78eec374784bad318ca44eeef587fff10eb5e8d622397fef0236378d11dedb",
+    "src/rail_crane_scheduler/cli.py": "c9be4a2a0ee3f676b0873b70b0c98835e9baa780d688895261360e67b9980d34",
+    "src/rail_crane_scheduler/contracts.py": "a7314254ba20d22c0a92b45e595ff4e1e52a29678d9332bb0e723f1b6484a109",
+    "src/rail_crane_scheduler/cpsat.py": "fed29775e04f5f54453a33620d37f552f42fc7ff07156c6acfd7a93fc04ef2d1",
+    "src/rail_crane_scheduler/environment.py": "4bc336083fc41793b77a24b424d8ee7bfe69d046ca00f45aa2609267e16bcddb",
+    "src/rail_crane_scheduler/kernel.py": "d7fce39de2ef4febc5ff502509d7d870edf005b4d93f29e663b8dded1d722061",
+    "src/rail_crane_scheduler/research.py": "44521189f1820d38a37b0bdca67f4bd12ccc64e2b4549a4a258664722fa9f7c6",
+    "src/rail_crane_scheduler/scenarios.py": "bda27a8d3bbd56c27d3ef19c8f756afd5f6302e60960d967aebfeee6c239748e",
+    "src/rail_crane_scheduler/validator.py": "e2f2641bfdc2ae7df70d2a30e7a9f528d8ae9bd82447e85bb3bbfc1c454faa0f"
+  },
+  "previous_attempt": "step08_attempt002.json",
+  "stdout": "....                                                                     [100%]\n============================== warnings summary ===============================\ntests/test_step08_environment.py::test_actual_gymnasium_checker\n  C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\gymnasium\\utils\\env_checker.py:315: UserWarning: \u001b[33mWARN: A Box observation space maximum value is infinity. This is probably too high.\u001b[0m\n    logger.warn(\n\ntests/test_step08_environment.py::test_actual_gymnasium_checker\n  C:\\Users\\EGE ASUS\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\gymnasium\\utils\\env_checker.py:311: UserWarning: \u001b[33mWARN: A Box observation space minimum value is -infinity. This is probably too low.\u001b[0m\n    logger.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n4 passed, 2 warnings in 0.66s\n",
+  "stderr": ""
+}

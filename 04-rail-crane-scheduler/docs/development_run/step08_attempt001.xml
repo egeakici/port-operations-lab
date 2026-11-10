@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="4" time="0.940" timestamp="2026-11-10T14:40:39.511238+03:00" hostname="LAPTOP-QD5GCVHH"><testcase classname="tests.test_step08_environment" name="test_actual_gymnasium_checker" time="0.061"><failure message="AssertionError: Environment truncates after 1 step, something has gone very wrong.">tests\test_step08_environment.py:16: in test_actual_gymnasium_checker
+    check_env(env_for(),skip_render_check=True)
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\gymnasium\utils\env_checker.py:420: in check_env
+    check_step_determinism(env)
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\gymnasium\utils\env_checker.py:236: in check_step_determinism
+    trunc_0 is False and trunc_1 is False
+E   AssertionError: Environment truncates after 1 step, something has gone very wrong.</failure></testcase><testcase classname="tests.test_step08_environment" name="test_reset_immutability_and_reward" time="0.040" /><testcase classname="tests.test_step08_environment" name="test_invalid_action_truncates_without_mutation" time="0.018" /><testcase classname="tests.test_step08_environment" name="test_truncation_overflow_deadlock_and_repeatability" time="0.082" /></testsuite></testsuites>
