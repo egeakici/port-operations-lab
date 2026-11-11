@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-11-11T19:29:03.475597+03:00",
+  "profile_sha256": "d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc",
+  "scope": "ADDITIONAL_MANUAL_PREFLIGHT_AND_GENUINE_OWNER_RECEIPT; no approved source/config/tool changes",
+  "files": {
+    "docs/manual_execution/CLI_CHECKS.json": "4d92ac984031427907e674738427d46949814d70c485120ead33c12c90206b5a",
+    "docs/manual_execution/CLI_CHECKS_FINAL.json": "28dcdd7e0495b82b1bc25215f785bf5071dbe2f9cdeaf4b15534a0fb4df8d2f0",
+    "docs/manual_execution/fixture_tests.xml": "91f408ed761f5d90a5b044c0b9d5aae93d1d3b62107fd7e10d2bab3f3ae080c1",
+    "docs/manual_execution/MANUAL_COMMANDS.md": "8deec98a044edcfcee19994c0b221a3f8694d5708221690bea9ee925aaeff482",
+    "docs/manual_execution/OWNER_APPROVAL_EVIDENCE.md": "276755901b48b0a1a9875759bd0689c0fcb5c266925a66ea4d98f48cb0c4935e",
+    "docs/manual_execution/STATUS.json": "ebda9aa14bbc6f14bcc4add9513fc1208e5de181aca10af1c1306dac1bc6d2cc",
+    "scripts/manual/preflight.py": "1e4bb307f753688e97caf5995cae3403722f019849c61955307e260ad37b7f42",
+    "scripts/manual/Project04.ps1": "68ed69dda1460f614b4e450a8244a973f2452640f399d3151403158f7c253066",
+    "tests/test_manual_execution.py": "928b79c014b3c085206baf5597ad450b41daca978cc913180a9c78e02faf8b25",
+    "experiments/research_v1_d06b10d8e04f/owner_approval.json": "f2e82a81c826e8c9c286b1e7860da1e47dd8c7749b54e7d87f6fd39134f0cb0f"
+  }
+}

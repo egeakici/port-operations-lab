@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-11-11T19:25:53.022029+03:00",
+  "safe_actions_only": true,
+  "checks": [
+    {
+      "action": "Help",
+      "exit_code": 0,
+      "stdout": "ValidateExecution: read-only exact approval/source/config/environment and RAM/disk preflight.\nEvery other action except Help repeats this preflight before calling the existing interface.\nOne action per invocation; foreground only. Train/ResumeTraining require one explicit -Seed.\nusage: Project04 research [-h] [--profile PROFILE] [--workdir WORKDIR]\n                          [--approval APPROVAL] [--seed SEED]\n                          [--approval-text APPROVAL_TEXT]\n                          [--owner-evidence OWNER_EVIDENCE]\n                          {Status,ValidateEnvironment,ValidateProfile,PrepareGeneration,Generate,ResumeGeneration,VerifyGeneration,PrepareBaselines,Baselines,ResumeBaselines,PrepareTraining,Train,ResumeTraining,TrainingStatus,SelectModels,PrepareEvaluation,Evaluate,ResumeEvaluation,VerifyResults,GenerateReport,RecordApproval}\n\npositional arguments:\n  {Status,ValidateEnvironment,ValidateProfile,PrepareGeneration,Generate,ResumeGeneration,VerifyGeneration,PrepareBaselines,Baselines,ResumeBaselines,PrepareTraining,Train,ResumeTraining,TrainingStatus,SelectModels,PrepareEvaluation,Evaluate,ResumeEvaluation,VerifyResults,GenerateReport,RecordApproval}\n\noptions:\n  -h, --help            show this help message and exit\n  --profile PROFILE\n  --workdir WORKDIR\n  --approval APPROVAL\n  --seed SEED\n  --approval-text APPROVAL_TEXT\n  --owner-evidence OWNER_EVIDENCE\n",
+      "stderr": ""
+    },
+    {
+      "action": "ValidateExecution",
+      "exit_code": 0,
+      "stdout": "{\"status\": \"MANUAL_EXECUTION_PREFLIGHT_VERIFIED\", \"profile_sha256\": \"d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc\", \"owner_receipt_status\": \"OWNER_APPROVED_ROOT_VERIFIED\", \"approval_path\": \"C:\\\\Users\\\\EGE ASUS\\\\Desktop\\\\port-operations-lab\\\\04-rail-crane-scheduler\\\\experiments\\\\research_v1_d06b10d8e04f\\\\owner_approval.json\", \"approval_file_sha256\": \"f2e82a81c826e8c9c286b1e7860da1e47dd8c7749b54e7d87f6fd39134f0cb0f\", \"device\": \"cpu\", \"python\": \"C:\\\\Users\\\\EGE ASUS\\\\Desktop\\\\port-operations-lab\\\\04-rail-crane-scheduler\\\\.venv-research\\\\Scripts\\\\python.exe\", \"available_ram_bytes\": 2221752320, \"minimum_available_ram_bytes\": 2147483648, \"free_disk_bytes\": 583263318016, \"minimum_free_disk_bytes\": 10737418240, \"scientific_commands_started\": 0}\n",
+      "stderr": "",
+      "result": {
+        "status": "MANUAL_EXECUTION_PREFLIGHT_VERIFIED",
+        "profile_sha256": "d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc",
+        "owner_receipt_status": "OWNER_APPROVED_ROOT_VERIFIED",
+        "approval_path": "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\experiments\\research_v1_d06b10d8e04f\\owner_approval.json",
+        "approval_file_sha256": "f2e82a81c826e8c9c286b1e7860da1e47dd8c7749b54e7d87f6fd39134f0cb0f",
+        "device": "cpu",
+        "python": "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\.venv-research\\Scripts\\python.exe",
+        "available_ram_bytes": 2221752320,
+        "minimum_available_ram_bytes": 2147483648,
+        "free_disk_bytes": 583263318016,
+        "minimum_free_disk_bytes": 10737418240,
+        "scientific_commands_started": 0
+      }
+    },
+    {
+      "action": "ValidateEnvironment",
+      "exit_code": 2,
+      "stdout": "{\"status\": \"REJECTED\", \"error\": \"INSUFFICIENT_FREE_RAM at compute: close applications; minimum 2 GiB free RAM required\"}\n",
+      "stderr": ""
+    }
+  ]
+}
