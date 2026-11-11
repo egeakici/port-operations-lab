@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="10.020" timestamp="2026-11-11T18:11:08.946016+03:00" hostname="LAPTOP-QD5GCVHH"><testcase classname="tests.test_research_readiness" name="test_resume_verification_does_not_reseed_training_rng" time="9.805" /></testsuite></testsuites>

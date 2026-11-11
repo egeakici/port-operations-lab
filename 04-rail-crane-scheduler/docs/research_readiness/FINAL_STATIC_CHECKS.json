@@ -1,0 +1,37 @@
+{
+  "status": "PASSED",
+  "canonical_profile_sha256": "d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc",
+  "validated_parameter_configs": 896,
+  "primary_generated": 0,
+  "ast_files": 38,
+  "json_files_parsed": 38,
+  "local_links_checked": 36,
+  "broken_links": [],
+  "git_ignore_checks": {
+    "source": {
+      "ignored": false,
+      "expected": false
+    },
+    "profile": {
+      "ignored": false,
+      "expected": false
+    },
+    "venv": {
+      "ignored": true,
+      "expected": true
+    },
+    "experiment_model": {
+      "ignored": true,
+      "expected": true
+    },
+    "pip_cache": {
+      "ignored": true,
+      "expected": true
+    }
+  },
+  "outside_scope_changes": [],
+  "index_empty": true,
+  "source_matches_final_tests_and_cli": true,
+  "changed_file_count": 78,
+  "git_checkout_policy_verified": true
+}

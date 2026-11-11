@@ -93,6 +93,27 @@ def write_fixture(config, directory):
     return manifest
 
 
+def write_fixture_batch(configs, directory):
+    """Bounded progress integration for at most eight correctness fixtures."""
+    from .progress import Progress
+    configs=tuple(configs)
+    require(0<len(configs)<=8 and all(c.template.metadata.origin=='TEST_FIXTURE_SYNTHETIC' and
+            c.template.metadata.role in {'development','diagnostic'} for c in configs),
+            'FIXTURE_BOUND','configs','at most eight development/diagnostic correctness fixtures')
+    out=Path(directory)
+    require(not out.exists(),'OUTPUT_EXISTS','output','new fixture batch directory required')
+    out.mkdir(parents=True)
+    manifests=[]
+    with Progress(len(configs),'Fixture generation',out) as progress:
+        for i,c in enumerate(configs):
+            progress.start(family=c.template.metadata.family,role=c.template.metadata.role,validation_failures=0,rejected=0)
+            manifest=write_fixture(c,out/f'fixture_{i:03d}')
+            manifests.append(manifest)
+            progress.advance(family=c.template.metadata.family,role=c.template.metadata.role,validation_failures=0,rejected=0)
+    write_new(out/'manifest.json',canonical({'origin':'TEST_FIXTURE_SYNTHETIC','entries':manifests}))
+    return manifests
+
+
 def generate_manual(payload,approval_path,confirmation,directory):
     """Exact owner/source/config gate before generation; not run by development."""
     from .research import manual_gate
@@ -100,16 +121,24 @@ def generate_manual(payload,approval_path,confirmation,directory):
     configs=tuple(GeneratorConfig.from_dict(raw) for raw in payload['configs'])
     require(bool(configs),'EMPTY_COHORT','configs','nonempty explicit configuration list required')
     permit=GenerationPermit(token,tuple(c.fingerprint for c in configs))
-    problems=tuple(generate(c,permit) for c in configs)
-    no_leakage(problems)
-    for p in problems:
-        p.require_fixture_execution(ExecutionPermit(token,(p.fingerprint,),(p.metadata.role,)))
+    from .progress import Progress
     out=Path(directory); require(not out.exists(),'OUTPUT_EXISTS','output','new immutable generation directory required')
     out.mkdir(parents=True)
     write_new(out/'plan.json',canonical(payload))
-    entries=[]
-    for c,p in zip(configs,problems):
-        name=p.metadata.scenario_id+'.json'; write_new(out/name,canonical(p.to_dict()))
-        entries.append({'file':name,'problem_hash':p.fingerprint,'physical_hash':p.physical_fingerprint,'role':p.metadata.role,'config_hash':c.fingerprint})
+    entries=[]; physical=set()
+    with Progress(len(configs),'Manual generation',out) as progress:
+        for c in configs:
+            progress.start(family=c.template.metadata.family,role=c.template.metadata.role,validation_failures=0,rejected=0)
+            try:
+                p=generate(c,permit)
+                require(p.physical_fingerprint not in physical,'SPLIT_LEAKAGE','generation','duplicate input; no reroll')
+                physical.add(p.physical_fingerprint)
+                p.require_fixture_execution(ExecutionPermit(token,(p.fingerprint,),(p.metadata.role,)))
+                name=p.metadata.scenario_id+'.json'; write_new(out/name,canonical(p.to_dict()))
+                entries.append({'file':name,'problem_hash':p.fingerprint,'physical_hash':p.physical_fingerprint,'role':p.metadata.role,'config_hash':c.fingerprint})
+                progress.advance(family=p.metadata.family,role=p.metadata.role,validation_failures=0,rejected=0)
+            except ContractError as exc:
+                progress.record('REJECTED_STOP_NO_REROLL',validation_failures=1,rejected=1,error=str(exc))
+                raise
     manifest={'status':'OWNER_MANUAL_INPUT_GENERATION_NOT_SCIENTIFIC_RESULTS','plan_hash':token,'generator_version':GENERATOR_VERSION,'entries':entries}
     write_new(out/'manifest.json',canonical(manifest)); return manifest

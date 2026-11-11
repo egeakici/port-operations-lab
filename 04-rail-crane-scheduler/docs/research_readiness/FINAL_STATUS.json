@@ -1,0 +1,123 @@
+{
+  "schema_version": "p04_research_readiness_status_v1",
+  "date_local": "2026-11-11",
+  "timezone": "Europe/Istanbul",
+  "head": "4a01b9181bd08818bece3a154781acacca00f7b3",
+  "branch": "main",
+  "source_revision_kind": "BASE_HEAD_PLUS_APPROVED_CONTENT_HASHES; readiness patch is uncommitted",
+  "overall_status": "ENGINEERING_READY_OWNER_APPROVAL_PENDING",
+  "states": {
+    "INSTALLED": true,
+    "VERIFIED": true,
+    "ENGINEERING_READY": true,
+    "OWNER_APPROVAL_PENDING": true,
+    "PRIMARY_GENERATION_NOT_RUN": true,
+    "PPO_TRAINING_NOT_RUN": true,
+    "HELDOUT_EVALUATION_NOT_RUN": true,
+    "SCIENTIFIC_CLOSURE_NOT_COMPLETE": true
+  },
+  "environment": {
+    "path": "04-rail-crane-scheduler/.venv-research",
+    "python": "3.13.2",
+    "device": "cpu",
+    "torch_runtime": "2.6.0+cpu",
+    "cuda_available": false,
+    "torch_threads": 2,
+    "installed_distribution_count": 70,
+    "wheel_hash_count": 68,
+    "lock_path": "configs/research/environment_lock_v1.json",
+    "environment_lock_sha256": "b4a7f61644329686706130151cd61dd3c9878ba649b17691991c22dbff46ac55"
+  },
+  "tests": {
+    "passed": 112,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "warnings": 14,
+    "seconds": 63.701,
+    "receipt": "FINAL_ENGINEERING_VERIFICATION_V3.json",
+    "source_unchanged_during_tests": true
+  },
+  "cli": {
+    "passed": 17,
+    "failed": 0,
+    "receipt": "CLI_VERIFICATION_V2.json"
+  },
+  "real_cp_sat": {
+    "status": "VERIFIED_OPTIMAL_FIXTURE_ONLY",
+    "fixture_makespan_min": 5.0,
+    "bound_min": 5.0,
+    "independent_validator": true,
+    "test_count": 4,
+    "general_continuous_optimum_claim": false
+  },
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe",
+    "src/rail_crane_scheduler/campaign.py": "08d3dacb1553261a7adff91ec17d99fc149db8931888024c08e8638dd0e27297",
+    "src/rail_crane_scheduler/campaign_cli.py": "37dee4112726fb69c10bf2947616de9f6d41434d1a907f5110aa3d5840f6b6ee",
+    "src/rail_crane_scheduler/cli.py": "1a7db1625a126d4055f26e97943339ec8ed2fd3f0b4308ac2f2404d72aea608d",
+    "src/rail_crane_scheduler/contracts.py": "66941c3b13a9a54fce67c76aa63d8cfdf4c73b92de8659eef74469a26f169550",
+    "src/rail_crane_scheduler/cpsat.py": "07a2fdc927ccbf2943ff0bc25cdbfdcd6f4d9f587b31b58bf4b32930c80dd9f3",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4",
+    "src/rail_crane_scheduler/evaluation.py": "14f25301dc59df58e405508e3d65b10510172eeb138096a95faf3491f7840285",
+    "src/rail_crane_scheduler/integration.py": "bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/progress.py": "11a6eceb2a548ebf785181aedefd386d4b4397c4b8b2d75dbdad0c4392cfe2b2",
+    "src/rail_crane_scheduler/readiness.py": "9b25768582c6ad5956f9342957ec620a39c5093641a2b9aa7242e696d1e2ca7b",
+    "src/rail_crane_scheduler/replay.py": "2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e",
+    "src/rail_crane_scheduler/research.py": "f1a2c15f8bde1078bb0590c6789c3c106e1f4186db8a5502ec6eef38f030b28a",
+    "src/rail_crane_scheduler/scenarios.py": "a68178602ce167db7ece692986e70698eb791f83ac2a165b3c7b88f4993e980d",
+    "src/rail_crane_scheduler/statistics_report.py": "05334e97735b7b03aa06f4442d2300246552d4da24c5705d902f80915a33a4bd",
+    "src/rail_crane_scheduler/training.py": "e325a74faacae313598776fec3c9541514424d5cd6031f3fb455b8265e8fecb3",
+    "src/rail_crane_scheduler/validator.py": "7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4"
+  },
+  "tooling_sha256": {
+    "pyproject.toml": "92e9ae3a49a5368ca94e30ca9f27ab8a0ed4a47da6ce74b562cbd642c8a3b73b",
+    "scripts/Project04.ps1": "8f9e405dc566798e66c1e805f2eca0fa0c2681df02953ff9be9d21b80661261a",
+    "scripts/Setup-ResearchEnvironment.ps1": "1fc575434c75ae63386d362930ac6b81ac51b751967629eac3ca4840d540bb47"
+  },
+  "canonical_profile_sha256": "d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc",
+  "profile_status": "PROPOSED",
+  "approval_receipt_created": false,
+  "proposal_numeric_parameter_count": 136,
+  "engineering_blockers": [],
+  "scientific_blockers": [
+    "Exact O1-O6 profile/root derivation/manual campaign scope owner approval pending",
+    "Primary scenarios not generated",
+    "Five approved PPO seeds not trained/validation-selected",
+    "Held-out campaign and statistical evidence not run"
+  ],
+  "resource_conditions": {
+    "minimum_available_ram_bytes": 2147483648,
+    "observed_available_ram_bytes": 696131584,
+    "minimum_free_disk_bytes": 10737418240,
+    "observed_free_disk_bytes": 583572590592
+  },
+  "actual_primary_scenarios_generated": 0,
+  "actual_ppo_optimizer_updates": 0,
+  "actual_heldout_research_episodes": 0,
+  "scientifically_closed": false,
+  "project_i_live_integration": "DATA_GAP_NOT_ESTABLISHED; isolated adapter preserved",
+  "preservation": {
+    "protected_legacy_files": 656,
+    "protected_changes": [],
+    "historical_project04_records_checked": 71,
+    "historical_records_changed": [],
+    "head_unchanged": true,
+    "index_empty": true,
+    "commit_stage_push_performed": false
+  },
+  "next_manual_action": "Review OWNER_REVIEW.md and explicitly approve the exact canonical profile and declared manual scope. No campaign starts automatically.",
+  "manual_runbook": "MANUAL_RESEARCH.md",
+  "artifacts": {
+    "inventory": "CHANGE_INVENTORY.json",
+    "integrity": "READINESS_INTEGRITY.json",
+    "owner_review": "OWNER_REVIEW.md",
+    "manual_commands": "MANUAL_RESEARCH.md",
+    "checkout_bytes": "GIT_CHECKOUT_BYTE_POLICY.json"
+  },
+  "scientific_configuration_views_validated": 5
+}

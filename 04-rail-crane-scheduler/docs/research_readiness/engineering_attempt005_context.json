@@ -1,0 +1,52 @@
+{
+  "status": "STARTED",
+  "command": [
+    "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\.venv-research\\Scripts\\python.exe",
+    "-B",
+    "-m",
+    "pytest",
+    "C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\tests",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml=C:\\Users\\EGE ASUS\\Desktop\\port-operations-lab\\04-rail-crane-scheduler\\docs\\research_readiness\\engineering_attempt005.xml"
+  ],
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe",
+    "src/rail_crane_scheduler/campaign.py": "1e6f8fe99955100b573f1e009d1b01433657ffd8ed10f0bf87991f4ced495739",
+    "src/rail_crane_scheduler/campaign_cli.py": "37dee4112726fb69c10bf2947616de9f6d41434d1a907f5110aa3d5840f6b6ee",
+    "src/rail_crane_scheduler/cli.py": "1a7db1625a126d4055f26e97943339ec8ed2fd3f0b4308ac2f2404d72aea608d",
+    "src/rail_crane_scheduler/contracts.py": "66941c3b13a9a54fce67c76aa63d8cfdf4c73b92de8659eef74469a26f169550",
+    "src/rail_crane_scheduler/cpsat.py": "07a2fdc927ccbf2943ff0bc25cdbfdcd6f4d9f587b31b58bf4b32930c80dd9f3",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4",
+    "src/rail_crane_scheduler/evaluation.py": "9a4ba5b95412579cdd2e57616238a27a199e459ea04f95efff53855f68f4c676",
+    "src/rail_crane_scheduler/integration.py": "bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/progress.py": "6326b37180b7adae734d946e04475bf5c6528a2e1cb854e5750828093dbef6e0",
+    "src/rail_crane_scheduler/readiness.py": "9b25768582c6ad5956f9342957ec620a39c5093641a2b9aa7242e696d1e2ca7b",
+    "src/rail_crane_scheduler/replay.py": "2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e",
+    "src/rail_crane_scheduler/research.py": "f1a2c15f8bde1078bb0590c6789c3c106e1f4186db8a5502ec6eef38f030b28a",
+    "src/rail_crane_scheduler/scenarios.py": "ab662af5aecf6049813b3cc818471b2c27cf3982c75158554764da5dd582bfa7",
+    "src/rail_crane_scheduler/statistics_report.py": "05334e97735b7b03aa06f4442d2300246552d4da24c5705d902f80915a33a4bd",
+    "src/rail_crane_scheduler/training.py": "6bedfce844715d85be9cbec008f33e473feb86519b30228f8225fb312e799dc0",
+    "src/rail_crane_scheduler/validator.py": "7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4"
+  },
+  "tooling_sha256": {
+    "pyproject.toml": "92e9ae3a49a5368ca94e30ca9f27ab8a0ed4a47da6ce74b562cbd642c8a3b73b",
+    "scripts/Project04.ps1": "8f9e405dc566798e66c1e805f2eca0fa0c2681df02953ff9be9d21b80661261a",
+    "scripts/Setup-ResearchEnvironment.ps1": "1fc575434c75ae63386d362930ac6b81ac51b751967629eac3ca4840d540bb47"
+  },
+  "environment_lock_sha256": "b4a7f61644329686706130151cd61dd3c9878ba649b17691991c22dbff46ac55",
+  "python": "3.13.2 (tags/v3.13.2:4f8bb39, Feb  4 2025, 15:23:48) [MSC v.1942 64 bit (AMD64)]",
+  "test_thread_env": {
+    "OMP_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2"
+  },
+  "primary_generation": false,
+  "optimizer_updates": 0,
+  "heldout_evaluation": false
+}

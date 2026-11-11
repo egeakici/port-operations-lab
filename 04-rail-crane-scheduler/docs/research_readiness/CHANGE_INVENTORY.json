@@ -1,0 +1,321 @@
+{
+  "scope": "PROJECT04_READINESS_AND_EXPLICIT_ROOT_IGNORE_REPAIR",
+  "head": "4a01b9181bd08818bece3a154781acacca00f7b3",
+  "canonical_profile_sha256": "d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc",
+  "files": [
+    {
+      "path": ".gitignore",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/.gitattributes",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/.gitignore",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/README.md",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/baseline_candidate_v1.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/crane_training_candidate_v1.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/environment_lock_v1.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/evaluation_candidate_v1.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/generation_candidate_v1.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/primary_candidate_v1.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/reporting_candidate_v1.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/configs/research/requirements-research.lock",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/ARCHITECTURE.md",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/MANUAL_EXECUTION.md",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/APPROVAL_PACKAGE.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/CHANGE_INVENTORY.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/CLI_VERIFICATION.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/CLI_VERIFICATION_FINAL.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/CLI_VERIFICATION_V2.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/COMMIT_SCOPE.md",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/ENGINEERING_VERIFICATION.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/ENVIRONMENT_SETUP.md",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/ENVIRONMENT_VERIFIED.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/FINAL_ENGINEERING_VERIFICATION.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/FINAL_ENGINEERING_VERIFICATION_V2.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/FINAL_ENGINEERING_VERIFICATION_V3.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/FINAL_ENVIRONMENT_AND_INFERENCE.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/FINAL_ENVIRONMENT_AND_INFERENCE_V2.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/FINAL_REPORT.md",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/FINAL_STATIC_CHECKS.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/FINAL_STATUS.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/GIT_CHECKOUT_BYTE_POLICY.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/INSTALLED_PACKAGES.md",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/INSTALL_REPORT.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/MANUAL_RESEARCH.md",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/NUMERICAL_PROVENANCE.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/OWNER_REVIEW.md",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/PACKAGING_INSTALL_REPORT.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/PREFLIGHT.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/READINESS_INTEGRITY.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/SCIENTIFIC_PROPOSAL.md",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/WORKLOG.md",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/cpsat_attempt002.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt001.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt002.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt003.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt003_context.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt004.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt004_context.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt005.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt005_context.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt006.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/engineering_attempt006_context.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/proposal_revisions/draft_2575d3fd25b2.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/proposal_revisions/draft_4b2bef1e59f9.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/proposal_revisions/draft_932b58563538.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/proposal_revisions/draft_b008764ca9d9.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/proposal_revisions/draft_ed11de239a7d.json",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/readiness_attempt001.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/requirements-resolved.txt",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/docs/research_readiness/resume_rng_attempt001.xml",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/pyproject.toml",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/scripts/Project04.ps1",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/scripts/Setup-ResearchEnvironment.ps1",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/campaign.py",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/campaign_cli.py",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/contracts.py",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/cpsat.py",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/evaluation.py",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/progress.py",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/readiness.py",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/research.py",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/scenarios.py",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/statistics_report.py",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/src/rail_crane_scheduler/training.py",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_research_readiness.py",
+      "change": "NEW"
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step06_cpsat.py",
+      "change": "MODIFIED"
+    },
+    {
+      "path": "04-rail-crane-scheduler/tests/test_step14_audit.py",
+      "change": "MODIFIED"
+    }
+  ],
+  "count": 78,
+  "excluded": "experiments, venvs, caches, models, raw logs, unrelated prompt package"
+}

@@ -1,0 +1,162 @@
+{
+  "status": "VERIFIED_CURRENT_BYTES_UNCHANGED",
+  "paths": [
+    {
+      "path": "src/rail_crane_scheduler/__init__.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 3
+    },
+    {
+      "path": "src/rail_crane_scheduler/__main__.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 4
+    },
+    {
+      "path": "src/rail_crane_scheduler/baselines.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 80
+    },
+    {
+      "path": "src/rail_crane_scheduler/campaign.py",
+      "eol": "crlf",
+      "crlf_count": 395,
+      "lf_count": 0
+    },
+    {
+      "path": "src/rail_crane_scheduler/campaign_cli.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 85
+    },
+    {
+      "path": "src/rail_crane_scheduler/cli.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 165
+    },
+    {
+      "path": "src/rail_crane_scheduler/contracts.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 419
+    },
+    {
+      "path": "src/rail_crane_scheduler/cpsat.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 119
+    },
+    {
+      "path": "src/rail_crane_scheduler/encoding.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 37
+    },
+    {
+      "path": "src/rail_crane_scheduler/environment.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 116
+    },
+    {
+      "path": "src/rail_crane_scheduler/evaluation.py",
+      "eol": "crlf",
+      "crlf_count": 261,
+      "lf_count": 0
+    },
+    {
+      "path": "src/rail_crane_scheduler/integration.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 92
+    },
+    {
+      "path": "src/rail_crane_scheduler/kernel.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 121
+    },
+    {
+      "path": "src/rail_crane_scheduler/progress.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 57
+    },
+    {
+      "path": "src/rail_crane_scheduler/readiness.py",
+      "eol": "crlf",
+      "crlf_count": 219,
+      "lf_count": 0
+    },
+    {
+      "path": "src/rail_crane_scheduler/replay.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 105
+    },
+    {
+      "path": "src/rail_crane_scheduler/research.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 92
+    },
+    {
+      "path": "src/rail_crane_scheduler/scenarios.py",
+      "eol": "crlf",
+      "crlf_count": 144,
+      "lf_count": 0
+    },
+    {
+      "path": "src/rail_crane_scheduler/statistics_report.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 174
+    },
+    {
+      "path": "src/rail_crane_scheduler/training.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 306
+    },
+    {
+      "path": "src/rail_crane_scheduler/validator.py",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 93
+    },
+    {
+      "path": "pyproject.toml",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 25
+    },
+    {
+      "path": "scripts/Project04.ps1",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 40
+    },
+    {
+      "path": "scripts/Setup-ResearchEnvironment.ps1",
+      "eol": "lf",
+      "crlf_count": 0,
+      "lf_count": 25
+    },
+    {
+      "path": "configs/research/environment_lock_v1.json",
+      "eol": "crlf",
+      "crlf_count": 383,
+      "lf_count": 0
+    },
+    {
+      "path": "configs/research/primary_candidate_v1.json",
+      "eol": "crlf",
+      "crlf_count": 338,
+      "lf_count": 0
+    }
+  ],
+  "source_sha256_unchanged_since_final_tests": true
+}

@@ -17,7 +17,9 @@ def test_preserved_all_protected_sources():
     baseline=json.loads((project/'docs/development_run/PREFLIGHT.json').read_text(encoding='utf-8'))
     for path,expected in baseline['protected_sha256'].items():
         assert hashlib.sha256((repo/path).read_bytes()).hexdigest()==expected,path
-    assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()==baseline['head']
+    # Owner commits after the historical development run are legitimate. The
+    # baseline must remain in history and every protected byte is still checked.
+    assert subprocess.run(['git','merge-base','--is-ancestor',baseline['head'],'HEAD'],cwd=repo).returncode==0
     assert not subprocess.check_output(['git','diff','--cached','--name-only'],cwd=repo,text=True).strip()
 
 

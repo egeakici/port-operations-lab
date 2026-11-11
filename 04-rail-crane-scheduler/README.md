@@ -1,13 +1,23 @@
 # Project 04 — Rail Crane Scheduler
 
-**Current engineering state: IMPLEMENTATION_PARTIAL_BLOCKED.** The fourteen-stage
-batch implementation has fixture-tested contracts, generation, scheduling,
-independent verification, four heuristics, RL tools, evaluation, replay and an
-isolated adapter. OR-Tools integration and owner-approved research physics remain
-pending. No PPO optimization, trained research checkpoint or held-out campaign
-was executed. Step 01's original scientific contract/history is preserved below.
+**Current engineering state: ENGINEERING_READY; OWNER_APPROVAL_PENDING.** The
+isolated research environment is installed, real OR-Tools fixture integration
+passes, and the PowerShell campaign interface supplies hash-bound plans, tqdm,
+immutable results and resume support. The complete proposed O1-O6 profile remains
+unapproved. No primary generation, PPO optimizer update or held-out scientific
+evaluation was run. Project I live integration remains DATA_GAP.
 
-Start with [the consolidated development report](docs/development_run/FINAL_REPORT.md),
+Start with [the current readiness report](docs/research_readiness/FINAL_REPORT.md),
+[one exact owner review](docs/research_readiness/OWNER_REVIEW.md), and
+[the tested manual research sequence](docs/research_readiness/MANUAL_RESEARCH.md).
+
+```powershell
+.\04-rail-crane-scheduler\scripts\Project04.ps1 Status
+.\04-rail-crane-scheduler\scripts\Project04.ps1 ValidateEnvironment
+.\04-rail-crane-scheduler\scripts\Project04.ps1 ValidateProfile
+```
+
+Historical fourteen-step evidence: [the consolidated development report](docs/development_run/FINAL_REPORT.md),
 [machine status](docs/development_run/FINAL_STATUS.json),
 [manual PowerShell runbook](docs/MANUAL_EXECUTION.md), and
 [one owner decision packet](docs/development_run/OWNER_DECISIONS.md).

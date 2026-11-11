@@ -20,7 +20,13 @@ def manual_gate(payload,approval_path,confirmation):
     expected=digest(payload)
     require(confirmation==expected,"MANUAL_CONFIRMATION","confirmation","exact payload digest required")
     approval=strict_json(Path(approval_path).read_text(encoding="utf-8"))
-    require(approval.get("status")=="OWNER_APPROVED" and approval.get("approved_payload_sha256")==expected and bool(approval.get("owner_evidence")),"OWNER_APPROVAL_REQUIRED","approval","candidate lock is not authorization")
+    require(approval.get("status")=="OWNER_APPROVED" and bool(approval.get("owner_evidence")),"OWNER_APPROVAL_REQUIRED","approval","candidate lock is not authorization")
+    if approval.get('approved_payload_sha256') != expected:
+        # An explicit root approval can authorize only exactly re-derived child
+        # plans, under the rule named in that approved root. Never manufacture
+        # child approval receipts or infer approval from proposed metadata.
+        from .campaign import verify_derived_plan
+        verify_derived_plan(payload, approval)
     require(payload.get("source_sha256")==source_snapshot(),"SOURCE_CHANGED","payload.source_sha256","re-review source before scientific execution")
     return expected
 

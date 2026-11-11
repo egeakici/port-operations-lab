@@ -1,0 +1,68 @@
+{
+  "version": "1",
+  "pip_version": "24.3.1",
+  "install": [
+    {
+      "download_info": {
+        "url": "file:///C:/Users/EGE%20ASUS/Desktop/port-operations-lab/04-rail-crane-scheduler",
+        "dir_info": {
+          "editable": true
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.4",
+        "name": "rail-crane-scheduler",
+        "version": "0.1.0",
+        "summary": "Isolated synthetic quay-crane scheduling research tools",
+        "requires_dist": [
+          "pytest==9.1.1; extra == \"test\"",
+          "numpy==2.2.3; extra == \"rl\"",
+          "gymnasium==1.2.3; extra == \"rl\"",
+          "stable-baselines3==2.8.0; extra == \"rl\"",
+          "sb3-contrib==2.8.0; extra == \"rl\"",
+          "torch==2.6.0; extra == \"rl\"",
+          "ortools<10,>=9.11; extra == \"solver\"",
+          "streamlit==1.61.1; extra == \"visualization\"",
+          "matplotlib==3.10.1; extra == \"visualization\"",
+          "numpy==2.2.3; extra == \"research\"",
+          "scipy==1.15.2; extra == \"research\"",
+          "pandas==2.3.3; extra == \"research\"",
+          "pytest==9.1.1; extra == \"research\"",
+          "tqdm==4.67.1; extra == \"research\"",
+          "gymnasium==1.2.3; extra == \"research\"",
+          "stable-baselines3==2.8.0; extra == \"research\"",
+          "sb3-contrib==2.8.0; extra == \"research\"",
+          "torch==2.6.0; extra == \"research\"",
+          "ortools==9.12.4544; extra == \"research\"",
+          "matplotlib==3.10.1; extra == \"research\"",
+          "streamlit==1.61.1; extra == \"research\"",
+          "psutil==7.2.2; extra == \"research\""
+        ],
+        "requires_python": ">=3.13",
+        "provides_extra": [
+          "test",
+          "rl",
+          "solver",
+          "visualization",
+          "research"
+        ]
+      }
+    }
+  ],
+  "environment": {
+    "implementation_name": "cpython",
+    "implementation_version": "3.13.2",
+    "os_name": "nt",
+    "platform_machine": "AMD64",
+    "platform_release": "11",
+    "platform_system": "Windows",
+    "platform_version": "10.0.26300",
+    "python_full_version": "3.13.2",
+    "platform_python_implementation": "CPython",
+    "python_version": "3.13",
+    "sys_platform": "win32"
+  }
+}

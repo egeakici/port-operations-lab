@@ -1,0 +1,41 @@
+{
+  "status": "OWNER_APPROVAL_PENDING",
+  "canonicalization": "existing contracts.canonical: JSON sorted keys, compact separators, UTF-8, allow_nan=False",
+  "profile_path": "configs/research/primary_candidate_v1.json",
+  "canonical_profile_sha256": "d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc",
+  "profile_file_sha256": "37efe9a027fa8578e5ec4690db519b3b740771421ba21d0f8884481d0586f7d1",
+  "exact_owner_approval_text": "I APPROVE PROJECT04 PROFILE d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc O1-O6 AND EXACT DERIVED PLANS p04_exact_campaign_derivation_v1 FOR MANUAL FOREGROUND GENERATION BASELINES FIVE-SEED PPO VALIDATION-ONLY SELECTION HELDOUT EVALUATION AND REPORTING WITH THE DECLARED BUDGETS. NO AUTOMATIC CAMPAIGNS OR SCIENTIFIC CLOSURE.",
+  "scope": {
+    "decisions": [
+      "O1",
+      "O2",
+      "O3",
+      "O4",
+      "O5",
+      "O6"
+    ],
+    "operations": [
+      "generation",
+      "baselines",
+      "training",
+      "evaluation",
+      "report"
+    ],
+    "derived_plan_rule": "p04_exact_campaign_derivation_v1",
+    "manual_foreground_only": true,
+    "future_bindings": "generated immutable input hashes and validation-only selected checkpoint identities; exact re-derivation required",
+    "no_scientific_closure_delegation": true
+  },
+  "no_owner_receipt_created": true,
+  "primary_generation_run": false,
+  "ppo_optimizer_steps_executed": 0,
+  "heldout_episodes_executed": 0,
+  "candidate_views_sha256": {
+    "generation_candidate_v1.json": "a6c24614a6858fd632b7d278ffa6d3dc286cce2c420a704243a27d9fbf987442",
+    "baseline_candidate_v1.json": "047fa3e914999d9c83b8aa325b3ca4670916f05451538bd9adfd82f97ee68909",
+    "crane_training_candidate_v1.json": "a41ff2e273dc3cbb82f8d65c9f87c189d89154897f92dc44a0188fdff7516958",
+    "evaluation_candidate_v1.json": "9767da41f9fb2b35537fc5979c3385f9945a9217bfe4332aa6796dce7c4feffc",
+    "reporting_candidate_v1.json": "0eb1a4bf8a0efae46de5ecf3b787b9d83936dab5cc2038cce743657fb2203c2f"
+  },
+  "numerical_parameter_count": 136
+}

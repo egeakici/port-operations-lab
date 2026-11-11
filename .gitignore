@@ -24,7 +24,7 @@ build/
 *.egg-info/
 # Planned projects are kept local until they are ready.
 
-04-rail-crane-scheduler/
+# Project 04 source is ready for tracking; its own ignore excludes research data.
 05-container-yard-puzzle/
 06-terminal-rl-sandbox/
 07-ais-port-call-calibrator/

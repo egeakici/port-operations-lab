@@ -1,5 +1,13 @@
 # Project04 manual PowerShell runbook
 
+**Historical implementation-stage runbook.** Its missing-dependency observations
+describe the earlier development run. The unified environment is now installed
+and OR-Tools fixture integration is verified. Use the current
+[manual research sequence](research_readiness/MANUAL_RESEARCH.md),
+[environment setup](research_readiness/ENVIRONMENT_SETUP.md) and
+[exact owner review](research_readiness/OWNER_REVIEW.md). The material below is
+retained for provenance; fixture parameters still do not authorize primary runs.
+
 Long training, held-out evaluation and primary generation **were not run**.
 The commands below are prepared interfaces, not authorization or evidence.
 First review OWNER_DECISIONS.md and approve exact profiles/cohorts/budgets.

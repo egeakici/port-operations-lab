@@ -1,0 +1,338 @@
+{
+  "schema_version": "p04_primary_research_profile_v1",
+  "status": "PROPOSED",
+  "study_id": "p04_qcsp_synthetic_v1",
+  "evidence_class": "PROPOSED_SYNTHETIC",
+  "source_revision": "4a01b9181bd08818bece3a154781acacca00f7b3",
+  "source_revision_kind": "BASE_HEAD_PLUS_APPROVED_CONTENT_HASHES; readiness patch is uncommitted",
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe",
+    "src/rail_crane_scheduler/campaign.py": "08d3dacb1553261a7adff91ec17d99fc149db8931888024c08e8638dd0e27297",
+    "src/rail_crane_scheduler/campaign_cli.py": "37dee4112726fb69c10bf2947616de9f6d41434d1a907f5110aa3d5840f6b6ee",
+    "src/rail_crane_scheduler/cli.py": "1a7db1625a126d4055f26e97943339ec8ed2fd3f0b4308ac2f2404d72aea608d",
+    "src/rail_crane_scheduler/contracts.py": "66941c3b13a9a54fce67c76aa63d8cfdf4c73b92de8659eef74469a26f169550",
+    "src/rail_crane_scheduler/cpsat.py": "07a2fdc927ccbf2943ff0bc25cdbfdcd6f4d9f587b31b58bf4b32930c80dd9f3",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4",
+    "src/rail_crane_scheduler/evaluation.py": "14f25301dc59df58e405508e3d65b10510172eeb138096a95faf3491f7840285",
+    "src/rail_crane_scheduler/integration.py": "bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/progress.py": "11a6eceb2a548ebf785181aedefd386d4b4397c4b8b2d75dbdad0c4392cfe2b2",
+    "src/rail_crane_scheduler/readiness.py": "9b25768582c6ad5956f9342957ec620a39c5093641a2b9aa7242e696d1e2ca7b",
+    "src/rail_crane_scheduler/replay.py": "2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e",
+    "src/rail_crane_scheduler/research.py": "f1a2c15f8bde1078bb0590c6789c3c106e1f4186db8a5502ec6eef38f030b28a",
+    "src/rail_crane_scheduler/scenarios.py": "a68178602ce167db7ece692986e70698eb791f83ac2a165b3c7b88f4993e980d",
+    "src/rail_crane_scheduler/statistics_report.py": "05334e97735b7b03aa06f4442d2300246552d4da24c5705d902f80915a33a4bd",
+    "src/rail_crane_scheduler/training.py": "e325a74faacae313598776fec3c9541514424d5cd6031f3fb455b8265e8fecb3",
+    "src/rail_crane_scheduler/validator.py": "7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4"
+  },
+  "tooling_sha256": {
+    "pyproject.toml": "92e9ae3a49a5368ca94e30ca9f27ab8a0ed4a47da6ce74b562cbd642c8a3b73b",
+    "scripts/Project04.ps1": "8f9e405dc566798e66c1e805f2eca0fa0c2681df02953ff9be9d21b80661261a",
+    "scripts/Setup-ResearchEnvironment.ps1": "1fc575434c75ae63386d362930ac6b81ac51b751967629eac3ca4840d540bb47"
+  },
+  "environment_lock_sha256": "b4a7f61644329686706130151cd61dd3c9878ba649b17691991c22dbff46ac55",
+  "approval_scope": {
+    "decisions": [
+      "O1",
+      "O2",
+      "O3",
+      "O4",
+      "O5",
+      "O6"
+    ],
+    "operations": [
+      "generation",
+      "baselines",
+      "training",
+      "evaluation",
+      "report"
+    ],
+    "derived_plan_rule": "p04_exact_campaign_derivation_v1",
+    "manual_foreground_only": true,
+    "future_bindings": "generated immutable input hashes and validation-only selected checkpoint identities; exact re-derivation required",
+    "no_scientific_closure_delegation": true
+  },
+  "coordinates": {
+    "origin": "synthetic terminal rail lower endpoint",
+    "positive": "rail left to right",
+    "ship_reference": "origin is global hull lower edge; local reference reverses with orientation",
+    "conversion": "origin+u if orientation=+1 else origin+length-u",
+    "crane_reference": "rail center reference point",
+    "body_dimensions": "DATA_GAP; excluded",
+    "boundaries": "closed space; half-open resource intervals; closed safety",
+    "safety_roundoff_policy": "kernel never relaxes d; validator tolerance is comparison error only"
+  },
+  "motion": {
+    "model": "p04_reference_point_constant_speed_proposed_v1",
+    "travel": "straight committed constant speed",
+    "wait": "next strictly later travel/setup/completion event",
+    "ties": "settle completions before next dispatch; completion time then crane rank then task id",
+    "yield_reposition": "UNSUPPORTED",
+    "preemption": false,
+    "concurrent_safe_cranes": true,
+    "task_precedence": "NONE_SUPPORTED_V1",
+    "task_release_min": 0.0
+  },
+  "physical": {
+    "crane_count": 2,
+    "rail_lower_m": 0.0,
+    "rail_upper_m": 360.0,
+    "vessel_origin_m": 36.0,
+    "vessel_length_m": 288.0,
+    "initial_positions_m": [
+      36.0,
+      324.0
+    ],
+    "reach_bounds_m": [
+      0.0,
+      360.0
+    ],
+    "clearance_m": 24.0,
+    "travel_speed_m_per_min": 45.0,
+    "effective_moves_per_hour": 30.0,
+    "setup_min": 1.0,
+    "horizon_min": 17280.0,
+    "time_tolerance_min": 1e-08,
+    "position_tolerance_m": 1e-06,
+    "available_at_min": 0.0,
+    "planning_start_min": 0.0,
+    "bay_jitter_m": 0.0,
+    "orientations": [
+      -1,
+      1
+    ],
+    "operation_types": [
+      "LOAD",
+      "DISCHARGE"
+    ],
+    "precedence": [],
+    "workload_distribution": "independent discrete uniform integer per task",
+    "task_bay_distribution": "independent discrete uniform; repeated bays allowed; no outcome filtering"
+  },
+  "families": {
+    "tiny": {
+      "task_count": 4,
+      "bay_locations_local_m": [
+        36.0,
+        108.0,
+        180.0,
+        252.0
+      ],
+      "min_moves": 6,
+      "max_moves": 18,
+      "weight": 0.25
+    },
+    "small": {
+      "task_count": 8,
+      "bay_locations_local_m": [
+        12.0,
+        36.0,
+        60.0,
+        84.0,
+        108.0,
+        132.0,
+        156.0,
+        180.0,
+        204.0,
+        228.0,
+        252.0,
+        276.0
+      ],
+      "min_moves": 20,
+      "max_moves": 60,
+      "weight": 0.25
+    },
+    "medium": {
+      "task_count": 20,
+      "bay_locations_local_m": [
+        12.0,
+        36.0,
+        60.0,
+        84.0,
+        108.0,
+        132.0,
+        156.0,
+        180.0,
+        204.0,
+        228.0,
+        252.0,
+        276.0
+      ],
+      "min_moves": 30,
+      "max_moves": 90,
+      "weight": 0.25
+    },
+    "heavy": {
+      "task_count": 32,
+      "bay_locations_local_m": [
+        12.0,
+        36.0,
+        60.0,
+        84.0,
+        108.0,
+        132.0,
+        156.0,
+        180.0,
+        204.0,
+        228.0,
+        252.0,
+        276.0
+      ],
+      "min_moves": 60,
+      "max_moves": 180,
+      "weight": 0.25,
+      "clearance_m": 36.0,
+      "travel_speed_m_per_min": 30.0,
+      "effective_moves_per_hour": 24.0
+    }
+  },
+  "cohorts": {
+    "train": {
+      "count_per_family": 128,
+      "seed_start": 100000
+    },
+    "validation": {
+      "count_per_family": 32,
+      "seed_start": 200000
+    },
+    "test": {
+      "count_per_family": 64,
+      "seed_start": 300000
+    }
+  },
+  "randomness": {
+    "namespace": "p04_qcsp_synthetic_v1",
+    "family_order": [
+      "tiny",
+      "small",
+      "medium",
+      "heavy"
+    ],
+    "family_seed_stride": 10000,
+    "geometry_nonce": 0,
+    "workload_nonce": 0,
+    "positions_nonce": 0,
+    "generator_version": "p04_counter_sha256_v2",
+    "orientation_rule": "even seed +1; odd -1",
+    "operation_rule": "seed modulo 4 in {0,1}: DISCHARGE; otherwise LOAD",
+    "ppo_namespace": "p04_qcsp_synthetic_v1/rl_training_rng"
+  },
+  "cp_reference": {
+    "tick_min": 0.03333333333333333,
+    "wall_limit_s": 10.0,
+    "max_nodes": 100000
+  },
+  "cp_eligibility": {
+    "max_jobs": 5,
+    "integer_limit": 1125899906842624,
+    "threads": 1,
+    "solver_seed": 0,
+    "no_rounding": true,
+    "complete_enumeration_required": true,
+    "primary_family": "tiny",
+    "status_policy": "OPTIMAL only finite model; FEASIBLE incumbent only; UNKNOWN and TIMEOUT distinct; skipped eligibility retained"
+  },
+  "training_config": {
+    "schema_version": "p04_crane_maskableppo_v1",
+    "seeds": [
+      1103,
+      2207,
+      3301,
+      4409,
+      5501
+    ],
+    "task_capacity": 32,
+    "max_episode_steps": 256,
+    "reward_scale_min": 60.0,
+    "failure_margin_min": 1.0,
+    "total_steps": 1048576,
+    "rollout_steps": 2048,
+    "batch_size": 128,
+    "epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 1.0,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "entropy_coef": 0.01,
+    "value_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "net_sizes": [
+      128,
+      128
+    ],
+    "validation_interval_steps": 65536,
+    "device": "cpu",
+    "permit_cpu_fallback": false
+  },
+  "rl_contract": {
+    "action_count": 65,
+    "decision_limit": 256,
+    "learning_rate_schedule": "constant",
+    "checkpoint_interval_steps": 65536,
+    "normalization": "known-state v1; no fitted statistics; no clipping",
+    "clock_scale_min": 17280.0,
+    "position_scale_m": 360.0,
+    "workload_scale": "scenario maximum original moves",
+    "speed_rate_scale": "scenario maximum crane speed and effective rate",
+    "remaining_hold_scale": "360/speed+setup+60*max_moves/rate; maximum over cranes",
+    "network_activation": "Tanh",
+    "optimizer": "Adam; SB3 default epsilon",
+    "adam_epsilon": 1e-05,
+    "selection": "minimum validation failure rate, then mean valid makespan, then earliest step",
+    "seed_selection": "all five seeds retained; never choose best seed",
+    "gamma": 1.0,
+    "reward": "negative elapsed minutes / 60; terminal failure subtracts (17280+1)/60; no shaping"
+  },
+  "analysis": {
+    "primary_metric": "valid_complete_makespan_min",
+    "primary_reference": "balanced_finish_v1",
+    "confirmatory_references": [
+      "ordered_sweep_v1",
+      "nearest_feasible_v1",
+      "longest_work_v1",
+      "balanced_finish_v1"
+    ],
+    "bootstrap_seed": 7042026,
+    "draws": 20000,
+    "confidence": 0.95,
+    "minimum_pairs_per_family": 60,
+    "bootstrap_unit": "scenario within family; same sampled scenarios across all seeds and references",
+    "seed_aggregation": "scenario-first arithmetic mean over all five seeds; quality uses common complete intersection of all five seeds and all four comparators",
+    "weights": "equal 0.25 families; never weight by successful counts",
+    "multiplicity": "Bonferroni eight simultaneous two-sided percentile intervals (four makespan and four failure contrasts) at 99.375%; nominal joint confidence 95%; no unadjusted confirmatory claim",
+    "failure_endpoint": "unconditional scenario mean PPO seed failure minus comparator failure; simultaneous intervals also reported",
+    "claim_rule": "all per-family support>=60; primary adjusted makespan upper<0 and primary failure-difference upper<=0; otherwise no superiority",
+    "cp_comparison": "tiny-only descriptive certified-gap; no confirmatory general optimum claim",
+    "latency": "CPU two threads, deterministic sequential; 16 unrecorded inference warmups per model/environment; every measured decision includes encoding+mask+predict; record cold load separately; mean/P95/max",
+    "failure_policy": "no imputed makespan; all attempts retained; conditional complete-pair effect and unconditional failures; no rerolls",
+    "secondary_metrics": [
+      "utilization",
+      "idle_crane_min",
+      "travel_min",
+      "travel_m",
+      "completion_moves",
+      "decision_latency_s",
+      "validator_violations",
+      "failures"
+    ]
+  },
+  "compute": {
+    "device": "cpu",
+    "torch_threads": 2,
+    "vector_envs": 1,
+    "minimum_available_ram_bytes": 2147483648,
+    "minimum_free_disk_bytes": 10737418240,
+    "estimated_runtime": "UNMEASURED; no optimizer benchmark authorized"
+  },
+  "limitations": [
+    "synthetic not terminal calibrated",
+    "reference points exclude crane bodies and boom geometry",
+    "no joint reposition/yield, acceleration, downtime, stack precedence or yard coupling",
+    "no real Project I rail/TOS interoperability; DATA_GAP",
+    "CP-SAT finite event-dispatch subclass only",
+    "bootstrap is approximate finite-sample uncertainty; no power guarantee"
+  ]
+}

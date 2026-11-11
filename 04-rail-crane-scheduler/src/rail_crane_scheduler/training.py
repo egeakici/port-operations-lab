@@ -103,7 +103,7 @@ def save_checkpoint(model,directory,config,env,*,seed,label,extra=None):
     directory.parent.mkdir(parents=True,exist_ok=True)
     stage=directory.with_name(directory.name+'.partial_'+uuid4().hex); stage.mkdir()
     model.save(stage/'model.zip')
-    data={"trainer_version":TRAINER_VERSION,"policy_id":"p04_new_crane_maskableppo_v1","config_hash":config.fingerprint,"interface":interface_candidate(env),"source_sha256":source_snapshot(),"dependency_versions":versions(),"training_seed":seed,"actual_device":str(model.device),"trained_steps":int(model.num_timesteps),"label":label,"resume_mode":"OPTIMIZER_BOUNDARY_EPISODES_RESTART_NOT_BITWISE","model_sha256":__import__('hashlib').sha256((stage/'model.zip').read_bytes()).hexdigest(),"rng":_rng_state(),"extra":extra or {}}
+    data={"trainer_version":TRAINER_VERSION,"policy_id":"p04_new_crane_maskableppo_v1","config_hash":config.fingerprint,"interface":interface_candidate(env),"source_sha256":source_snapshot(),"dependency_versions":versions(),"training_seed":seed,"actual_device":str(model.device),"trained_steps":int(model.num_timesteps),"optimizer_updates":int(model._n_updates),"label":label,"resume_mode":"OPTIMIZER_BOUNDARY_EPISODES_RESTART_NOT_BITWISE","model_sha256":__import__('hashlib').sha256((stage/'model.zip').read_bytes()).hexdigest(),"rng":_rng_state(),"extra":extra or {}}
     write_new(stage/'metadata.json',canonical(data))
     # Unique final path; partial directories on failure are retained for inspection.
     stage.rename(directory)
@@ -116,16 +116,37 @@ def load_checkpoint(directory,config,env,*,expected_seed=None,require_trained=Fa
     require(data['source_sha256']==source_snapshot() and data['dependency_versions']==versions(),"CHECKPOINT_SOURCE","checkpoint","source/dependency drift")
     require(__import__('hashlib').sha256((directory/'model.zip').read_bytes()).hexdigest()==data['model_sha256'],"CHECKPOINT_HASH","model.zip","corruption")
     require(expected_seed is None or data['training_seed']==expected_seed,"CHECKPOINT_SEED","checkpoint","seed mismatch")
-    if require_trained: require(data['trained_steps']>0 and data['label']=='OWNER_MANUAL_TRAINING',"NO_TRAINED_CHECKPOINT","checkpoint","smoke is not research training")
+    if require_trained:
+        require(data['trained_steps']>0 and data.get('optimizer_updates',0)>0 and data['label']=='OWNER_MANUAL_TRAINING' and
+                directory.name==f"checkpoint_{data['trained_steps']:012d}","NO_TRAINED_CHECKPOINT","checkpoint","smoke/partial is not a committed research checkpoint")
     from sb3_contrib import MaskablePPO
     model=MaskablePPO.load(directory/'model.zip',env=env,device=resolve_device(config))
+    require(int(model.num_timesteps)==data['trained_steps'] and int(model._n_updates)==data.get('optimizer_updates'),
+            'CHECKPOINT_STATE','checkpoint','serialized model and sidecar counters differ')
     return model,data
+
+
+def verify_checkpoint_preserving_rng(directory,config,env,*,expected_seed=None,require_trained=False):
+    """Deserialization initializes a policy and may reseed global RNGs.
+
+    Verification during resume must not replace the restored training stream
+    with the older selected checkpoint's initialization stream.
+    """
+    state=_rng_state()
+    try:
+        _,data=load_checkpoint(directory,config,env,expected_seed=expected_seed,require_trained=require_trained)
+        return data
+    finally:
+        restore_rng(state)
 
 
 def validate_model(model,problems,config,permit=None):
     """Validation-only selection; never accepts a held-out test role."""
+    from .progress import Progress
     infos=[]; latencies=[]; waits=0; decisions=0
-    for p in problems:
+    with Progress(len(problems),'Validation') as progress:
+      for p in problems:
+        progress.start(family=p.metadata.family,failures=sum(not x['success'] for x in infos))
         require(p.metadata.role=='validation',"SPLIT_GUARD","validation","test/development input not eligible for checkpoint selection")
         env=make_env(p,config,permit); obs,info=env.reset(seed=p.metadata.seed)
         require(not info['success'],"ZERO_WORK_SELECTION","validation","exclude empty correctness fixture")
@@ -136,13 +157,32 @@ def validate_model(model,problems,config,permit=None):
             obs,_,done,truncated,info=env.step(int(action))
             if done or truncated: break
         infos.append(info)
+        progress.advance(family=p.metadata.family,failures=sum(not x['success'] for x in infos))
     require(bool(infos),"EMPTY_VALIDATION","validation","nonempty cohort required")
     valid=[x['makespan_min'] for x in infos if x['success']]
     return {"success_rate":len(valid)/len(infos),"mean_valid_makespan_min":statistics.fmean(valid) if valid else None,"scenario_count":len(infos),"failure_count":len(infos)-len(valid),"wait_fraction":waits/decisions if decisions else None,"decision_latencies_s":latencies,"episodes":infos}
 
 
 def selection_key(result,step):
-    return (1-result['success_rate'],result['mean_valid_makespan_min'] if result['mean_valid_makespan_min'] is not None else float('inf'),step)
+    # At zero success, makespan is undefined and all candidates tie on that
+    # coordinate. A finite neutral sentinel keeps canonical checkpoint JSON valid.
+    return (1-result['success_rate'],result['mean_valid_makespan_min'] if result['mean_valid_makespan_min'] is not None else 0.,step)
+
+
+def timestep_callback_class(progress,config,seed):
+    """The SB3 on-step hook reports actual model timesteps, never episodes."""
+    from stable_baselines3.common.callbacks import BaseCallback
+    class TimestepCallback(BaseCallback):
+        def _on_step(self):
+            step=int(self.model.num_timesteps)
+            delta=step-progress.completed
+            require(0<=delta and step<=config.total_steps,'TRAINING_PROGRESS','step','outside approved budget')
+            progress.completed=step; progress.bar.update(delta)
+            if step%1024==0:
+                progress.record('TIMESTEPS',seed=seed,device=str(self.model.device),optimizer_updates=int(self.model._n_updates),
+                                validation_milestone=getattr(self,'next_validation',config.validation_interval_steps))
+            return True
+    return TimestepCallback
 
 
 def train_manual(payload,approval_path,confirmation,output,*,resume_checkpoint=None,only_seed=None):
@@ -166,6 +206,13 @@ def train_manual(payload,approval_path,confirmation,output,*,resume_checkpoint=N
     for p in train+validation:
         checked=make_env(p,config,permit); _,info=checked.reset(seed=p.metadata.seed)
         require(not info['success'],'ZERO_WORK_SELECTION','cohort','empty correctness cases are not training/selection performance instances')
+    from .progress import Progress
+    if 'campaign' in payload:
+        from .readiness import require_resources
+        from .campaign import profile_for_plan
+        require_resources(profile_for_plan(payload))
+        import torch
+        torch.set_num_threads(profile_for_plan(payload)['compute']['torch_threads'])
     out=Path(output); require(not out.exists(),"OUTPUT_EXISTS","output","new run directory required, including resume attempts")
     out.mkdir(parents=True)
     write_new(out/'plan.json',canonical(payload)); write_new(out/'approval_snapshot.json',canonical(strict_json(Path(approval_path).read_text(encoding='utf-8'))))
@@ -197,16 +244,23 @@ def train_manual(payload,approval_path,confirmation,output,*,resume_checkpoint=N
         if resume_checkpoint:
             model,previous=load_checkpoint(resume_checkpoint,config,env,expected_seed=seed,require_trained=True)
             model.set_env(vector); restore_rng(previous['rng'])
+            # Gym's Generator is separate from global NumPy RNG. Resume restarts
+            # episodes under an explicit deterministic namespace, not OS entropy.
+            resume_episode_seed=int(digest([TRAINER_VERSION,seed,previous['trained_steps'],'resume_episode'])[:8],16)
+            vector.seed(resume_episode_seed)
         else: model=make_model(vector,config,seed)
         seed_out=out/f'seed_{seed}'; seed_out.mkdir()
-        class BoundaryCallback(BaseCallback):
+        progress=Progress(config.total_steps,f'PPO seed {seed}',seed_out,initial=int(model.num_timesteps),unit='step')
+        progress.start(seed=seed,device=str(model.device),checkpoint_step=int(model.num_timesteps),validation_milestone=config.validation_interval_steps)
+        class BoundaryCallback(timestep_callback_class(progress,config,seed)):
             def __init__(self):
-                super().__init__(); self.next_validation=config.validation_interval_steps; self.best=None; self.best_path=None
+                super().__init__(); self.next_validation=(int(model.num_timesteps)//config.validation_interval_steps+1)*config.validation_interval_steps; self.best=None; self.best_path=None
                 if resume_checkpoint:
-                    old=previous['extra'].get('validation')
-                    if old:
-                        self.best=selection_key(old,previous['trained_steps']); self.best_path=str(Path(resume_checkpoint).resolve())
-            def _on_step(self): return True
+                    old=previous['extra'].get('selection_best_key')
+                    require(old is not None,'RESUME_SELECTION_HISTORY','checkpoint','resume requires preserved best validation identity')
+                    self.best=tuple(old); self.best_path=previous['extra']['selection_best_checkpoint']
+                    # Check the immutable historical selection before reusing it.
+                    verify_checkpoint_preserving_rng(self.best_path,config,env,expected_seed=seed,require_trained=True)
             def boundary(self,force=False):
                 step=int(self.model.num_timesteps)
                 if not force and (step==0 or step<self.next_validation): return
@@ -215,23 +269,29 @@ def train_manual(payload,approval_path,confirmation,output,*,resume_checkpoint=N
                 restore_rng(rng)
                 checkpoint=seed_out/f'checkpoint_{step:012d}'
                 if checkpoint.exists(): return
-                save_checkpoint(self.model,checkpoint,config,env,seed=seed,label='OWNER_MANUAL_TRAINING',extra={'validation':result,'plan_hash':token,'resume_from':str(resume_checkpoint) if resume_checkpoint else None})
                 key=selection_key(result,step)
                 if self.best is None or key<self.best: self.best=key; self.best_path=str(checkpoint.resolve())
-                with (seed_out/'progress.jsonl').open('a',encoding='utf-8') as stream: stream.write(json.dumps({'step':step,'validation':result,'selected_checkpoint':self.best_path})+'\n')
-                print(json.dumps({'seed':seed,'step':step,'total':config.total_steps,'validation_success':result['success_rate']}),flush=True)
+                save_checkpoint(self.model,checkpoint,config,env,seed=seed,label='OWNER_MANUAL_TRAINING',extra={'validation':result,'plan_hash':token,'resume_from':str(resume_checkpoint) if resume_checkpoint else None,'selection_best_key':self.best,'selection_best_checkpoint':self.best_path})
+                progress.record('CHECKPOINT',seed=seed,checkpoint_step=step,last_resumable_checkpoint=str(checkpoint.resolve()),validation_success=result['success_rate'],validation_failure_rate=1-result['success_rate'],validation_mean_min=result['mean_valid_makespan_min'],optimizer_updates=int(self.model._n_updates))
+                progress.message(f'Checkpoint seed={seed} step={step}; validation success={result["success_rate"]:.3f}, makespan={result["mean_valid_makespan_min"]}')
                 self.next_validation=step+config.validation_interval_steps
             def _on_rollout_start(self): self.boundary()
             def _on_training_end(self): self.boundary(force=True)
         callback=BoundaryCallback(); remaining=config.total_steps-int(model.num_timesteps)
-        require(remaining>0,"TRAINING_BUDGET_COMPLETE","resume","no remaining steps")
+        require(remaining>=0,"TRAINING_BUDGET_EXCEEDED","resume","checkpoint exceeds approved steps")
+        training_state='FAILED'
         try:
-            model.learn(total_timesteps=remaining,callback=callback,reset_num_timesteps=resume_checkpoint is None)
+            if remaining:
+                model.learn(total_timesteps=remaining,callback=callback,reset_num_timesteps=resume_checkpoint is None)
+            training_state='TRAINING_COMPLETE'
         except KeyboardInterrupt:
-            write_new(seed_out/'INTERRUPTED.json',canonical({'status':'INTERRUPTED_RESUME_LAST_COMPLETE_OPTIMIZER_BOUNDARY','seed':seed,'trained_checkpoint_claim':False}))
+            training_state='INTERRUPTED'
+            write_new(seed_out/'INTERRUPTED.json',canonical({'status':'INTERRUPTED_RESUME_LAST_COMPLETE_OPTIMIZER_BOUNDARY','seed':seed,'last_resumable_checkpoint':progress.fields.get('last_resumable_checkpoint',str(resume_checkpoint) if resume_checkpoint else None),'collected_steps':int(model.num_timesteps),'in_memory_state_saved':False}))
             raise
-        selection={'status':'TRAINING_COMPLETE_VALIDATION_SELECTED','seed':seed,'plan_hash':token,'selected_checkpoint':callback.best_path,'best_key':callback.best,'source_sha256':source_snapshot(),'test_data_read':False}
-        write_new(seed_out/'selection.json',canonical(selection)); vector.close()
+        finally:
+            progress.close(training_state); vector.close()
+        selection={'status':'TRAINING_COMPLETE_VALIDATION_SELECTED','seed':seed,'plan_hash':token,'selected_checkpoint':callback.best_path,'best_key':callback.best,'final_checkpoint':str(Path(resume_checkpoint).resolve()) if not remaining else str((seed_out/f'checkpoint_{config.total_steps:012d}').resolve()),'source_sha256':source_snapshot(),'test_data_read':False}
+        write_new(seed_out/'selection.json',canonical(selection))
     return {'status':'OWNER_MANUAL_TRAINING_COMPLETE','output':str(out)}
 
 

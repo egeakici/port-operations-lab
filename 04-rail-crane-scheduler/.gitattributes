@@ -1,0 +1,25 @@
+# Preserve the current checkout bytes of hash-bound executable/config artifacts.
+# These explicit endings work with core.autocrlf on Windows and fresh clones.
+.gitattributes text eol=lf
+.gitignore text eol=lf
+*.py text eol=lf
+*.ps1 text eol=lf
+pyproject.toml text eol=lf
+src/rail_crane_scheduler/campaign.py text eol=crlf
+src/rail_crane_scheduler/evaluation.py text eol=crlf
+src/rail_crane_scheduler/readiness.py text eol=crlf
+src/rail_crane_scheduler/scenarios.py text eol=crlf
+configs/research/*.json text eol=crlf
+configs/research/*.lock text eol=crlf
+README.md text eol=lf
+docs/ARCHITECTURE.md text eol=lf
+docs/MANUAL_EXECUTION.md text eol=lf
+docs/research_readiness/*.json text eol=crlf
+docs/research_readiness/**/*.json text eol=crlf
+docs/research_readiness/*.txt text eol=crlf
+docs/research_readiness/*.md text eol=lf
+docs/research_readiness/FINAL_REPORT.md text eol=crlf
+docs/research_readiness/OWNER_REVIEW.md text eol=crlf
+docs/research_readiness/INSTALLED_PACKAGES.md text eol=crlf
+# Append-only historical text can contain both endings; store exact bytes.
+docs/research_readiness/WORKLOG.md -text

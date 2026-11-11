@@ -43,12 +43,14 @@ def commit_cell(directory,result,schedule):
     write_new(stage/'COMMIT.json',canonical({'files':files})); stage.rename(directory)
 
 
-def evaluate_policy(model,problem,config,permit,arm):
+def evaluate_policy(model,problem,config,permit,arm,*,warmup_decisions=0):
     from .training import make_env
-    env=None
+    env=None; latencies=[]
     try:
         env=make_env(problem,config,permit); obs,info=env.reset(seed=problem.metadata.seed); latencies=[]
         require(not info['success'],'ZERO_WORK_PRIMARY','test','empty correctness fixture is not primary performance')
+        for _ in range(warmup_decisions):
+            model.predict(env._observation(),deterministic=True,action_masks=env.action_masks())
         for _ in range(config.max_episode_steps):
             t=time.perf_counter(); obs=env._observation(); action,_=model.predict(obs,deterministic=True,action_masks=env.action_masks()); latencies.append(time.perf_counter()-t)
             obs,_,done,truncated,info=env.step(int(action))
@@ -58,7 +60,7 @@ def evaluate_policy(model,problem,config,permit,arm):
     except ContractError as exc:
         status={'DEADLOCK_INITIAL':'DEADLOCK','PHYSICAL_VALIDATION_FAILURE':'INVALID_PLAN','ZERO_WORK_PRIMARY':'UNSUPPORTED_PRIMARY_ZERO_WORK'}.get(exc.code,'INVALID_INPUT_OR_UNSUPPORTED_PROFILE')
         schedule=env.kernel.schedule(arm) if env is not None and env.kernel is not None else None
-        return status,None,schedule,{'code':exc.code,'message':exc.message}
+        return status,None,schedule,{'code':exc.code,'message':exc.message,'decision_latencies_s':latencies}
 
 
 def evaluate_manual(payload,approval_path,confirmation,output,*,resume=False):
@@ -92,35 +94,70 @@ def evaluate_manual(payload,approval_path,confirmation,output,*,resume=False):
     else:
         out.mkdir(parents=True); write_new(out/'plan.json',canonical(payload))
         write_new(out/'approval_snapshot.json',canonical(strict_json(Path(approval_path).read_text(encoding='utf-8'))))
-    models={seed:load_checkpoint(path,config,make_env(tests[0],config,permit),expected_seed=seed,require_trained=True) for seed,path in selected.items()}
+    import torch
+    if 'campaign' in payload:
+        from .campaign import profile_for_plan
+        torch.set_num_threads(profile_for_plan(payload)['compute']['torch_threads'])
+    models={}; cold_load={}
+    for seed,path in selected.items():
+        started=time.perf_counter()
+        models[seed]=load_checkpoint(path,config,make_env(tests[0],config,permit),expected_seed=seed,require_trained=True)
+        cold_load[seed]=time.perf_counter()-started
+    from .progress import Progress
+    arm_count=len(POLICIES)+len(config.seeds)+int(payload.get('cp_reference') is not None)
+    progress=Progress(len(tests)*arm_count,'Held-out evaluation',out)
+    failed=0; skipped=0; completed_scenarios=0
     expected=[]
-    for problem in tests:
-        arms=[*POLICIES,*[f'crane_ppo_seed_{s}' for s in config.seeds]]
-        if payload.get('cp_reference') is not None: arms.append('cpsat_finite_dispatch_v1')
-        for arm in arms:
-            key=digest([token,problem.fingerprint,arm]); expected.append(key); cell=out/'cells'/key
-            if cell.exists():
-                row=verify_cell(cell)
-                require(row['plan_hash']==token and row['problem_hash']==problem.fingerprint and row['policy_id']==arm,"RESUME_CELL","cell","identity mismatch")
-                continue
-            started=time.perf_counter()
-            solver_result=None; failure=None
-            if arm in POLICIES:
-                record=run(problem,arm,permit); schedule=record.schedule; values=record.metrics
-                seed=None; model_hash=None; status=record.status
-            elif arm=='cpsat_finite_dispatch_v1':
-                from .cpsat import solve
-                solver_result=solve(problem,permit=permit,**payload['cp_reference'])
-                schedule=solver_result.schedule
-                values=metrics(problem,schedule,(),permit) if schedule is not None else None
-                seed=None; model_hash=None; status=solver_result.status
-            else:
-                seed=int(arm.rsplit('_',1)[1]); model,metadata=models[seed]
-                status,values,schedule,failure=evaluate_policy(model,problem,config,permit,arm)
-                model_hash=metadata['model_sha256']
-            row={'plan_hash':token,'problem_hash':problem.fingerprint,'physical_hash':problem.physical_fingerprint,'scenario_id':problem.metadata.scenario_id,'family':problem.metadata.family,'origin':problem.metadata.origin,'policy_id':arm,'training_seed':seed,'checkpoint_hash':model_hash,'status':status,'valid_complete':values.valid_complete if values else False,'makespan_min':values.makespan_min if values else None,'metrics':values.to_dict() if values else None,'episode_wall_s':time.perf_counter()-started,'source_sha256':source_snapshot(),'solver_status':solver_result.status if solver_result else None,'solver_bound_min':solver_result.bound_min if solver_result else None,'solver_relative_gap':solver_result.relative_gap if solver_result else None,'solver_formulation':solver_result.formulation if solver_result else None}
-            row['failure_evidence']=failure
-            commit_cell(cell,row,schedule)
+    try:
+        for problem in tests:
+            arms=[*POLICIES,*[f'crane_ppo_seed_{s}' for s in config.seeds]]
+            if payload.get('cp_reference') is not None: arms.append('cpsat_finite_dispatch_v1')
+            for arm in arms:
+                progress.start(method=arm,seed=int(arm.rsplit('_',1)[1]) if arm.startswith('crane_ppo_seed_') else None,
+                               family=problem.metadata.family,failed=failed,skipped=skipped,
+                               completed_scenarios=completed_scenarios,total_scenarios=len(tests))
+                key=digest([token,problem.fingerprint,arm]); expected.append(key); cell=out/'cells'/key
+                if cell.exists():
+                    row=verify_cell(cell)
+                    require(row['plan_hash']==token and row['problem_hash']==problem.fingerprint and row['policy_id']==arm,"RESUME_CELL","cell","identity mismatch")
+                    failed+=int(not row['valid_complete'] and row['status']!='SKIPPED_NOT_ELIGIBLE')
+                    skipped+=int(row['status']=='SKIPPED_NOT_ELIGIBLE')
+                    progress.advance(method=arm,seed=row['training_seed'],family=problem.metadata.family,failed=failed,skipped=skipped,completed_scenarios=(progress.completed+1)//arm_count,total_scenarios=len(tests))
+                    continue
+                started=time.perf_counter()
+                solver_result=None; failure=None
+                if arm in POLICIES:
+                    record=run(problem,arm,permit); schedule=record.schedule; values=record.metrics
+                    seed=None; model_hash=None; status=record.status
+                elif arm=='cpsat_finite_dispatch_v1':
+                    from .cpsat import solve
+                    if len(problem.tasks)>payload.get('cp_eligibility',{}).get('max_jobs',5):
+                        schedule=None; values=None; status='SKIPPED_NOT_ELIGIBLE'
+                    else:
+                        solver_result=solve(problem,permit=permit,**payload['cp_reference'])
+                        schedule=solver_result.schedule
+                        values=metrics(problem,schedule,(),permit) if schedule is not None else None
+                        status=solver_result.status
+                    seed=None; model_hash=None
+                else:
+                    seed=int(arm.rsplit('_',1)[1]); model,metadata=models[seed]
+                    status,values,schedule,failure=evaluate_policy(model,problem,config,permit,arm,warmup_decisions=16 if "campaign" in payload else 0)
+                    model_hash=metadata['model_sha256']
+                row={'plan_hash':token,'problem_hash':problem.fingerprint,'physical_hash':problem.physical_fingerprint,'scenario_id':problem.metadata.scenario_id,'family':problem.metadata.family,'origin':problem.metadata.origin,'policy_id':arm,'training_seed':seed,'checkpoint_hash':model_hash,'status':status,'valid_complete':values.valid_complete if values else False,'makespan_min':values.makespan_min if values else None,'metrics':values.to_dict() if values else None,'episode_wall_s':time.perf_counter()-started,'source_sha256':source_snapshot(),'solver_status':solver_result.status if solver_result else None,'solver_bound_min':solver_result.bound_min if solver_result else None,'solver_relative_gap':solver_result.relative_gap if solver_result else None,'solver_formulation':solver_result.formulation if solver_result else None}
+                row['failure_evidence']=failure
+                row['input_origin']=problem.metadata.origin
+                row['origin']='HELDOUT_TEST_RESULTS' if 'campaign' in payload else problem.metadata.origin
+                row['cold_model_load_s']=cold_load.get(seed)
+                row['solver_detail']=solver_result.detail if solver_result else None
+                row['numeric_time_tolerance_min']=problem.rail.time_tolerance_min
+                row['solver_tick_min']=solver_result.tick_min if solver_result else None
+                row['validator_violations']=list(__import__('rail_crane_scheduler.validator',fromlist=['verify']).verify(problem,schedule,permit=permit).errors) if schedule is not None else []
+                commit_cell(cell,row,schedule)
+                failed+=int(not row['valid_complete'] and status!='SKIPPED_NOT_ELIGIBLE'); skipped+=int(status=='SKIPPED_NOT_ELIGIBLE')
+                progress.advance(method=arm,seed=seed,family=problem.metadata.family,failed=failed,skipped=skipped,completed_scenarios=(progress.completed+1)//arm_count,total_scenarios=len(tests))
+            completed_scenarios+=1
+    finally:
+        progress.close('EVALUATION_STOPPED')
     summary={'status':'HELD_OUT_EXECUTION_COMPLETE_ANALYSIS_PENDING','plan_hash':token,'expected_cells':expected,'scientifically_closed':False}
     if not (out/'EXECUTION_COMPLETE.json').exists(): write_new(out/'EXECUTION_COMPLETE.json',canonical(summary))
     return summary
@@ -177,7 +214,7 @@ def analysis_figures(rows,analysis=None):
         ax.scatter([r['episode_wall_s'] for r in group],[r['makespan_min'] for r in group],label=name)
     ax.set_xlabel('Whole-episode wall time (s), not policy-only latency')
     ax.set_ylabel('Valid complete makespan (simulation min)')
-    ax.set_title('Recorded runtime/quality points — descriptive, not superiority')
+    ax.set_title('Recorded runtime/quality points â€” descriptive, not superiority')
     ax.legend(fontsize=7); fig.tight_layout(); result={'runtime_quality':fig}
     paired=analysis.get('paired') if analysis else None
     if paired:
@@ -200,7 +237,7 @@ def read_existing(directory):
     plan=strict_json((directory/'plan.json').read_text(encoding='utf-8'))
     require(digest(plan)==manifest['plan_hash'],"PLAN_HASH","results","changed plan")
     approval=strict_json((directory/'approval_snapshot.json').read_text(encoding='utf-8'))
-    require(approval.get('status')=='OWNER_APPROVED' and approval.get('approved_payload_sha256')==manifest['plan_hash'] and bool(approval.get('owner_evidence')),"OWNER_APPROVAL_REQUIRED","results","missing matching owner execution receipt")
+    manual_gate(plan,directory/'approval_snapshot.json',manifest['plan_hash'])
     rows=[verify_cell(directory/'cells'/key) for key in manifest['expected_cells']]
     require(all(r['plan_hash']==manifest['plan_hash'] for r in rows),"ROW_PLAN","results","row/plan mismatch")
     for row in rows:
@@ -214,5 +251,11 @@ def read_existing(directory):
 
 def certified_gap(row,reference):
     require(reference.get('solver_status')=='OPTIMAL' and reference.get('valid_complete') and reference.get('solver_formulation')=='p04_exact_finite_event_dispatch_paths_v1',"NO_CERTIFIED_REFERENCE","reference","FEASIBLE/dependency/other model is not an optimum")
-    require(row['problem_hash']==reference['problem_hash'] and row['valid_complete'] and reference['solver_bound_min']==reference['makespan_min'],"REFERENCE_MISMATCH","reference","matching validated optimum/bound required")
-    return row['makespan_min']-reference['makespan_min']
+    tolerance=reference.get('numeric_time_tolerance_min',0.)
+    require(type(tolerance) in (int,float) and math.isfinite(tolerance) and tolerance>=0,'NUMERIC_TOLERANCE','reference','invalid declared time comparison tolerance')
+    require(row['problem_hash']==reference['problem_hash'] and row['valid_complete'] and
+            math.isclose(reference['solver_bound_min'],reference['makespan_min'],rel_tol=0.,abs_tol=tolerance),
+            "REFERENCE_MISMATCH","reference","matching validated finite optimum/bound required within declared numerical precision")
+    delta=row['makespan_min']-reference['makespan_min']
+    require(delta>=-tolerance,'REFERENCE_DOMINANCE','reference','candidate below certified matching optimum beyond roundoff')
+    return 0. if abs(delta)<=tolerance else delta

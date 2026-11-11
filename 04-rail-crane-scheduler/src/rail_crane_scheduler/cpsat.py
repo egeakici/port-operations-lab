@@ -14,10 +14,11 @@ from .validator import verify
 FORMULATION = "p04_exact_finite_event_dispatch_paths_v1"
 
 
-def enumerate_paths(problem, max_nodes,permit=None):
+def enumerate_paths(problem, max_nodes,permit=None,*,deadline=None):
     require(len(problem.tasks)<=5 and type(max_nodes) is int and 0<max_nodes<=100000,"UNSUPPORTED_FORMULATION","enumeration","at most five jobs; explicit finite node bound required")
     stack=[CraneSchedulingKernel(problem,permit)]; paths=[]; count=0
     while stack:
+        require(deadline is None or time.perf_counter()<deadline,'ENUMERATION_TIMEOUT','wall_limit_s','complete domain unavailable; no bound or infeasibility claim')
         count+=1
         require(count<=max_nodes,"ENUMERATION_INCOMPLETE","max_nodes","no optimality claim from incomplete candidate set")
         k=stack.pop()
@@ -63,11 +64,17 @@ def solve(problem,*,tick_min,wall_limit_s,max_nodes,permit=None):
         require(problem.metadata.role in {"development","diagnostic"},"SPLIT_GUARD","role","reference smoke is fixture-only")
     else: problem.require_fixture_execution(permit)
     try:
-        from ortools.sat.python import cp_model
+        # OR-Tools Windows DLL loader writes informational Python prints.
+        # Keep machine-readable CLI stdout reserved for JSON.
+        import contextlib
+        import sys
+        with contextlib.redirect_stdout(sys.stderr):
+            from ortools.sat.python import cp_model
     except ImportError:
         return SolverResult("DEPENDENCY_PENDING",FORMULATION,None,None,None,None,time.perf_counter()-started,tick_min,None,"OR-Tools absent; not installed automatically")
     try:
-        paths,nodes=enumerate_paths(problem,max_nodes,permit)
+        deadline=started+wall_limit_s
+        paths,nodes=enumerate_paths(problem,max_nodes,permit,deadline=deadline)
         t0=problem.vessel.planning_start_min
         tol=problem.rail.time_tolerance_min
         model=cp_model.CpModel()
@@ -75,6 +82,7 @@ def solve(problem,*,tick_min,wall_limit_s,max_nodes,permit=None):
         model.Add(sum(selectors)==1)
         objectives=[]; crane_intervals={c.crane_id:[] for c in problem.cranes}
         for i,schedule in enumerate(paths):
+            require(time.perf_counter()<deadline,'ENUMERATION_TIMEOUT','wall_limit_s','model construction exhausted total wall budget')
             objectives.append(exact_tick(schedule.stop_min-t0,tick_min,tol))
             for record in schedule.tasks:
                 start=exact_tick(record.departure_min-t0,tick_min,tol)
@@ -90,12 +98,15 @@ def solve(problem,*,tick_min,wall_limit_s,max_nodes,permit=None):
                 model.Add(y==sum(matching)); assignments.append(y)
             model.Add(sum(assignments)==1)
         model.Minimize(sum(v*x for v,x in zip(objectives,selectors)))
-        solver=cp_model.CpSolver(); solver.parameters.max_time_in_seconds=float(wall_limit_s)
+        remaining=deadline-time.perf_counter()
+        require(remaining>0,'ENUMERATION_TIMEOUT','wall_limit_s','total budget exhausted before solve')
+        solver=cp_model.CpSolver(); solver.parameters.max_time_in_seconds=remaining
         solver.parameters.num_search_workers=1; solver.parameters.random_seed=0
         code=solver.Solve(model); status=solver.StatusName(code)
         version=importlib.metadata.version("ortools")
         if status not in {"OPTIMAL","FEASIBLE"}:
-            return SolverResult(status,FORMULATION,None,None,None,None,time.perf_counter()-started,tick_min,version,f"finite subclass only; complete enumeration nodes={nodes}")
+            exhausted=status=='UNKNOWN' and solver.WallTime()>=remaining*.95
+            return SolverResult('TIMEOUT' if exhausted else status,FORMULATION,None,None,None,None,time.perf_counter()-started,tick_min,version,f"raw_status={status}; finite subclass only; complete enumeration nodes={nodes}; budget_exhausted={exhausted}")
         selected=next(i for i,x in enumerate(selectors) if solver.Value(x))
         from dataclasses import replace
         schedule=replace(paths[selected],solver_status=status)
@@ -105,4 +116,4 @@ def solve(problem,*,tick_min,wall_limit_s,max_nodes,permit=None):
         objective=report.makespan_min
         return SolverResult(status,FORMULATION,schedule,objective,bound,(objective-bound)/objective if objective else None,time.perf_counter()-started,tick_min,version,f"complete finite event-action enumeration nodes={nodes}; no unrestricted continuous optimum claim")
     except ContractError as exc:
-        return SolverResult("UNSUPPORTED_FORMULATION",FORMULATION,None,None,None,None,time.perf_counter()-started,tick_min,importlib.metadata.version("ortools"),str(exc))
+        return SolverResult("TIMEOUT" if exc.code=='ENUMERATION_TIMEOUT' else "UNSUPPORTED_FORMULATION",FORMULATION,None,None,None,None,time.perf_counter()-started,tick_min,importlib.metadata.version("ortools"),str(exc))

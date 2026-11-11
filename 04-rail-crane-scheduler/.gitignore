@@ -6,3 +6,6 @@ experiments/
 .venv-*/
 *.zip
 *.pt
+wheelhouse/
+*.log
+pytest-cache-files-*/

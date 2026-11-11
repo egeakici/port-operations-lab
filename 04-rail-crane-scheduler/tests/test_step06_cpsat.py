@@ -19,7 +19,8 @@ def test_no_false_bound_on_budget_or_scaling():
 
 
 def test_dependency_or_real_solver_status():
-    result=solve(fixture(),tick_min=1.,wall_limit_s=1.,max_nodes=1000)
+    # Total budget now includes first Windows DLL import and path enumeration.
+    result=solve(fixture(),tick_min=1.,wall_limit_s=10.,max_nodes=1000)
     if importlib.util.find_spec("ortools") is None:
         assert result.status=="DEPENDENCY_PENDING" and result.schedule is None and result.bound_min is None
     else:
@@ -27,6 +28,6 @@ def test_dependency_or_real_solver_status():
 
 
 def test_actual_ortools_integration():
-    pytest.importorskip("ortools",reason="DEPENDENCY_PENDING: no automatic installation authorized")
-    result=solve(fixture(),tick_min=1.,wall_limit_s=1.,max_nodes=1000)
+    pytest.importorskip("ortools",reason="OR-Tools must be installed in the isolated research environment")
+    result=solve(fixture(),tick_min=1.,wall_limit_s=10.,max_nodes=1000)
     assert result.status=="OPTIMAL" and verify(fixture(),result.schedule).valid_complete

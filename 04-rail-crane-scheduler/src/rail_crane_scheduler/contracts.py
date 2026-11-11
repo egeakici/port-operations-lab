@@ -148,7 +148,7 @@ class ProblemMetadata(Wire):
         super().__post_init__()
         require(self.schema_version == SCHEMA and self.problem_type == "QCSP_V1", "VERSION", "metadata", "unsupported schema/problem")
         require(self.role in {"development", "train", "validation", "test", "diagnostic"}, "ROLE", "metadata.role", "unsupported role")
-        require(self.origin in {"TEST_FIXTURE_SYNTHETIC", "PROPOSED_SYNTHETIC"}, "PROVENANCE", "metadata.origin", "empirical provenance not supported without a separate verified schema")
+        require(self.origin in {"TEST_FIXTURE_SYNTHETIC", "PROPOSED_SYNTHETIC", "OWNER_APPROVED_SYNTHETIC"}, "PROVENANCE", "metadata.origin", "empirical provenance not supported without a separate verified schema")
         require(self.seed >= 0 and bool(self.scenario_id.strip()) and bool(self.seed_namespace.strip()), "IDENTITY", "metadata", "nonempty identity/namespace and nonnegative seed required")
         require(bool(self.source_project.strip()) and (self.source_snapshot is None or (len(self.source_snapshot) in {40,64} and all(c in '0123456789abcdef' for c in self.source_snapshot))),"SOURCE_PROVENANCE","metadata.source_snapshot","unknown is null; provided commit/SHA256 must be correctly shaped")
 

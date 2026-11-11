@@ -1,0 +1,1366 @@
+{
+  "status": "PROPOSED_NOT_EMPIRICAL",
+  "profile_sha256": "d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc",
+  "parameters": [
+    {
+      "parameter_path": "motion.task_release_min",
+      "value": 0.0,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.crane_count",
+      "value": 2,
+      "units": "cranes",
+      "rationale": "Frozen single-vessel two-crane QCSP scope.",
+      "origin": "INHERITED_OWNER_SCOPE",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Scope choice, not fleet telemetry."
+    },
+    {
+      "parameter_path": "physical.rail_lower_m",
+      "value": 0.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.rail_upper_m",
+      "value": 360.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.vessel_origin_m",
+      "value": 36.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.vessel_length_m",
+      "value": 288.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.initial_positions_m[0]",
+      "value": 36.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.initial_positions_m[1]",
+      "value": 324.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.reach_bounds_m[0]",
+      "value": 0.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.reach_bounds_m[1]",
+      "value": 360.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.clearance_m",
+      "value": 24.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.travel_speed_m_per_min",
+      "value": 45.0,
+      "units": "m/min",
+      "rationale": "45 m/min published gantry speed scale; heavy 30 m/min assumed degraded condition.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "Liebherr STS technical specification and Konecranes STS technical data; see SCIENTIFIC_PROPOSAL.md links.",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.effective_moves_per_hour",
+      "value": 30.0,
+      "units": "moves/hour",
+      "rationale": "Standalone productive-stage synthetic rate; travel and setup are separate. Heavy is a 20% assumed degradation.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "Konecranes quayside concept example (~30 net moves/h), context only; not a calibrated productive-stage decomposition.",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.setup_min",
+      "value": 1.0,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.horizon_min",
+      "value": 17280.0,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.time_tolerance_min",
+      "value": 1e-08,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.position_tolerance_m",
+      "value": 1e-06,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.available_at_min",
+      "value": 0.0,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.planning_start_min",
+      "value": 0.0,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.bay_jitter_m",
+      "value": 0.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.orientations[0]",
+      "value": -1,
+      "units": "orientation sign",
+      "rationale": "Explicit +1/-1 ship-local to global transform convention; not an empirical dimension.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "physical.orientations[1]",
+      "value": 1,
+      "units": "orientation sign",
+      "rationale": "Explicit +1/-1 ship-local to global transform convention; not an empirical dimension.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.tiny.task_count",
+      "value": 4,
+      "units": "task groups",
+      "rationale": "4/8/20/32 workload-size strata; capacity 32 avoids truncation; tiny remains within finite CP support.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.tiny.bay_locations_local_m[0]",
+      "value": 36.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.tiny.bay_locations_local_m[1]",
+      "value": 108.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.tiny.bay_locations_local_m[2]",
+      "value": 180.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.tiny.bay_locations_local_m[3]",
+      "value": 252.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.tiny.min_moves",
+      "value": 6,
+      "units": "integer moves/job",
+      "rationale": "Predeclared inclusive discrete uniform workload range; no rejection based on scheduling quality.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.tiny.max_moves",
+      "value": 18,
+      "units": "integer moves/job",
+      "rationale": "Predeclared inclusive discrete uniform workload range; no rejection based on scheduling quality.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.tiny.weight",
+      "value": 0.25,
+      "units": "fraction",
+      "rationale": "Fixed equal-family weighting; never weight by the number of successful cases.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.task_count",
+      "value": 8,
+      "units": "task groups",
+      "rationale": "4/8/20/32 workload-size strata; capacity 32 avoids truncation; tiny remains within finite CP support.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[0]",
+      "value": 12.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[1]",
+      "value": 36.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[2]",
+      "value": 60.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[3]",
+      "value": 84.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[4]",
+      "value": 108.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[5]",
+      "value": 132.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[6]",
+      "value": 156.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[7]",
+      "value": 180.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[8]",
+      "value": 204.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[9]",
+      "value": 228.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[10]",
+      "value": 252.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.bay_locations_local_m[11]",
+      "value": 276.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.min_moves",
+      "value": 20,
+      "units": "integer moves/job",
+      "rationale": "Predeclared inclusive discrete uniform workload range; no rejection based on scheduling quality.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.max_moves",
+      "value": 60,
+      "units": "integer moves/job",
+      "rationale": "Predeclared inclusive discrete uniform workload range; no rejection based on scheduling quality.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.small.weight",
+      "value": 0.25,
+      "units": "fraction",
+      "rationale": "Fixed equal-family weighting; never weight by the number of successful cases.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.task_count",
+      "value": 20,
+      "units": "task groups",
+      "rationale": "4/8/20/32 workload-size strata; capacity 32 avoids truncation; tiny remains within finite CP support.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[0]",
+      "value": 12.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[1]",
+      "value": 36.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[2]",
+      "value": 60.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[3]",
+      "value": 84.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[4]",
+      "value": 108.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[5]",
+      "value": 132.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[6]",
+      "value": 156.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[7]",
+      "value": 180.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[8]",
+      "value": 204.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[9]",
+      "value": 228.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[10]",
+      "value": 252.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.bay_locations_local_m[11]",
+      "value": 276.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.min_moves",
+      "value": 30,
+      "units": "integer moves/job",
+      "rationale": "Predeclared inclusive discrete uniform workload range; no rejection based on scheduling quality.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.max_moves",
+      "value": 90,
+      "units": "integer moves/job",
+      "rationale": "Predeclared inclusive discrete uniform workload range; no rejection based on scheduling quality.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.medium.weight",
+      "value": 0.25,
+      "units": "fraction",
+      "rationale": "Fixed equal-family weighting; never weight by the number of successful cases.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.task_count",
+      "value": 32,
+      "units": "task groups",
+      "rationale": "4/8/20/32 workload-size strata; capacity 32 avoids truncation; tiny remains within finite CP support.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[0]",
+      "value": 12.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[1]",
+      "value": 36.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[2]",
+      "value": 60.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[3]",
+      "value": 84.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[4]",
+      "value": 108.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[5]",
+      "value": 132.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[6]",
+      "value": 156.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[7]",
+      "value": 180.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[8]",
+      "value": 204.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[9]",
+      "value": 228.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[10]",
+      "value": 252.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.bay_locations_local_m[11]",
+      "value": 276.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.min_moves",
+      "value": 60,
+      "units": "integer moves/job",
+      "rationale": "Predeclared inclusive discrete uniform workload range; no rejection based on scheduling quality.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.max_moves",
+      "value": 180,
+      "units": "integer moves/job",
+      "rationale": "Predeclared inclusive discrete uniform workload range; no rejection based on scheduling quality.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.weight",
+      "value": 0.25,
+      "units": "fraction",
+      "rationale": "Fixed equal-family weighting; never weight by the number of successful cases.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.clearance_m",
+      "value": 36.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.travel_speed_m_per_min",
+      "value": 30.0,
+      "units": "m/min",
+      "rationale": "45 m/min published gantry speed scale; heavy 30 m/min assumed degraded condition.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "Liebherr STS technical specification and Konecranes STS technical data; see SCIENTIFIC_PROPOSAL.md links.",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "families.heavy.effective_moves_per_hour",
+      "value": 24.0,
+      "units": "moves/hour",
+      "rationale": "Standalone productive-stage synthetic rate; travel and setup are separate. Heavy is a 20% assumed degradation.",
+      "origin": "ASSUMED_SYNTHETIC_PHYSICS",
+      "source": "Konecranes quayside concept example (~30 net moves/h), context only; not a calibrated productive-stage decomposition.",
+      "sensitivity": "high for clearance/rate/workload/layout; no causal attribution in bundled heavy family",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cohorts.train.count_per_family",
+      "value": 128,
+      "units": "scenarios/family",
+      "rationale": "128 train, 32 validation, 64 test per family; bounded initial study budget, not a demonstrated power calculation.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cohorts.train.seed_start",
+      "value": 100000,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cohorts.validation.count_per_family",
+      "value": 32,
+      "units": "scenarios/family",
+      "rationale": "128 train, 32 validation, 64 test per family; bounded initial study budget, not a demonstrated power calculation.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cohorts.validation.seed_start",
+      "value": 200000,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cohorts.test.count_per_family",
+      "value": 64,
+      "units": "scenarios/family",
+      "rationale": "128 train, 32 validation, 64 test per family; bounded initial study budget, not a demonstrated power calculation.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cohorts.test.seed_start",
+      "value": 300000,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "randomness.family_seed_stride",
+      "value": 10000,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "randomness.geometry_nonce",
+      "value": 0,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "randomness.workload_nonce",
+      "value": 0,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "randomness.positions_nonce",
+      "value": 0,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cp_reference.tick_min",
+      "value": 0.03333333333333333,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cp_reference.wall_limit_s",
+      "value": 10.0,
+      "units": "wall seconds",
+      "rationale": "Bound total small CP computation, including enumeration/build/import; never infer optimality from timeout.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cp_reference.max_nodes",
+      "value": 100000,
+      "units": "enumeration nodes / integer ticks / jobs as named",
+      "rationale": "Existing exact finite subclass safety/tractability limits; no expansion of continuous scheduling support.",
+      "origin": "DOCUMENTED_IMPLEMENTATION_LIMIT",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cp_eligibility.max_jobs",
+      "value": 5,
+      "units": "enumeration nodes / integer ticks / jobs as named",
+      "rationale": "Existing exact finite subclass safety/tractability limits; no expansion of continuous scheduling support.",
+      "origin": "DOCUMENTED_IMPLEMENTATION_LIMIT",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cp_eligibility.integer_limit",
+      "value": 1125899906842624,
+      "units": "enumeration nodes / integer ticks / jobs as named",
+      "rationale": "Existing exact finite subclass safety/tractability limits; no expansion of continuous scheduling support.",
+      "origin": "DOCUMENTED_IMPLEMENTATION_LIMIT",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cp_eligibility.threads",
+      "value": 1,
+      "units": "workers/threads",
+      "rationale": "Bound host load, prevent silent CPU/GPU/concurrency change, and stabilize timing protocol.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "cp_eligibility.solver_seed",
+      "value": 0,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.seeds[0]",
+      "value": 1103,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.seeds[1]",
+      "value": 2207,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.seeds[2]",
+      "value": 3301,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.seeds[3]",
+      "value": 4409,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.seeds[4]",
+      "value": 5501,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.task_capacity",
+      "value": 32,
+      "units": "task groups",
+      "rationale": "4/8/20/32 workload-size strata; capacity 32 avoids truncation; tiny remains within finite CP support.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.max_episode_steps",
+      "value": 256,
+      "units": "decisions/episode",
+      "rationale": "Conservative finite bound above 4*n+3=131 for n<=32; failure retained at bound.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.reward_scale_min",
+      "value": 60.0,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.failure_margin_min",
+      "value": 1.0,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.total_steps",
+      "value": 1048576,
+      "units": "environment timesteps",
+      "rationale": "Whole rollout and minibatch-compatible budgets, fixed validation opportunities and optimizer-boundary checkpointing.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.rollout_steps",
+      "value": 2048,
+      "units": "environment timesteps",
+      "rationale": "Whole rollout and minibatch-compatible budgets, fixed validation opportunities and optimizer-boundary checkpointing.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.batch_size",
+      "value": 128,
+      "units": "transition samples/minibatch",
+      "rationale": "128 samples partitions each 2048-step rollout into 16 whole minibatches; assumed optimization design.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.epochs",
+      "value": 10,
+      "units": "optimization epochs/rollout",
+      "rationale": "Ten PPO epochs per rollout is the explicitly proposed SB3-scale design; no test tuning.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.learning_rate",
+      "value": 0.0003,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.gamma",
+      "value": 1.0,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.gae_lambda",
+      "value": 0.95,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.clip_range",
+      "value": 0.2,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.entropy_coef",
+      "value": 0.01,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.value_coef",
+      "value": 0.5,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.max_grad_norm",
+      "value": 0.5,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.net_sizes[0]",
+      "value": 128,
+      "units": "neurons/layer",
+      "rationale": "Two 128-unit Tanh hidden layers in each actor/critic branch; bounded CPU model capacity.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.net_sizes[1]",
+      "value": 128,
+      "units": "neurons/layer",
+      "rationale": "Two 128-unit Tanh hidden layers in each actor/critic branch; bounded CPU model capacity.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "training_config.validation_interval_steps",
+      "value": 65536,
+      "units": "environment timesteps",
+      "rationale": "Whole rollout and minibatch-compatible budgets, fixed validation opportunities and optimizer-boundary checkpointing.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "rl_contract.action_count",
+      "value": 65,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "rl_contract.decision_limit",
+      "value": 256,
+      "units": "decisions/episode",
+      "rationale": "Conservative finite bound above 4*n+3=131 for n<=32; failure retained at bound.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "rl_contract.checkpoint_interval_steps",
+      "value": 65536,
+      "units": "environment timesteps",
+      "rationale": "Whole rollout and minibatch-compatible budgets, fixed validation opportunities and optimizer-boundary checkpointing.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "rl_contract.clock_scale_min",
+      "value": 17280.0,
+      "units": "min",
+      "rationale": "Explicit timing, numerical comparison, normalization, or administrative horizon bound; see parameter-specific proposal table.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "rl_contract.position_scale_m",
+      "value": 360.0,
+      "units": "m",
+      "rationale": "Synthetic reference-point layout/clearance; no crane-body dimensions or real bay plan inferred.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "rl_contract.adam_epsilon",
+      "value": 1e-05,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Installed SB3 MaskableActorCriticPolicy Adam epsilon default, verified with real untrained policy.",
+      "origin": "DOCUMENTED_LIBRARY_DEFAULT_PROPOSED_FOR_STUDY",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "rl_contract.gamma",
+      "value": 1.0,
+      "units": "dimensionless protocol parameter",
+      "rationale": "Explicit a priori engineering/research design choice, not fitted to held-out outcomes.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "analysis.bootstrap_seed",
+      "value": 7042026,
+      "units": "RNG index (no physical units)",
+      "rationale": "Predeclared disjoint namespaces/bands or independent PPO/randomization stream; no favorable-seed selection.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium Monte Carlo variability; no scientific meaning to individual numeric seed",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "analysis.draws",
+      "value": 20000,
+      "units": "bootstrap resamples",
+      "rationale": "20,000 scenario-level stratified draws; seeds averaged within scenario.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "analysis.confidence",
+      "value": 0.95,
+      "units": "probability",
+      "rationale": "Prespecified nominal confidence; Bonferroni eight intervals, approximate percentile bootstrap coverage.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "analysis.minimum_pairs_per_family",
+      "value": 60,
+      "units": "independent physical scenarios/family",
+      "rationale": "At least 60 of 64 scenarios must have common complete support from all five seeds and four comparators; failure counts still use all 64.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "compute.torch_threads",
+      "value": 2,
+      "units": "workers/threads",
+      "rationale": "Bound host load, prevent silent CPU/GPU/concurrency change, and stabilize timing protocol.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "compute.vector_envs",
+      "value": 1,
+      "units": "workers/threads",
+      "rationale": "Bound host load, prevent silent CPU/GPU/concurrency change, and stabilize timing protocol.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "compute.minimum_available_ram_bytes",
+      "value": 2147483648,
+      "units": "bytes",
+      "rationale": "Conservative local resource preflight; no measured optimizer-memory or runtime claim.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    },
+    {
+      "parameter_path": "compute.minimum_free_disk_bytes",
+      "value": 10737418240,
+      "units": "bytes",
+      "rationale": "Conservative local resource preflight; no measured optimizer-memory or runtime claim.",
+      "origin": "ASSUMED_SYNTHETIC_PROTOCOL",
+      "source": "SCIENTIFIC_PROPOSAL.md; exact candidate profile",
+      "sensitivity": "medium; study uncertainty is not empirically estimated",
+      "major_uncertainty": "Uncalibrated assumption; no measured terminal data or power/convergence guarantee."
+    }
+  ]
+}

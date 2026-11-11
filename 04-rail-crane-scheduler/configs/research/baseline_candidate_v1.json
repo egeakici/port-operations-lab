@@ -1,0 +1,50 @@
+{
+  "status": "PROPOSED",
+  "primary_execution": "OWNER_APPROVAL_PENDING",
+  "profile_sha256": "d06b10d8e04fd0d3655c22267a4ed6cb48b9caa745fec12ac71a8a7bb19dddbc",
+  "profile_path": "configs/research/primary_candidate_v1.json",
+  "source_sha256": {
+    "src/rail_crane_scheduler/__init__.py": "9e51f99d82c6f86d1b34bf43fdca3bd96b6fe6cf2adaffc0b8a90c3900d66838",
+    "src/rail_crane_scheduler/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/rail_crane_scheduler/baselines.py": "e6e4787d63c9d90177d58ed9f7d18f0bbbcc14eb2e8405d6fa3e97e2c73873fe",
+    "src/rail_crane_scheduler/campaign.py": "08d3dacb1553261a7adff91ec17d99fc149db8931888024c08e8638dd0e27297",
+    "src/rail_crane_scheduler/campaign_cli.py": "37dee4112726fb69c10bf2947616de9f6d41434d1a907f5110aa3d5840f6b6ee",
+    "src/rail_crane_scheduler/cli.py": "1a7db1625a126d4055f26e97943339ec8ed2fd3f0b4308ac2f2404d72aea608d",
+    "src/rail_crane_scheduler/contracts.py": "66941c3b13a9a54fce67c76aa63d8cfdf4c73b92de8659eef74469a26f169550",
+    "src/rail_crane_scheduler/cpsat.py": "07a2fdc927ccbf2943ff0bc25cdbfdcd6f4d9f587b31b58bf4b32930c80dd9f3",
+    "src/rail_crane_scheduler/encoding.py": "208ed791d605192545668442654e62d969af75475997ffdbba4139163b3a21fb",
+    "src/rail_crane_scheduler/environment.py": "77bff9a9d0cb620a634d8f6e2aec78d7665f52fe3e64b9274dd61077051907e4",
+    "src/rail_crane_scheduler/evaluation.py": "14f25301dc59df58e405508e3d65b10510172eeb138096a95faf3491f7840285",
+    "src/rail_crane_scheduler/integration.py": "bf9e61ddd300cc8255feaa8b54587f1785b296ba55550bc79ebbde4bb669f6f9",
+    "src/rail_crane_scheduler/kernel.py": "740b351f81e792515dc775baa40d69dffc78317c9880d5738c24a1e600664b70",
+    "src/rail_crane_scheduler/progress.py": "11a6eceb2a548ebf785181aedefd386d4b4397c4b8b2d75dbdad0c4392cfe2b2",
+    "src/rail_crane_scheduler/readiness.py": "9b25768582c6ad5956f9342957ec620a39c5093641a2b9aa7242e696d1e2ca7b",
+    "src/rail_crane_scheduler/replay.py": "2088f8e4dc72d19d32d87eed3651b40a6161dc4c50b0ffa2af1f3cc42de88d8e",
+    "src/rail_crane_scheduler/research.py": "f1a2c15f8bde1078bb0590c6789c3c106e1f4186db8a5502ec6eef38f030b28a",
+    "src/rail_crane_scheduler/scenarios.py": "a68178602ce167db7ece692986e70698eb791f83ac2a165b3c7b88f4993e980d",
+    "src/rail_crane_scheduler/statistics_report.py": "05334e97735b7b03aa06f4442d2300246552d4da24c5705d902f80915a33a4bd",
+    "src/rail_crane_scheduler/training.py": "e325a74faacae313598776fec3c9541514424d5cd6031f3fb455b8265e8fecb3",
+    "src/rail_crane_scheduler/validator.py": "7fa54bc5ca3c62e3cac91237ea3d0312b19490ffcf440d55cb6389102aec0cc4"
+  },
+  "environment_lock_sha256": "b4a7f61644329686706130151cd61dd3c9878ba649b17691991c22dbff46ac55",
+  "derivation_rule": "p04_exact_campaign_derivation_v1",
+  "role": "validation",
+  "scenario_count": 128,
+  "method_count": 5,
+  "planned_cells": 640,
+  "cp_reference": {
+    "tick_min": 0.03333333333333333,
+    "wall_limit_s": 10.0,
+    "max_nodes": 100000
+  },
+  "cp_eligibility": {
+    "max_jobs": 5,
+    "integer_limit": 1125899906842624,
+    "threads": 1,
+    "solver_seed": 0,
+    "no_rounding": true,
+    "complete_enumeration_required": true,
+    "primary_family": "tiny",
+    "status_policy": "OPTIMAL only finite model; FEASIBLE incumbent only; UNKNOWN and TIMEOUT distinct; skipped eligibility retained"
+  }
+}
